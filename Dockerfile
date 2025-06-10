@@ -1,6 +1,11 @@
 # Multi-stage build for efficient container size
 FROM node:18-alpine AS builder
 
+# Build arguments
+ARG VERSION="unknown"
+ARG COMMIT_SHA="unknown"
+ARG BUILD_DATE="unknown"
+
 # Set working directory
 WORKDIR /app
 
@@ -13,8 +18,8 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-    # Build the application
-    RUN npm run build
+# Build the application
+RUN npm run build
 
 # Production stage
 FROM node:18-alpine AS production
@@ -59,9 +64,22 @@ VOLUME ["/app/logs"]
 # Start the application with stdout wrapper
 CMD ["node", "dist/wrapper.js"]
 
+# Build arguments for runtime
+ARG VERSION="unknown"
+ARG COMMIT_SHA="unknown" 
+ARG BUILD_DATE="unknown"
+
 # Labels for metadata
 LABEL maintainer="autotask-mcp@example.com"
-LABEL version="1.0.0"
+LABEL version="${VERSION}"
 LABEL description="Autotask MCP Server - Model Context Protocol server for Kaseya Autotask PSA"
-LABEL org.opencontainers.image.source="https://github.com/your-org/autotask-mcp"
-LABEL org.opencontainers.image.documentation="https://github.com/your-org/autotask-mcp/blob/main/README.md" 
+LABEL org.opencontainers.image.title="autotask-mcp"
+LABEL org.opencontainers.image.description="Model Context Protocol server for Kaseya Autotask PSA integration"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+LABEL org.opencontainers.image.revision="${COMMIT_SHA}"
+LABEL org.opencontainers.image.source="https://github.com/asachs01/autotask-mcp"
+LABEL org.opencontainers.image.documentation="https://github.com/asachs01/autotask-mcp/blob/main/README.md"
+LABEL org.opencontainers.image.url="https://hub.docker.com/r/asachs01/autotask-mcp"
+LABEL org.opencontainers.image.vendor="Autotask MCP"
+LABEL org.opencontainers.image.licenses="MIT" 
