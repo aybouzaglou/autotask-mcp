@@ -647,7 +647,7 @@ export class AutotaskService {
         'projectNumber',
         'description', 
         'status',
-        'type',
+        'projectType',
         'department',
         'companyID',
         'projectManagerResourceID',

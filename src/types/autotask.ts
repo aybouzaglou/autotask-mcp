@@ -75,13 +75,23 @@ export interface AutotaskProject {
   id?: number;
   companyID?: number;
   projectName?: string;
+  projectNumber?: string;
   description?: string;
   status?: number;
+  projectType?: number;
+  department?: number;
   startDate?: string;
   endDate?: string;
+  startDateTime?: string;
+  endDateTime?: string;
   projectManagerResourceID?: number;
   estimatedHours?: number;
   actualHours?: number;
+  laborEstimatedRevenue?: number;
+  createDate?: string;
+  completedDate?: string;
+  contractID?: number;
+  originalEstimatedRevenue?: number;
   [key: string]: any;
 }
 
