@@ -28,3 +28,6 @@ coverage/
 # Summary documents for internal reference
 DATA_OPTIMIZATION_SUMMARY.md
 NEW_ENTITIES_SUMMARY.md
+
+# Local-only assistant guide
+WARP.md
