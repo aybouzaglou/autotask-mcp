@@ -2,8 +2,7 @@
 // Handles the Model Context Protocol server setup and integration with Autotask
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { 
+import {
   CallToolRequestSchema,
   ErrorCode,
   ListResourcesRequestSchema,
@@ -17,6 +16,7 @@ import { Logger } from '../utils/logger.js';
 import { McpServerConfig } from '../types/mcp.js';
 import { AutotaskResourceHandler } from '../handlers/resource.handler.js';
 import { EnhancedAutotaskToolHandler } from '../handlers/enhanced.tool.handler.js';
+import { McpTransport, TransportFactory, TransportConfig } from '../transport/index';
 
 export class AutotaskMcpServer {
   private server: Server;
@@ -24,10 +24,16 @@ export class AutotaskMcpServer {
   private resourceHandler: AutotaskResourceHandler;
   private toolHandler: EnhancedAutotaskToolHandler;
   private logger: Logger;
+  private transports: McpTransport[];
+  private transportFactory: TransportFactory;
 
-  constructor(config: McpServerConfig, logger: Logger) {
+  constructor(config: McpServerConfig, transportConfig: TransportConfig, logger: Logger) {
     this.logger = logger;
-    
+
+    // Initialize transport factory and create transports
+    this.transportFactory = new TransportFactory(logger);
+    this.transports = this.transportFactory.createTransports(transportConfig);
+
     // Initialize the MCP server
     this.server = new Server(
       {
@@ -134,13 +140,11 @@ export class AutotaskMcpServer {
   }
 
   /**
-   * Start the MCP server with stdio transport
+   * Start the MCP server with configured transports
    */
   async start(): Promise<void> {
     this.logger.info('Starting Autotask MCP Server...');
-    
-    const transport = new StdioServerTransport();
-    
+
     // Set up error handling
     this.server.onerror = (error) => {
       this.logger.error('MCP Server error:', error);
@@ -151,9 +155,14 @@ export class AutotaskMcpServer {
       this.logger.info('MCP Server initialized and ready to serve requests');
     };
 
-    // Connect to transport
-    await this.server.connect(transport);
-    this.logger.info('Autotask MCP Server started and connected to stdio transport');
+    // Connect to all configured transports
+    for (const transport of this.transports) {
+      this.logger.info(`Connecting to ${transport.getType()} transport...`);
+      await transport.connect(this.server);
+      this.logger.info(`Successfully connected to ${transport.getType()} transport`);
+    }
+
+    this.logger.info(`Autotask MCP Server started with ${this.transports.length} transport(s)`);
   }
 
   /**
@@ -161,6 +170,13 @@ export class AutotaskMcpServer {
    */
   async stop(): Promise<void> {
     this.logger.info('Stopping Autotask MCP Server...');
+
+    // Disconnect from all transports
+    for (const transport of this.transports) {
+      this.logger.info(`Disconnecting from ${transport.getType()} transport...`);
+      await transport.disconnect();
+    }
+
     await this.server.close();
     this.logger.info('Autotask MCP Server stopped');
   }

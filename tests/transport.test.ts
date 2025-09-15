@@ -1,0 +1,83 @@
+// Transport Abstraction Tests
+// Tests the transport factory and stdio transport implementation
+
+import { TransportFactory, StdioTransport } from '../src/transport';
+import { Logger } from '../src/utils/logger';
+
+describe('Transport Abstraction', () => {
+  let logger: Logger;
+  let factory: TransportFactory;
+
+  beforeEach(() => {
+    logger = new Logger('error', 'json'); // Minimal logging for tests
+    factory = new TransportFactory(logger);
+  });
+
+  describe('TransportFactory', () => {
+    test('should create stdio transport for stdio config', () => {
+      const transports = factory.createTransports({ type: 'stdio' });
+
+      expect(transports).toHaveLength(1);
+      expect(transports[0]).toBeInstanceOf(StdioTransport);
+      expect(transports[0].getType()).toBe('stdio');
+    });
+
+    test('should throw error for http transport (not yet implemented)', () => {
+      expect(() => {
+        factory.createTransports({ type: 'http' });
+      }).toThrow('HTTP transport not yet implemented');
+    });
+
+    test('should throw error for both transport (not yet implemented)', () => {
+      expect(() => {
+        factory.createTransports({ type: 'both' });
+      }).toThrow('HTTP transport not yet implemented');
+    });
+
+    test('should throw error for unknown transport type', () => {
+      expect(() => {
+        factory.createTransports({ type: 'unknown' as any });
+      }).toThrow('Unknown transport type: unknown');
+    });
+  });
+
+  describe('StdioTransport', () => {
+    test('should have correct type', () => {
+      const transport = new StdioTransport();
+      expect(transport.getType()).toBe('stdio');
+    });
+
+    test('should start as not connected', () => {
+      const transport = new StdioTransport();
+      expect(transport.isConnected()).toBe(false);
+    });
+
+    test('should mark as connected after connecting', async () => {
+      const transport = new StdioTransport();
+
+      // Mock server with minimal interface
+      const mockServer = {
+        connect: jest.fn().mockResolvedValue(undefined)
+      };
+
+      await transport.connect(mockServer as any);
+      expect(transport.isConnected()).toBe(true);
+      expect(mockServer.connect).toHaveBeenCalled();
+    });
+
+    test('should mark as disconnected after disconnecting', async () => {
+      const transport = new StdioTransport();
+
+      // Mock server
+      const mockServer = {
+        connect: jest.fn().mockResolvedValue(undefined)
+      };
+
+      await transport.connect(mockServer as any);
+      expect(transport.isConnected()).toBe(true);
+
+      await transport.disconnect();
+      expect(transport.isConnected()).toBe(false);
+    });
+  });
+});

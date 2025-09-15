@@ -3,11 +3,11 @@
  * Demonstrates how to use the mapping service and enhanced tool handler
  */
 
-import { AutotaskService } from '../src/services/autotask.service.js';
-import { MappingService } from '../src/utils/mapping.service.js';
-import { EnhancedAutotaskToolHandler } from '../src/handlers/enhanced.tool.handler.js';
-import { Logger } from '../src/utils/logger.js';
-import { loadEnvironmentConfig, mergeWithMcpConfig } from '../src/utils/config.js';
+import { AutotaskService } from '../src/services/autotask.service';
+import { MappingService } from '../src/utils/mapping.service';
+import { EnhancedAutotaskToolHandler } from '../src/handlers/enhanced.tool.handler';
+import { Logger } from '../src/utils/logger';
+import { loadEnvironmentConfig, mergeWithMcpConfig } from '../src/utils/config';
 
 async function testMapping() {
   console.log('=== Testing Autotask ID-to-Name Mapping ===\n');
@@ -22,7 +22,7 @@ async function testMapping() {
     
     // Initialize services
     const autotaskService = new AutotaskService(mcpConfig, logger);
-    const mappingService = new MappingService(autotaskService, logger);
+    const mappingService = await MappingService.getInstance(autotaskService, logger);
     const enhancedHandler = new EnhancedAutotaskToolHandler(autotaskService, logger);
     
     // Test connection first
@@ -128,9 +128,7 @@ async function testMapping() {
   }
 }
 
-// Run the tests if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  testMapping().catch(console.error);
-}
+// Note: This test file is designed to run via Jest
+// For standalone execution, use: npm run test:mapping
 
 export { testMapping }; 

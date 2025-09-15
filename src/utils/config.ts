@@ -3,6 +3,7 @@
 
 import { McpServerConfig } from '../types/mcp.js';
 import { LogLevel } from './logger.js';
+import { TransportConfig } from '../transport/index';
 
 export interface EnvironmentConfig {
   autotask: {
@@ -19,6 +20,7 @@ export interface EnvironmentConfig {
     level: LogLevel;
     format: 'json' | 'simple';
   };
+  transport: TransportConfig;
 }
 
 /**
@@ -40,6 +42,9 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
     autotaskConfig.apiUrl = process.env.AUTOTASK_API_URL;
   }
 
+  // Default to stdio for backward compatibility
+  const transportType = (process.env.AUTOTASK_TRANSPORT as any) || 'stdio';
+
   return {
     autotask: autotaskConfig,
     server: {
@@ -49,6 +54,18 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
     logging: {
       level: (process.env.LOG_LEVEL as LogLevel) || 'info',
       format: (process.env.LOG_FORMAT as 'json' | 'simple') || 'simple'
+    },
+    transport: {
+      type: transportType,
+      http: {
+        port: parseInt(process.env.AUTOTASK_HTTP_PORT || '3000'),
+        host: process.env.AUTOTASK_HTTP_HOST || 'localhost',
+        auth: {
+          enabled: process.env.AUTOTASK_HTTP_AUTH === 'true',
+          ...(process.env.AUTOTASK_HTTP_USERNAME && { username: process.env.AUTOTASK_HTTP_USERNAME }),
+          ...(process.env.AUTOTASK_HTTP_PASSWORD && { password: process.env.AUTOTASK_HTTP_PASSWORD })
+        }
+      }
     }
   };
 }
@@ -119,6 +136,14 @@ Optional Environment Variables:
   MCP_SERVER_VERSION       - Server version (default: 1.0.0)
   LOG_LEVEL                - Logging level: error, warn, info, debug (default: info)
   LOG_FORMAT               - Log format: simple, json (default: simple)
+
+Transport Configuration:
+  AUTOTASK_TRANSPORT       - Transport type: stdio, http, both (default: stdio)
+  AUTOTASK_HTTP_PORT       - HTTP port (default: 3000)
+  AUTOTASK_HTTP_HOST       - HTTP host (default: localhost)
+  AUTOTASK_HTTP_AUTH       - Enable HTTP auth: true, false (default: false)
+  AUTOTASK_HTTP_USERNAME   - HTTP auth username
+  AUTOTASK_HTTP_PASSWORD   - HTTP auth password
 
 Example:
   AUTOTASK_USERNAME=api-user@example.com
