@@ -31,3 +31,5 @@ NEW_ENTITIES_SUMMARY.md
 
 # Local-only assistant guide
 WARP.md
+.claude/settings.local.json
+# BMAD (local only)

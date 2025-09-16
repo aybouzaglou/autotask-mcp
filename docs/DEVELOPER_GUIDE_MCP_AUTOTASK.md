@@ -597,6 +597,20 @@ async function debugEntityFields(entityName: string): Promise<void> {
 
 ## Deployment Considerations
 
+### Preferred: Smithery Hosting
+
+- Keep `smithery.yaml` minimal (`runtime: "typescript"`) so Smithery auto-detects the build.
+- Ensure `package.json#module` points at `src/index.ts` with a default `createServer` export and optional `configSchema`.
+- Before clicking **Deploy** in Smithery, run `npm run build` locally to surface TypeScript issues.
+- Smithery exposes deployments over HTTPS (`https://server.smithery.ai/<slug>/mcp`) and will call `initialize`/`list_tools` automatically after each build.
+- Use Smithery’s session configuration UI to capture `AUTOTASK_*` credentials instead of baking them into the image.
+
+### Legacy Containers (Use with Caution)
+
+- The published Dockerfile currently launches `dist/index.js`, which only exports the Smithery factory. Swap to `node dist/cli.js` if you need containers.
+- Implement a real MCP HTTP transport before exposing `AUTOTASK_TRANSPORT=http`; the included stub only returns a placeholder response.
+- Update Docker health checks to issue MCP-compliant POST requests; GET health checks fail with 405.
+
 ### Environment Setup
 
 ```bash

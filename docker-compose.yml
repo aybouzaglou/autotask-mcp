@@ -21,6 +21,11 @@ services:
       - AUTOTASK_API_URL=${AUTOTASK_API_URL:-}
       - MCP_SERVER_NAME=${MCP_SERVER_NAME:-autotask-mcp}
       - MCP_SERVER_VERSION=${MCP_SERVER_VERSION:-1.0.0}
+
+      # Transport configuration - use HTTP for containerized deployment
+      - AUTOTASK_TRANSPORT=http
+      - AUTOTASK_HTTP_PORT=8080
+      - AUTOTASK_HTTP_HOST=0.0.0.0
       
       # Logging configuration
       - LOG_LEVEL=${LOG_LEVEL:-info}
@@ -29,14 +34,13 @@ services:
     volumes:
       # Mount logs directory for persistence
       - autotask-mcp-logs:/app/logs
-    # Note: MCP servers typically use stdio transport, not HTTP
-    # If you need HTTP interface in the future, uncomment the ports section
-    # ports:
-    #   - "8080:8080"
+    # Expose HTTP port for MCP over HTTP
+    ports:
+      - "8080:8080"
     
     # Health check
     healthcheck:
-      test: ["CMD", "node", "-e", "console.log('Health check passed')"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -69,7 +73,12 @@ services:
       - NODE_ENV=development
       - LOG_LEVEL=${LOG_LEVEL:-debug}
       - LOG_FORMAT=${LOG_FORMAT:-simple}
-      
+
+      # Transport configuration - use HTTP for containerized deployment
+      - AUTOTASK_TRANSPORT=http
+      - AUTOTASK_HTTP_PORT=8080
+      - AUTOTASK_HTTP_HOST=0.0.0.0
+
       # Autotask credentials
       - AUTOTASK_USERNAME=${AUTOTASK_USERNAME}
       - AUTOTASK_SECRET=${AUTOTASK_SECRET}
@@ -82,6 +91,8 @@ services:
       - .:/app
       - /app/node_modules
       - autotask-mcp-dev-logs:/app/logs
+    ports:
+      - "8080:8080"
     stdin_open: true
     tty: true
 

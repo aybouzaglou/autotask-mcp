@@ -61,8 +61,8 @@ ENV LOG_FORMAT=json
 # Define volume for logs
 VOLUME ["/app/logs"]
 
-# Start the application with stdout wrapper
-CMD ["node", "dist/wrapper.js"]
+# Start the application
+CMD ["node", "dist/index.js"]
 
 # Build arguments for runtime
 ARG VERSION="unknown"

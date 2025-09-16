@@ -27,7 +27,10 @@
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "pretest": "npm run build:ts",
-    "mcp": "node dist/cli.js"
+    "mcp": "node dist/cli.js",
+    "bmad:refresh": "bmad-method install -f -i codex",
+    "bmad:list": "bmad-method list:agents",
+    "bmad:validate": "bmad-method validate"
   },
   "keywords": [
     "mcp",

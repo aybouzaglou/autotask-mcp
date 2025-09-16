@@ -15,9 +15,10 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that p
 - **🔍 Advanced Search**: Powerful search capabilities with filters across all entities
 - **📝 CRUD Operations**: Create, read, update operations for core Autotask entities
 - **🔄 ID-to-Name Mapping**: Automatic resolution of company and resource IDs to human-readable names
+- **🌐 Flexible Transports**: Run over stdio, HTTP, or both simultaneously with optional HTTP auth
 - **⚡ Intelligent Caching**: Smart caching system for improved performance and reduced API calls
 - **🔒 Secure Authentication**: Enterprise-grade API security with Autotask credentials
-- **🐳 Docker Ready**: Containerized deployment with Docker and docker-compose
+- **☁️ Smithery Hosted**: One-click TypeScript deployments managed by Smithery
 - **📊 Structured Logging**: Comprehensive logging with configurable levels and formats
 - **🧪 Test Coverage**: Comprehensive test suite with 80%+ coverage
 
@@ -28,7 +29,8 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that p
 - [Usage](#usage)
 - [API Reference](#api-reference)
 - [ID-to-Name Mapping](#id-to-name-mapping)
-- [Docker Deployment](#docker-deployment)
+- [Smithery Deployment](#smithery-deployment)
+- [Legacy Docker Notes](#legacy-docker-notes)
 - [Claude Desktop Integration](#claude-desktop-integration)
 - [Development](#development)
 - [Testing](#testing)
@@ -43,10 +45,11 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that p
 - Valid Autotask API credentials
 - MCP-compatible client (Claude Desktop, Continue, etc.)
 
-### NPM Installation
+### Local Tarball Installation
 
 ```bash
-npm install -g autotask-mcp
+# From the project root where autotask-mcp-1.0.1.tgz lives
+npm install -g ./autotask-mcp-1.0.1.tgz
 ```
 
 ### From Source
@@ -79,6 +82,14 @@ MCP_SERVER_VERSION=1.0.0
 LOG_LEVEL=info          # error, warn, info, debug
 LOG_FORMAT=simple       # simple, json
 
+# Transport (optional)
+AUTOTASK_TRANSPORT=stdio        # stdio, http, both
+AUTOTASK_HTTP_HOST=localhost    # HTTP bind host when enabled
+AUTOTASK_HTTP_PORT=3000         # HTTP port when enabled
+AUTOTASK_HTTP_AUTH=false        # set true to require HTTP basic auth
+# AUTOTASK_HTTP_USERNAME=assistant
+# AUTOTASK_HTTP_PASSWORD=secret
+
 # Environment
 NODE_ENV=production
 ```
@@ -104,7 +115,24 @@ autotask-mcp
 
 # Start with custom configuration
 AUTOTASK_USERNAME=user@example.com autotask-mcp
+
+# Run with HTTP transport (listens on http://localhost:3000 by default)
+AUTOTASK_TRANSPORT=http autotask-mcp
+
+# Enable both stdio and HTTP transports with basic auth on HTTP
+AUTOTASK_TRANSPORT=both AUTOTASK_HTTP_AUTH=true \
+AUTOTASK_HTTP_USERNAME=assistant AUTOTASK_HTTP_PASSWORD=secret autotask-mcp
 ```
+
+### Transport Modes
+
+| Mode | Description | Best For |
+|------|-------------|----------|
+| `stdio` (default) | Traditional MCP stdio transport | Local tools launched by Claude Desktop or other MCP clients |
+| `http` | Exposes an HTTP server on `AUTOTASK_HTTP_HOST:AUTOTASK_HTTP_PORT` | Docker/Kubernetes deployments or remote MCP clients |
+| `both` | Runs stdio and HTTP transports simultaneously | Developing locally while exposing HTTP for remote access |
+
+When using `http` or `both`, you can optionally enforce HTTP basic authentication by setting `AUTOTASK_HTTP_AUTH=true` along with `AUTOTASK_HTTP_USERNAME` and `AUTOTASK_HTTP_PASSWORD`.
 
 ### MCP Client Configuration
 
@@ -236,43 +264,47 @@ npm run test:mapping
 
 For detailed mapping documentation, see [docs/mapping.md](docs/mapping.md).
 
-## Docker Deployment
+## Smithery Deployment
 
-### Quick Start
+Smithery now provides the preferred path for building and hosting this TypeScript MCP server.
 
-```bash
-# Clone repository
-git clone https://github.com/your-org/autotask-mcp.git
-cd autotask-mcp
+### Prerequisites
 
-# Create environment file
-cp .env.example .env
-# Edit .env with your credentials
+- GitHub repository connected to Smithery
+- `smithery.yaml` in the project root (already present in this repo)
+- Node.js 18+ installed locally for optional preflight builds
 
-# Start with docker-compose
-docker compose up -d
-```
-
-### Production Deployment
+### Local Build & Validation
 
 ```bash
-# Build production image
-docker build -t autotask-mcp:latest .
-
-# Run container
-docker run -d \
-  --name autotask-mcp \
-  --env-file .env \
-  --restart unless-stopped \
-  autotask-mcp:latest
+npm install              # Install deps
+npm run build            # Compile TypeScript
+npm run build:smithery   # Create Smithery bundle (optional)
+npm run dev              # Launch Smithery playground locally
 ```
 
-### Development Mode
+### Deploying with Smithery
 
-```bash
-# Start development environment with hot reload
-docker compose --profile dev up autotask-mcp-dev
-```
+1. Push your changes (including `smithery.yaml`) to GitHub.
+2. Visit [Smithery](https://smithery.ai/new) and connect the repository (or claim the server if it already exists).
+3. Open the **Deployments** tab for your server and click **Deploy**.
+4. Smithery installs dependencies with `npm ci`, bundles the TypeScript entry point declared in `package.json#module`, and exposes your server at `https://server.smithery.ai/<your-server>/mcp`.
+
+Smithery automatically handles hosting, scaling, HTTPS, and runs `initialize`/`list_tools` probes so new tools appear in the catalog without extra work.
+
+### Session Configuration
+
+If you export a `configSchema` from `src/index.ts`, Smithery will render a configuration form so users can supply `AUTOTASK_*` credentials at connection time. When omitted, operators must configure environment variables at deploy-time in the Smithery UI.
+
+## Legacy Docker Notes
+
+Historically this repo shipped Docker images, but the container entrypoint currently launches `dist/index.js`, which only exports the Smithery factory and never starts transports. The included `docker-compose.yml` health check also probes an unsupported GET endpoint. You can revive the Docker path, but expect to:
+
+- Update the image command to `node dist/cli.js` or similar.
+- Implement a real HTTP transport rather than the stub in `src/transport/http.ts`.
+- Replace the health check with a POST probe that speaks MCP streamable HTTP.
+
+Until those gaps are resolved we recommend avoiding Docker for production deployments and using Smithery hosting instead.
 
 ## Claude Desktop Integration
 
@@ -281,7 +313,7 @@ This section explains how to connect the Autotask MCP Server to Claude Desktop f
 ### Prerequisites
 
 1. **Claude Desktop**: Download and install [Claude Desktop](https://claude.ai/desktop)
-2. **MCP Server Running**: Have the Autotask MCP server running locally or in Docker
+2. **MCP Server Running**: Have the Autotask MCP server running locally or via Smithery hosting
 3. **Autotask Credentials**: Valid Autotask API credentials configured
 
 ### Configuration Steps
@@ -315,21 +347,22 @@ Add the Autotask MCP server to your Claude Desktop configuration:
 }
 ```
 
-**For Docker Deployment:**
+**For Smithery Hosted Deployment (HTTP):**
 ```json
 {
   "mcpServers": {
     "autotask": {
-      "command": "docker",
-      "args": [
-        "run", "--rm", "-i",
-        "--env-file", "/path/to/your/.env",
-        "autotask-mcp:latest"
-      ]
+      "type": "http",
+      "url": "https://server.smithery.ai/your-server-id/mcp",
+      "metadata": {
+        "displayName": "Autotask (Smithery)"
+      }
     }
   }
 }
 ```
+
+Replace `your-server-id` with the path shown on your Smithery deployment page. Claude Desktop will prompt for any configuration fields you defined in the Smithery UI.
 
 **For NPM Global Installation:**
 ```json
@@ -594,6 +627,12 @@ npm test -- tests/autotask-service.test.ts
 | `LOG_LEVEL` | ❌ | `info` | Logging level |
 | `LOG_FORMAT` | ❌ | `simple` | Log output format |
 | `NODE_ENV` | ❌ | `development` | Node.js environment |
+| `AUTOTASK_TRANSPORT` | ❌ | `stdio` | Transport mode (`stdio`, `http`, or `both`) |
+| `AUTOTASK_HTTP_HOST` | ❌ | `localhost` | HTTP host when HTTP transport is enabled |
+| `AUTOTASK_HTTP_PORT` | ❌ | `3000` | HTTP port when HTTP transport is enabled |
+| `AUTOTASK_HTTP_AUTH` | ❌ | `false` | Enable HTTP basic auth (`true`/`false`) |
+| `AUTOTASK_HTTP_USERNAME` | ❌ | - | HTTP auth username (required when auth enabled) |
+| `AUTOTASK_HTTP_PASSWORD` | ❌ | - | HTTP auth password (required when auth enabled) |
 
 ### Logging Levels
 
