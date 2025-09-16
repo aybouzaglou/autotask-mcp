@@ -1,23 +1,16 @@
 // Transport Factory
 // Creates transport instances based on configuration
 
-import { McpTransport } from './base';
-import { StdioTransport } from './stdio';
-import { Logger } from '../utils/logger';
+import { McpTransport } from './base.js';
+import { StdioTransport } from './stdio.js';
+import { HttpTransport, HttpTransportConfig } from './http.js';
+import { Logger } from '../utils/logger.js';
 
 export type TransportType = 'stdio' | 'http' | 'both';
 
 export interface TransportConfig {
   type: TransportType;
-  http?: {
-    port: number;
-    host: string;
-    auth?: {
-      enabled: boolean;
-      username?: string;
-      password?: string;
-    };
-  };
+  http?: HttpTransportConfig;
 }
 
 export class TransportFactory {
@@ -37,14 +30,22 @@ export class TransportFactory {
         break;
 
       case 'http':
-        // HTTP transport will be implemented in Story 1.3
-        throw new Error('HTTP transport not yet implemented (coming in Story 1.3)');
+        if (!config.http) {
+          throw new Error('HTTP transport configuration is required');
+        }
+        transports.push(new HttpTransport(config.http, this.logger));
+        this.logger.info('Created HTTP transport');
+        break;
 
       case 'both':
         transports.push(new StdioTransport());
         this.logger.info('Created stdio transport');
-        // HTTP transport will be added in Story 1.3
-        throw new Error('HTTP transport not yet implemented (coming in Story 1.3)');
+        if (!config.http) {
+          throw new Error('HTTP transport configuration is required for both mode');
+        }
+        transports.push(new HttpTransport(config.http, this.logger));
+        this.logger.info('Created HTTP transport');
+        break;
 
       default:
         throw new Error(`Unknown transport type: ${config.type}`);

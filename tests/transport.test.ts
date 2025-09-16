@@ -1,7 +1,7 @@
 // Transport Abstraction Tests
 // Tests the transport factory and stdio transport implementation
 
-import { TransportFactory, StdioTransport } from '../src/transport';
+import { TransportFactory, StdioTransport, HttpTransport } from '../src/transport';
 import { Logger } from '../src/utils/logger';
 
 describe('Transport Abstraction', () => {
@@ -22,16 +22,46 @@ describe('Transport Abstraction', () => {
       expect(transports[0].getType()).toBe('stdio');
     });
 
-    test('should throw error for http transport (not yet implemented)', () => {
-      expect(() => {
-        factory.createTransports({ type: 'http' });
-      }).toThrow('HTTP transport not yet implemented');
+    test('should create http transport when config provided', () => {
+      const transports = factory.createTransports({
+        type: 'http',
+        http: {
+          host: 'localhost',
+          port: 3000,
+          auth: { enabled: false }
+        }
+      });
+
+      expect(transports).toHaveLength(1);
+      expect(transports[0]).toBeInstanceOf(HttpTransport);
+      expect(transports[0].getType()).toBe('http');
     });
 
-    test('should throw error for both transport (not yet implemented)', () => {
+    test('should create both transports when config provided', () => {
+      const transports = factory.createTransports({
+        type: 'both',
+        http: {
+          host: 'localhost',
+          port: 3000,
+          auth: { enabled: false }
+        }
+      });
+
+      expect(transports).toHaveLength(2);
+      expect(transports[0]).toBeInstanceOf(StdioTransport);
+      expect(transports[1]).toBeInstanceOf(HttpTransport);
+    });
+
+    test('should throw error when http config missing', () => {
+      expect(() => {
+        factory.createTransports({ type: 'http' });
+      }).toThrow('HTTP transport configuration is required');
+    });
+
+    test('should throw error when both config missing http section', () => {
       expect(() => {
         factory.createTransports({ type: 'both' });
-      }).toThrow('HTTP transport not yet implemented');
+      }).toThrow('HTTP transport configuration is required for both mode');
     });
 
     test('should throw error for unknown transport type', () => {

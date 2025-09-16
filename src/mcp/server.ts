@@ -16,7 +16,7 @@ import { Logger } from '../utils/logger.js';
 import { McpServerConfig } from '../types/mcp.js';
 import { AutotaskResourceHandler } from '../handlers/resource.handler.js';
 import { EnhancedAutotaskToolHandler } from '../handlers/enhanced.tool.handler.js';
-import { McpTransport, TransportFactory, TransportConfig } from '../transport/index';
+import { McpTransport, TransportFactory, TransportConfig } from '../transport/index.js';
 
 export class AutotaskMcpServer {
   private server: Server;
@@ -24,15 +24,16 @@ export class AutotaskMcpServer {
   private resourceHandler: AutotaskResourceHandler;
   private toolHandler: EnhancedAutotaskToolHandler;
   private logger: Logger;
-  private transports: McpTransport[];
+  private transports: McpTransport[] = [];
   private transportFactory: TransportFactory;
+  private defaultTransportConfig: TransportConfig | undefined;
 
-  constructor(config: McpServerConfig, transportConfig: TransportConfig, logger: Logger) {
+  constructor(config: McpServerConfig, logger: Logger, transportConfig?: TransportConfig) {
     this.logger = logger;
 
-    // Initialize transport factory and create transports
+    // Initialize transport factory (transports created on start)
     this.transportFactory = new TransportFactory(logger);
-    this.transports = this.transportFactory.createTransports(transportConfig);
+    this.defaultTransportConfig = transportConfig;
 
     // Initialize the MCP server
     this.server = new Server(
@@ -142,8 +143,17 @@ export class AutotaskMcpServer {
   /**
    * Start the MCP server with configured transports
    */
-  async start(): Promise<void> {
+  async start(transportConfig?: TransportConfig): Promise<void> {
     this.logger.info('Starting Autotask MCP Server...');
+
+    const effectiveTransportConfig = transportConfig ?? this.defaultTransportConfig;
+    if (!effectiveTransportConfig) {
+      throw new Error('No transport configuration provided. Unable to start Autotask MCP Server.');
+    }
+
+    const configToUse: TransportConfig = effectiveTransportConfig;
+    this.defaultTransportConfig = configToUse;
+    this.transports = this.transportFactory.createTransports(configToUse);
 
     // Set up error handling
     this.server.onerror = (error) => {
@@ -179,6 +189,8 @@ export class AutotaskMcpServer {
 
     await this.server.close();
     this.logger.info('Autotask MCP Server stopped');
+
+    this.transports = [];
   }
 
   /**
@@ -229,5 +241,12 @@ This server requires valid Autotask API credentials. Ensure you have:
 
 For more information, visit: https://github.com/your-org/autotask-mcp
 `.trim();
+  }
+
+  /**
+   * Expose the underlying MCP Server instance for external transports
+   */
+  getServer(): Server {
+    return this.server;
   }
 }

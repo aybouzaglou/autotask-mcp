@@ -6,6 +6,8 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that p
 
 **Want to connect to Claude Desktop in 5 minutes?** See our [Quick Start Guide for Claude Desktop](QUICK_START_CLAUDE.md)!
 
+> **Note**: This package is for local development only and is not published to NPM registry. Install from source or local tarball only.
+
 ## Features
 
 - **🔌 MCP Protocol Compliance**: Full support for MCP resources and tools
@@ -517,13 +519,14 @@ npm install
 ### Available Scripts
 
 ```bash
-npm run dev          # Start development server with hot reload
-npm run build        # Build for production
-npm run test         # Run test suite
-npm run test:watch   # Run tests in watch mode
-npm run test:coverage # Run tests with coverage
-npm run lint         # Run ESLint
-npm run lint:fix     # Fix ESLint issues
+npm run dev             # Start Smithery dev server with interactive playground
+npm run dev:cli         # Run local stdio/HTTP server directly via tsx
+npm run build           # Compile TypeScript and bundle via Smithery CLI
+npm run build:ts        # Compile TypeScript to dist/
+npm run build:smithery  # Produce Smithery deployment bundle
+npm run test            # Run test suite
+npm run lint            # Run ESLint
+npm run lint:fix        # Fix ESLint issues
 ```
 
 ### Project Structure
@@ -536,7 +539,9 @@ autotask-mcp/
 │   ├── services/          # Autotask service layer
 │   ├── types/             # TypeScript type definitions
 │   ├── utils/             # Utility functions
-│   └── index.ts           # Main entry point
+│   ├── cli.ts             # Node CLI entry point
+│   └── index.ts           # Smithery createServer entry point
+├── smithery.yaml          # Smithery runtime configuration
 ├── tests/                 # Test files
 ├── plans/                 # Project documentation (gitignored)
 ├── prompt_logs/           # Development logs (gitignored)

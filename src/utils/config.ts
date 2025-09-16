@@ -3,7 +3,7 @@
 
 import { McpServerConfig } from '../types/mcp.js';
 import { LogLevel } from './logger.js';
-import { TransportConfig } from '../transport/index';
+import { TransportConfig } from '../transport/index.js';
 
 export interface EnvironmentConfig {
   autotask: {

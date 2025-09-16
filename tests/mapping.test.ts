@@ -124,6 +124,9 @@ async function testMapping() {
     
   } catch (error) {
     console.error('Test failed:', error);
+    if (process.env.JEST_WORKER_ID) {
+      throw error;
+    }
     process.exit(1);
   }
 }
@@ -132,3 +135,12 @@ async function testMapping() {
 // For standalone execution, use: npm run test:mapping
 
 export { testMapping }; 
+
+if (typeof describe === 'function' && typeof it === 'function') {
+  const suite = process.env.RUN_MAPPING_TEST === 'true' ? describe : describe.skip;
+  suite('Autotask mapping integration workflow', () => {
+    it('runs the mapping workflow against Autotask API', async () => {
+      await testMapping();
+    });
+  });
+}

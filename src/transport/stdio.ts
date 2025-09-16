@@ -3,7 +3,7 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { BaseTransport } from './base';
+import { BaseTransport } from './base.js';
 
 export class StdioTransport extends BaseTransport {
   private transport: StdioServerTransport;
