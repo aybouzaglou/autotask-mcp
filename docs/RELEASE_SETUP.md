@@ -24,6 +24,10 @@ Set these secrets in your GitHub repository settings (`Settings > Secrets and va
 | `NPM_TOKEN` | NPM authentication token | `npm_xxxxxxxxxxxxx` |
 | `DOCKERHUB_USERNAME` | Docker Hub username | `asachs01` |
 | `DOCKERHUB_TOKEN` | Docker Hub access token | `dckr_pat_xxxxxxx` |
+| `SMITHERY_HTTP_URL` | Optional Streamable HTTP endpoint for smoke tests | `https://server.smithery.ai/<slug>/mcp` |
+| `SMITHERY_HTTP_USERNAME` | Optional HTTP basic auth username | `assistant` |
+| `SMITHERY_HTTP_PASSWORD` | Optional HTTP basic auth password | `secret` |
+| `SMITHERY_HTTP_TOKEN` | Optional bearer token for hosted gateway | `Bearer eyJ...` |
 
 ### Getting NPM Token
 
@@ -133,6 +137,12 @@ chmod +x scripts/prepare-release.sh
 
 # Run preparation checks
 ./scripts/prepare-release.sh
+
+# Optional: run hosted HTTP smoke test (requires SMITHERY_HTTP_* env vars)
+npm run test:smithery
+
+# Optional: run live Autotask smoke test
+AUTOTASK_ENABLE_LIVE_TESTS=true npm test -- basic-autotask-connection
 ```
 
 The script will:
@@ -169,6 +179,7 @@ Monitor releases through:
 - **GitHub**: Check Actions tab for workflow status
 - **NPM**: Verify package publication at https://www.npmjs.com/package/autotask-mcp
 - **Docker Hub**: Check images at https://hub.docker.com/r/asachs01/autotask-mcp
+- **Hosted Smoke Tests**: Keep `SMITHERY_HTTP_*` secrets current so `npm run test:smithery` succeeds during release prep
 
 ### Security Scanning
 

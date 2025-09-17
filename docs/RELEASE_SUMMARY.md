@@ -41,6 +41,7 @@ Your Autotask MCP Server is now ready for automated releases! Here's what has be
 - **`RELEASE_SETUP.md`** - Complete release documentation
 - **`DOCKER_USAGE.md`** - Comprehensive Docker usage guide
 - **`scripts/prepare-release.sh`** - Release preparation script
+- **`scripts/test-smithery-http.js`** - Hosted transport smoke test (run via `npm run test:smithery`)
 - **`RELEASE_SUMMARY.md`** - This summary document
 
 ### Package Updates
@@ -59,6 +60,10 @@ Add these secrets in your GitHub repository (`Settings > Secrets and variables >
 | `NPM_TOKEN` | 🔶 Optional | For NPM publishing |
 | `DOCKERHUB_USERNAME` | ✅ Required | Your Docker Hub username (`asachs01`) |
 | `DOCKERHUB_TOKEN` | ✅ Required | Docker Hub access token |
+| `SMITHERY_HTTP_URL` | 🔶 Optional | Hosted Streamable HTTP endpoint used by smoke tests |
+| `SMITHERY_HTTP_USERNAME` | 🔶 Optional | HTTP basic auth user (if enabled) |
+| `SMITHERY_HTTP_PASSWORD` | 🔶 Optional | HTTP basic auth password (if enabled) |
+| `SMITHERY_HTTP_TOKEN` | 🔶 Optional | Bearer token for hosted gateway |
 
 ### 2. Docker Hub Token Setup
 
@@ -88,11 +93,20 @@ Add these secrets in your GitHub repository (`Settings > Secrets and variables >
    ```
 4. **Automatic**: GitHub Actions handles the rest!
 
+#### Pre-merge Validation Checklist
+- `npm test` (CI-opt-in flags set locally as needed)
+- `AUTOTASK_ENABLE_LIVE_TESTS=true npm test -- basic-autotask-connection`
+- `npm run test:smithery` (requires hosted endpoint env vars)
+- `npm test -- transport-parity`
+
 ### Manual Release Preparation
 
 ```bash
 # Run the preparation script
 ./scripts/prepare-release.sh
+
+# Optional hosted smoke verification
+SMITHERY_HTTP_URL="https://your-smithery-endpoint" npm run test:smithery
 
 # If all checks pass, commit and push
 git add .

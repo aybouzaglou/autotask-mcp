@@ -2,13 +2,16 @@ module.exports = {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
   extensionsToTreatAsEsm: ['.ts'],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-      tsconfig: {
-        module: 'ESNext'
+  transform: {
+    '^.+\\.(t|j)s$': [
+      'ts-jest',
+      {
+        useESM: true,
+        tsconfig: {
+          module: 'ESNext'
+        }
       }
-    }
+    ]
   },
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: [
