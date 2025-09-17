@@ -184,6 +184,7 @@ Tools provide interactive operations:
 #### Ticket Operations
 - `search_tickets` - Search tickets with filters
 - `create_ticket` - Create new ticket
+- `update_ticket` - Patch an existing ticket (status, priority, queue, due date, summary, description, resolution)
 
 #### Time Entry Operations
 - `create_time_entry` - Log time entry

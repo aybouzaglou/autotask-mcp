@@ -1,0 +1,14 @@
+# Build artifacts and vendor
+/dist/
+/node_modules/
+/coverage/
+/.turbo/
+
+# Generated metadata
+smithery/
+
+# Local env
+.env*
+
+# CI caches
+.npm/

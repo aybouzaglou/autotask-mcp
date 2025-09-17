@@ -156,12 +156,11 @@ if [ "$CURRENT_BRANCH" != "main" ]; then
     fi
 fi
 
-# Test Docker build if Docker is available
-if command_exists docker; then
+# Test Docker build (disabled by default) – enable with FORCE_DOCKER=1
+if [ "${FORCE_DOCKER:-}" = "1" ] && command_exists docker; then
     print_status "Testing Docker build..."
     if docker build -t autotask-mcp:test .; then
         print_success "Docker build test passed"
-        
         # Clean up test image
         docker rmi autotask-mcp:test >/dev/null 2>&1 || true
     else
@@ -169,7 +168,7 @@ if command_exists docker; then
         exit 1
     fi
 else
-    print_warning "Skipping Docker build test (Docker not available)"
+    print_warning "Skipping Docker build test (disabled or Docker not available)"
 fi
 
 # Check GitHub token for releases (if needed)

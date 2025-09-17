@@ -1,5 +1,7 @@
 # 🚀 Release Setup Complete!
 
+> Note: Docker image build/publish in CI is temporarily disabled while container support is finalized. Use Smithery hosting or local runs for now.
+
 Your Autotask MCP Server is now ready for automated releases! Here's what has been set up:
 
 ## ✅ What's Been Created

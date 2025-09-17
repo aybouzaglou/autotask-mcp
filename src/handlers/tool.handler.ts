@@ -321,6 +321,48 @@ export class AutotaskToolHandler {
           required: ['companyID', 'title', 'description']
         }
       },
+      {
+        name: 'update_ticket',
+        description: 'Update an existing ticket in Autotask using PATCH semantics for core fields',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            ticketId: {
+              type: 'number',
+              description: 'Ticket ID to update'
+            },
+            status: {
+              type: 'number',
+              description: 'Ticket status ID to apply'
+            },
+            priority: {
+              type: 'number',
+              description: 'Ticket priority ID to apply'
+            },
+            queueID: {
+              type: 'number',
+              description: 'Queue ID for routing the ticket'
+            },
+            dueDateTime: {
+              type: 'string',
+              description: 'ISO 8601 due date/time (e.g., 2025-09-17T16:30:00Z)'
+            },
+            title: {
+              type: 'string',
+              description: 'Ticket title/summary'
+            },
+            description: {
+              type: 'string',
+              description: 'Ticket description/body'
+            },
+            resolution: {
+              type: 'string',
+              description: 'Resolution notes to append/update'
+            }
+          },
+          required: ['ticketId']
+        }
+      },
 
       // Time entry tools
       {
@@ -1065,13 +1107,14 @@ export class AutotaskToolHandler {
       let message: string;
 
       switch (name) {
-        case 'test_connection':
+        case 'test_connection': {
           const connectionResult = await this.autotaskService.testConnection();
           result = { success: connectionResult };
           message = connectionResult
             ? 'Successfully connected to Autotask API'
             : 'Connection failed: Unable to connect to Autotask API';
           break;
+        }
 
         case 'search_companies':
           result = await this.autotaskService.searchCompanies(args);
@@ -1098,7 +1141,7 @@ export class AutotaskToolHandler {
           message = `Successfully created contact with ID: ${result}`;
           break;
 
-        case 'search_tickets':
+        case 'search_tickets': {
           // Map parameter names from tool schema to service expectations
           const { companyID, ...otherArgs } = args;
           const ticketSearchOptions = {
@@ -1108,6 +1151,7 @@ export class AutotaskToolHandler {
           result = await this.autotaskService.searchTickets(ticketSearchOptions);
           message = `Found ${result.length} tickets`;
           break;
+        }
 
         case 'get_ticket_details':
           result = await this.autotaskService.getTicket(args.ticketID, args.fullDetails);
@@ -1118,6 +1162,39 @@ export class AutotaskToolHandler {
           result = await this.autotaskService.createTicket(args);
           message = `Successfully created ticket with ID: ${result}`;
           break;
+
+        case 'update_ticket': {
+          const { ticketId, ...potentialUpdates } = args;
+
+          if (ticketId === undefined || typeof ticketId !== 'number' || Number.isNaN(ticketId)) {
+            throw new Error('ticketId is required and must be a number');
+          }
+
+          const allowedUpdateFields = [
+            'status',
+            'priority',
+            'queueID',
+            'dueDateTime',
+            'title',
+            'description',
+            'resolution',
+          ];
+
+          const updates = Object.fromEntries(
+            Object.entries(potentialUpdates).filter(
+              ([key, value]) => allowedUpdateFields.includes(key) && value !== undefined
+            )
+          );
+
+          if (Object.keys(updates).length === 0) {
+            throw new Error('At least one mutable field must be provided (status, priority, queueID, dueDateTime, title, description, or resolution).');
+          }
+
+          await this.autotaskService.updateTicket(ticketId, updates);
+          result = { ticketId, updatedFields: Object.keys(updates) };
+          message = `Ticket ${ticketId} updated successfully`;
+          break;
+        }
 
         case 'create_time_entry':
           result = await this.autotaskService.createTimeEntry(args);

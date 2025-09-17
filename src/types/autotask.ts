@@ -314,7 +314,7 @@ export interface AutotaskQueryOptionsExtended extends AutotaskQueryOptions {
 // Status enums (commonly used values)
 export enum TicketStatus {
   New = 1,
-  InProgress = 5,
+  InProgress = 2,
   Complete = 5,
   WaitingCustomer = 7,
   WaitingVendor = 8,
