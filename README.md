@@ -34,6 +34,7 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that p
 - [Claude Desktop Integration](#claude-desktop-integration)
 - [Development](#development)
 - [Testing](#testing)
+- [Architecture Documentation](#architecture-documentation)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -745,6 +746,12 @@ npm run test
 # Test API connection (requires credentials)
 LOG_LEVEL=debug npm start
 ```
+
+## Architecture Documentation
+
+- Backend technology stack snapshot: [`docs/architecture/tech-stack.md`](docs/architecture/tech-stack.md)
+- Coding standards and MCP-specific guardrails: [`docs/architecture/coding-standards.md`](docs/architecture/coding-standards.md)
+- Source tree map for quick orientation: [`docs/architecture/source-tree.md`](docs/architecture/source-tree.md)
 
 ## Contributing
 

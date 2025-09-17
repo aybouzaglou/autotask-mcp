@@ -5,6 +5,11 @@
 - TypeScript codebase using `autotask-node`, packaged via Smithery, and distributed as a CLI (`autotask-mcp`).
 - This document reflects the actual system as of commit time and highlights legacy behaviour, workarounds, and technical debt that agents must respect.
 
+### Quick Reference Documents
+- Backend-only technology stack summary: `docs/architecture/tech-stack.md`
+- Coding conventions and guardrails: `docs/architecture/coding-standards.md`
+- Source tree map for navigation: `docs/architecture/source-tree.md`
+
 ## System Snapshot
 ```
 ┌────────────┐    env+CLI args        ┌───────────────────────┐
