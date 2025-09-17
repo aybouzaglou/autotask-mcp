@@ -80,6 +80,7 @@
 - **CLI / NPM**: `npm start` and the `autotask-mcp` bin both execute `dist/cli.js` (`package.json:7-31`).
 - **Docker**: the production stage installs production dependencies and copies `dist`, but it launches `node dist/index.js` (`Dockerfile:65`). That entry point only exports the Smithery factory and never starts transports, leaving the container idle. Additionally, the compose health check performs an HTTP GET that the stub transport rejects with 405 (`docker-compose.yml:25-47`).
 - **Smithery runtime**: `smithery.yaml` sets the runtime to TypeScript; the generated bundle expects Smithery to supply configuration that includes a working transport.
+- **Generated bundle hygiene**: `@smithery/cli` emits `.smithery/index.cjs` locally and in CI. The repo ignores `.smithery/` so only fresh bundles ship with each deploy. If a prebuilt bundle is committed, Smithery boots two servers and the runtime crashes with `EADDRINUSE` on port 8181.
 
 ## Logging & Observability
 - Winston powers logging with either JSON or text format, serialising errors defensively (`src/utils/logger.ts:4-53`).

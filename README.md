@@ -346,6 +346,8 @@ curl -sS -X POST "<URL>" \
 
 If you export a `configSchema` from `src/index.ts`, Smithery will render a configuration form so users can supply `AUTOTASK_*` credentials at connection time. When omitted, operators must configure environment variables at deploy-time in the Smithery UI.
 
+> **Generated bundle note:** The `.smithery/` directory is created by `@smithery/cli` during `npm run build`, `npm run dev`, and the Smithery cloud pipeline. Keep it out of version control (it's already listed in `.gitignore`). If a stale `.smithery/index.cjs` is committed, Smithery deploys two copies of the server and the container fails to start with `EADDRINUSE` on port 8181.
+
 ## Legacy Docker Notes
 
 Historically this repo shipped Docker images, but the container entrypoint currently launches `dist/index.js`, which only exports the Smithery factory and never starts transports. The included `docker-compose.yml` health check also probes an unsupported GET endpoint. You can revive the Docker path, but expect to:
