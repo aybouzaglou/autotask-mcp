@@ -3,7 +3,7 @@
 
 import { McpServerConfig } from '../types/mcp.js';
 import { LogLevel } from './logger.js';
-import { TransportConfig } from '../transport/index.js';
+import { TransportConfig, TransportType } from '../transport/index.js';
 
 export interface EnvironmentConfig {
   autotask: {
@@ -21,14 +21,17 @@ export interface EnvironmentConfig {
     format: 'json' | 'simple';
   };
   transport: TransportConfig;
+  warnings: string[];
+  errors: string[];
 }
-
 /**
  * Load configuration from environment variables
  */
 export function loadEnvironmentConfig(): EnvironmentConfig {
   const autotaskConfig: { username?: string; secret?: string; integrationCode?: string; apiUrl?: string } = {};
-  
+  const warnings: string[] = [];
+  const errors: string[] = [];
+
   if (process.env.AUTOTASK_USERNAME) {
     autotaskConfig.username = process.env.AUTOTASK_USERNAME;
   }
@@ -42,8 +45,83 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
     autotaskConfig.apiUrl = process.env.AUTOTASK_API_URL;
   }
 
-  // Default to stdio for backward compatibility
-  const transportType = (process.env.AUTOTASK_TRANSPORT as any) || 'stdio';
+  const validTransportTypes: TransportType[] = ['stdio', 'http', 'both'];
+  const rawTransportType = process.env.AUTOTASK_TRANSPORT?.trim();
+  let transportType: TransportType = 'stdio';
+
+  if (rawTransportType && rawTransportType.length > 0) {
+    const normalizedTransport = rawTransportType.toLowerCase() as TransportType;
+    if (validTransportTypes.includes(normalizedTransport)) {
+      transportType = normalizedTransport;
+    } else {
+      errors.push(
+        `AUTOTASK_TRANSPORT="${rawTransportType}" is not supported. Valid options: ${validTransportTypes.join(', ')}.`
+      );
+    }
+  }
+
+  const rawHttpPort = process.env.AUTOTASK_HTTP_PORT;
+  let httpPort = 3000;
+  if (rawHttpPort && rawHttpPort.length > 0) {
+    const parsedPort = Number.parseInt(rawHttpPort, 10);
+    if (Number.isNaN(parsedPort) || parsedPort < 1 || parsedPort > 65535) {
+      errors.push(`AUTOTASK_HTTP_PORT="${rawHttpPort}" must be an integer between 1 and 65535.`);
+    } else {
+      httpPort = parsedPort;
+    }
+  }
+
+  const httpHost = process.env.AUTOTASK_HTTP_HOST?.trim() || (transportType === 'stdio' ? 'localhost' : '0.0.0.0');
+  if (httpHost.length === 0) {
+    errors.push('AUTOTASK_HTTP_HOST cannot be an empty string.');
+  }
+
+  const rawHttpAuth = process.env.AUTOTASK_HTTP_AUTH?.trim();
+  let httpAuthEnabled = false;
+  if (rawHttpAuth && rawHttpAuth.length > 0) {
+    const normalized = rawHttpAuth.toLowerCase();
+    if (['true', '1', 'yes', 'on'].includes(normalized)) {
+      httpAuthEnabled = true;
+    } else if (['false', '0', 'no', 'off'].includes(normalized)) {
+      httpAuthEnabled = false;
+    } else {
+      errors.push(`AUTOTASK_HTTP_AUTH="${rawHttpAuth}" must be one of: true, false, 1, 0, yes, no, on, off.`);
+    }
+  }
+
+  const httpAuthUsername = process.env.AUTOTASK_HTTP_USERNAME;
+  const httpAuthPassword = process.env.AUTOTASK_HTTP_PASSWORD;
+
+  if (httpAuthEnabled) {
+    if (!httpAuthUsername) {
+      errors.push('AUTOTASK_HTTP_USERNAME is required when AUTOTASK_HTTP_AUTH is enabled.');
+    }
+    if (!httpAuthPassword) {
+      errors.push('AUTOTASK_HTTP_PASSWORD is required when AUTOTASK_HTTP_AUTH is enabled.');
+    }
+  } else if (transportType !== 'stdio' && (httpAuthUsername || httpAuthPassword)) {
+    warnings.push('HTTP auth credentials detected but AUTOTASK_HTTP_AUTH is not enabled. They will be ignored.');
+  } else if ((transportType === 'http' || transportType === 'both') && !httpAuthEnabled) {
+    warnings.push('HTTP transport selected without AUTOTASK_HTTP_AUTH enabled. For self-hosted deployments, enable auth or ensure external protections are in place.');
+  }
+
+  if (transportType === 'stdio' && (rawHttpPort || process.env.AUTOTASK_HTTP_HOST || rawHttpAuth)) {
+    warnings.push('HTTP transport settings detected but AUTOTASK_TRANSPORT is set to "stdio". HTTP configuration will be ignored.');
+  }
+
+  const httpConfig = {
+    port: httpPort,
+    host: httpHost,
+    auth: {
+      enabled: httpAuthEnabled,
+      ...(httpAuthEnabled
+        ? {
+            username: httpAuthUsername!,
+            password: httpAuthPassword!
+          }
+        : {})
+    }
+  };
 
   return {
     autotask: autotaskConfig,
@@ -57,16 +135,10 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
     },
     transport: {
       type: transportType,
-      http: {
-        port: parseInt(process.env.AUTOTASK_HTTP_PORT || '3000'),
-        host: process.env.AUTOTASK_HTTP_HOST || 'localhost',
-        auth: {
-          enabled: process.env.AUTOTASK_HTTP_AUTH === 'true',
-          ...(process.env.AUTOTASK_HTTP_USERNAME && { username: process.env.AUTOTASK_HTTP_USERNAME }),
-          ...(process.env.AUTOTASK_HTTP_PASSWORD && { password: process.env.AUTOTASK_HTTP_PASSWORD })
-        }
-      }
-    }
+      ...(transportType === 'http' || transportType === 'both' ? { http: httpConfig } : {})
+    },
+    warnings,
+    errors
   };
 }
 
@@ -150,4 +222,4 @@ Example:
   AUTOTASK_SECRET=your-secret-key
   AUTOTASK_INTEGRATION_CODE=your-integration-code
 `.trim();
-} 
+}

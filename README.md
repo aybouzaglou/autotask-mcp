@@ -340,6 +340,7 @@ curl -sS -X POST "<URL>" \
 - **Local development (stdio):** Default to `AUTOTASK_TRANSPORT=stdio` for Claude Desktop and other local clients.
 - **Smithery-hosted (Streamable HTTP):** Smithery proxies stdio traffic over HTTPS, adds `Mcp-Session-Id` headers, and may stream SSE progress events—no extra HTTP code required here.
 - **Self-hosted HTTP experiments:** `src/transport/http.ts` remains available for labs scenarios only. It logs a runtime warning and now carries Jest coverage so we can monitor its health while deciding whether to retire it.
+- **CI/self-hosted pipelines:** The CLI now surfaces configuration errors before startup. Set `AUTOTASK_TRANSPORT=http`, `AUTOTASK_HTTP_AUTH=true`, and supply credentials plus a non-conflicting port/host (e.g., `AUTOTASK_HTTP_PORT=8080`, `AUTOTASK_HTTP_HOST=0.0.0.0`) when running on runners or in containers.
 
 ### Session Configuration
 

@@ -18,6 +18,16 @@ async function main() {
 
     // Initialize logger
     logger = new Logger(envConfig.logging.level, envConfig.logging.format);
+
+    if (envConfig.warnings.length > 0) {
+      envConfig.warnings.forEach((warning) => logger!.warn(warning));
+    }
+
+    if (envConfig.errors.length > 0) {
+      envConfig.errors.forEach((err) => logger!.error(err));
+      throw new Error('Configuration validation failed. Please address the configuration errors above.');
+    }
+
     logger.info('Starting Autotask MCP Server (CLI mode)...');
     logger.debug('Configuration loaded', {
       serverName: mcpConfig.name,
@@ -27,8 +37,19 @@ async function main() {
     });
 
     // Validate required configuration
-    if (!mcpConfig.autotask.username || !mcpConfig.autotask.secret || !mcpConfig.autotask.integrationCode) {
-      throw new Error('Missing required Autotask credentials. Please set AUTOTASK_USERNAME, AUTOTASK_SECRET, and AUTOTASK_INTEGRATION_CODE environment variables.');
+    const missingCredentials: string[] = [];
+    if (!mcpConfig.autotask.username) {
+      missingCredentials.push('AUTOTASK_USERNAME');
+    }
+    if (!mcpConfig.autotask.secret) {
+      missingCredentials.push('AUTOTASK_SECRET');
+    }
+    if (!mcpConfig.autotask.integrationCode) {
+      missingCredentials.push('AUTOTASK_INTEGRATION_CODE');
+    }
+
+    if (missingCredentials.length > 0) {
+      throw new Error(`Missing required Autotask credentials: ${missingCredentials.join(', ')}.`);
     }
 
     // Create the MCP server (don't initialize Autotask yet)
