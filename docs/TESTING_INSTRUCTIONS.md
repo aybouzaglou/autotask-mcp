@@ -30,6 +30,23 @@ npm run build
 
 ## Step 3: Test Options
 
+### Smithery-Hosted Smoke Test (HTTP Transport)
+
+Use the automated smoke script to verify the Smithery Streamable HTTP endpoint is reachable:
+
+```bash
+# Requires SMITHERY_HTTP_URL (and optional auth variables) to be set
+export SMITHERY_HTTP_URL="https://your-smithery-endpoint.example"
+# Optional:
+# export SMITHERY_HTTP_USERNAME="assistant"
+# export SMITHERY_HTTP_PASSWORD="secret"
+# export SMITHERY_HTTP_TOKEN="Bearer <token>"
+
+npm run test:smithery
+```
+
+Expected output includes a 200 status and round-trip latency. Non-200 responses or network failures exit non-zero to flag the run.
+
 ### Option A: Direct Service Test (Recommended for Quick Validation)
 
 This tests the AutotaskService directly to confirm the fix:
@@ -58,6 +75,9 @@ node scripts/test-mcp-projects.js
 Start the actual MCP server and test with a client:
 
 ```bash
+# Live Autotask tests are opt-in
+export AUTOTASK_ENABLE_LIVE_TESTS=true
+
 # Terminal 1: Start the MCP server
 npm start
 
@@ -156,6 +176,29 @@ npm run clean
 npm install
 npm run build
 ```
+
+### Cross-Transport Parity Checklist
+
+Run the Jest parity suite to confirm stdio and HTTP transports wire up identically:
+
+```bash
+npm test -- transport-parity
+```
+
+This ensures both transports receive the same MCP server instance and fail gracefully if a transport cannot connect.
+
+Need the legacy HTTP transport integration test as well? Opt in with:
+
+```bash
+export AUTOTASK_ENABLE_HTTP_TESTS=true
+npm test -- http-transport
+```
+
+### Performance Snapshot
+
+- Refer to `docs/transport-performance.md` for the latest latency measurements across local stdio and Smithery-hosted HTTP runs.
+- To refresh the hosted numbers, re-run `npm run test:smithery` and append results to the table in that document.
+- Local HTTP latency can be sampled by pointing `SMITHERY_HTTP_URL` at a locally running HTTP transport (e.g., `http://127.0.0.1:3000`).
 
 ### API Connectivity Issues
 1. Test credentials with a simple API call

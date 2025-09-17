@@ -20,12 +20,12 @@ so that regressions are caught and deployment confidence is high.
 
 ## Tasks
 - [x] Update unit tests for SDK v1.18.0 compatibility (ts-jest config warnings remain)
-- [ ] Add Smithery-hosted smoke test (manual script or automated) covering Streamable HTTP
-- [ ] Add cross-transport parity checklist/tests (stdio vs. hosted)
+- [x] Add Smithery-hosted smoke test (manual script or automated) covering Streamable HTTP
+- [x] Add cross-transport parity checklist/tests (stdio vs. hosted)
 - [x] Update README.md with transport documentation *(needs Smithery-specific expansion)*
 - [x] Document environment/config expectations across guides (README, developer guide, release notes)
-- [ ] Address credential-gated `basic-autotask-connection` test (mocks or gating strategy)
-- [ ] Capture lightweight performance metrics for local vs. hosted runs
+- [x] Address credential-gated `basic-autotask-connection` test (mocks or gating strategy)
+- [x] Capture lightweight performance metrics for local vs. hosted runs
 
 ## Dev Notes
 - Hosted smoke tests can begin as manual walkthroughs but should be scripted where practical.
@@ -46,31 +46,42 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 ### Tasks Completed
 - [x] Update unit tests for SDK v1.18.0 compatibility (tests compile and run under ts-jest 29.x)
 - [x] Update README.md with initial transport documentation (Transport Modes section)
-- [ ] Add Smithery-hosted smoke test *(outstanding)*
-- [ ] Add cross-transport feature parity tests *(outstanding)*
+- [x] Add Smithery-hosted smoke test (`scripts/test-smithery-http.js` + `npm run test:smithery`)
+- [x] Add cross-transport feature parity tests (Jest parity suite + docs checklist)
 - [x] Document new environment variables & Smithery session expectations *(README + developer guide updated; release notes pending)*
-- [ ] Create performance benchmarks for local vs. hosted transports
-- [ ] Update developer documentation assets
+- [x] Create performance benchmarks for local vs. hosted transports (`docs/transport-performance.md`)
+- [x] Update developer documentation assets (testing guide + performance snapshot + env flag callouts)
 
 ### Debug Log References
 - Jest run on 2025-09-16: `tests/basic-autotask-connection.test.ts` fails without live Autotask credentials; other suites pass.
 - ts-jest emits deprecation warning for globals configuration (needs follow-up).
+- Jest run on 2025-09-17: `npm test` (HTTP suite opt-out) — parity tests pass, hosted HTTP suite requires `AUTOTASK_ENABLE_HTTP_TESTS=true`.
 
 ### Completion Notes
 - README now includes a "Deploying via Smithery" section outlining config prompts, smoke test workflow, and hosted vs. local transport guidance.
 - Developer guide mirrors the Smithery workflow with curl-based verification steps and reiterates credential prerequisites; release notes/testing docs still require alignment.
 - Test suite compiles but requires live credentials for connection smoke test; consider mocking Autotask client or gating via env flag.
-- Hosted smoke tests, cross-transport parity checks, and performance snapshots remain outstanding pending Smithery connectivity.
+- Hosted smoke test + parity suite now automated; release notes still need an alignment pass for final sign-off.
+- Added `scripts/test-smithery-http.js` with `npm run test:smithery` for hosted HTTP validation; opt-in env flags (`AUTOTASK_ENABLE_LIVE_TESTS`, `AUTOTASK_ENABLE_HTTP_TESTS`) documented in testing instructions.
+- Captured latency samples in `docs/transport-performance.md` to record stdio vs. HTTP behavior; instructions added for refreshing numbers.
 
 ### File List
 - README.md (transport documentation)
 - docs/DEVELOPER_GUIDE_MCP_AUTOTASK.md (Smithery deployment guidance)
-- tests/transport.test.ts (added during Story 1.2; referenced here for coverage)
+- docs/TESTING_INSTRUCTIONS.md (Smithery smoke test, parity checklist, env flags)
+- docs/transport-performance.md (latency snapshot)
+- docs/brownfield-architecture.md (quick-reference pointers)
+- package.json (`npm run test:smithery` script)
+- scripts/test-smithery-http.js (Smithery hosted smoke test)
+- tests/basic-autotask-connection.test.ts (live test gating)
+- tests/http-transport.test.ts (sandbox-aware opt-in)
+- tests/transport-parity.test.ts (parity suite)
 
 ### Change Log
 - 2025-09-15: README updated with HTTP transport quick start.
 - 2025-09-16: Captured outstanding test/documentation tasks post-upgrade.
 - 2025-09-17: Story refocused on Smithery-hosted smoke tests and documentation alignment.
+- 2025-09-17: Added Smithery smoke script, parity Jest suite, gating flags, and performance snapshot doc.
 
 ## Status
-In Progress
+Ready for Review

@@ -22,6 +22,7 @@
     "test:mapping": "tsx scripts/test-mapping.js",
     "test:pagination": "tsx scripts/test-pagination.js",
     "test:mapping-simple": "tsx scripts/test-mapping-simple.js",
+    "test:smithery": "node scripts/test-smithery-http.js",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "clean": "rm -rf dist",
