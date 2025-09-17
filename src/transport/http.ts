@@ -1,5 +1,6 @@
-// HTTP Transport Implementation
-// Provides HTTP-based transport for MCP communication
+// Experimental HTTP transport implementation.
+// Smithery-hosted deployments already expose Streamable HTTP; this listener exists
+// strictly for self-hosted experimentation and is not production ready.
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { BaseTransport } from './base.js';
@@ -28,6 +29,8 @@ export class HttpTransport extends BaseTransport {
   }
 
   async connect(_server: Server): Promise<void> {
+    this.logger.warn('HTTP transport is experimental and intended for self-hosted scenarios only.');
+
     return new Promise((resolve, reject) => {
       try {
         this.httpServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {

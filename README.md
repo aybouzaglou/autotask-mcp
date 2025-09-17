@@ -292,6 +292,55 @@ npm run dev              # Launch Smithery playground locally
 
 Smithery automatically handles hosting, scaling, HTTPS, and runs `initialize`/`list_tools` probes so new tools appear in the catalog without extra work.
 
+### Deploying via Smithery
+
+Smithery renders runtime prompts directly from the `configSchema` exported in `src/index.ts`. Operators must supply the following values when launching a session:
+
+- `autotaskUsername`, `autotaskSecret`, `autotaskIntegrationCode` – required Autotask credentials
+- `autotaskApiUrl` (optional) – override the default SOAP endpoint for regional tenants
+- `logLevel` / `logFormat` – default to `info` / `simple`; raise to `debug` during diagnostics
+- `transport` – leave set to `http` for hosted deployments; Smithery wraps stdio into Streamable HTTP automatically
+- `httpHost`, `httpPort`, `httpAuth*` – only relevant for self-hosted experiments; Smithery manages HTTP ingress
+
+Use the following smoke test workflow to validate the hosted Streamable HTTP endpoint. Ensure a `.env` with Autotask credentials exists so Smithery can build the bundle locally if needed.
+
+```bash
+# 1. Authenticate once so the CLI can reuse your API key
+npx @smithery/cli@latest login
+
+# 2. Start a playground tunnel and capture the connection URL from stdout
+SMITHERY_API_KEY=your-api-key \
+  npx @smithery/cli@latest run @aybouzaglou/autotask-mcp \
+    --profile medical-termite-hpQdg6 \
+    --playground --no-open
+
+# 3. In another shell, exercise the hosted endpoint (replace <URL> with CLI output)
+curl -sS -X POST "<URL>" \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":"tools","method":"tools/list"}'
+
+curl -sS -X POST "<URL>" \
+  -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":"resources","method":"resources/list"}'
+
+curl -sS -X POST "<URL>" \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "jsonrpc":"2.0",
+        "id":"status",
+        "method":"tools/call",
+        "params": { "name": "test_connection" }
+      }'
+```
+
+> **Heads up:** The historical `connect` subcommand referenced in prior docs has been replaced by `run --playground`. If Smithery reintroduces `connect`, reuse the same verification procedure—grab the generated URL and issue `tools/list`, a representative `tools/call`, and `resources/list` POSTs.
+
+### Hosted vs. Local Transports
+
+- **Local development (stdio):** Default to `AUTOTASK_TRANSPORT=stdio` for Claude Desktop and other local clients.
+- **Smithery-hosted (Streamable HTTP):** Smithery proxies stdio traffic over HTTPS, adds `Mcp-Session-Id` headers, and may stream SSE progress events—no extra HTTP code required here.
+- **Self-hosted HTTP experiments:** `src/transport/http.ts` remains available for labs scenarios only. It logs a runtime warning and now carries Jest coverage so we can monitor its health while deciding whether to retire it.
+
 ### Session Configuration
 
 If you export a `configSchema` from `src/index.ts`, Smithery will render a configuration form so users can supply `AUTOTASK_*` credentials at connection time. When omitted, operators must configure environment variables at deploy-time in the Smithery UI.

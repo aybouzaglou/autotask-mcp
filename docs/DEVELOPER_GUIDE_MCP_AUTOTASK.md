@@ -604,6 +604,31 @@ async function debugEntityFields(entityName: string): Promise<void> {
 - Before clicking **Deploy** in Smithery, run `npm run build` locally to surface TypeScript issues.
 - Smithery exposes deployments over HTTPS (`https://server.smithery.ai/<slug>/mcp`) and will call `initialize`/`list_tools` automatically after each build.
 - Use Smithery’s session configuration UI to capture `AUTOTASK_*` credentials instead of baking them into the image.
+- Prompt summary: `autotaskUsername`, `autotaskSecret`, and `autotaskIntegrationCode` are required; optional fields include `autotaskApiUrl`, `logLevel`, `logFormat`, and the transport/auth trio. For hosted runs leave `transport=http` so Smithery proxies stdio over Streamable HTTP.
+
+#### Hosted Streamable HTTP Smoke Test
+
+1. Authenticate the CLI (`npx @smithery/cli@latest login`) or set `SMITHERY_API_KEY` in the environment.
+2. Launch a tunnel and capture the connection URL:
+   ```bash
+   SMITHERY_API_KEY=... \
+     npx @smithery/cli@latest run @aybouzaglou/autotask-mcp \
+       --profile medical-termite-hpQdg6 --playground --no-open
+   ```
+3. Issue verification calls to the generated URL:
+   ```bash
+   curl -sS -X POST "<URL>" -H 'Content-Type: application/json' \
+     -d '{"jsonrpc":"2.0","id":"tools","method":"tools/list"}'
+
+   curl -sS -X POST "<URL>" -H 'Content-Type: application/json' \
+     -d '{"jsonrpc":"2.0","id":"resources","method":"resources/list"}'
+
+   curl -sS -X POST "<URL>" -H 'Content-Type: application/json' \
+     -d '{"jsonrpc":"2.0","id":"status","method":"tools/call","params":{"name":"test_connection"}}'
+   ```
+4. Capture noted headers (`Mcp-Session-Id`, SSE events) and document anomalies in Story 1.3 / 1.5 as follow-up items.
+
+> The historical `connect` command has been superseded by `run --playground`; reuse this procedure if the CLI introduces `connect` again.
 
 ### Legacy Containers (Use with Caution)
 
