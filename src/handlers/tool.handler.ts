@@ -321,6 +321,48 @@ export class AutotaskToolHandler {
           required: ['companyID', 'title', 'description']
         }
       },
+      {
+        name: 'update_ticket',
+        description: 'Update an existing ticket in Autotask using PATCH semantics for core fields',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            ticketId: {
+              type: 'number',
+              description: 'Ticket ID to update'
+            },
+            status: {
+              type: 'number',
+              description: 'Ticket status ID to apply'
+            },
+            priority: {
+              type: 'number',
+              description: 'Ticket priority ID to apply'
+            },
+            queueID: {
+              type: 'number',
+              description: 'Queue ID for routing the ticket'
+            },
+            dueDateTime: {
+              type: 'string',
+              description: 'ISO 8601 due date/time (e.g., 2025-09-17T16:30:00Z)'
+            },
+            title: {
+              type: 'string',
+              description: 'Ticket title/summary'
+            },
+            description: {
+              type: 'string',
+              description: 'Ticket description/body'
+            },
+            resolution: {
+              type: 'string',
+              description: 'Resolution notes to append/update'
+            }
+          },
+          required: ['ticketId']
+        }
+      },
 
       // Time entry tools
       {
@@ -1118,6 +1160,40 @@ export class AutotaskToolHandler {
           result = await this.autotaskService.createTicket(args);
           message = `Successfully created ticket with ID: ${result}`;
           break;
+
+        case 'update_ticket': {
+          const { ticketId, ...potentialUpdates } = args;
+
+          if (ticketId === undefined || typeof ticketId !== 'number' || Number.isNaN(ticketId)) {
+            throw new Error('ticketId is required and must be a number');
+          }
+
+          const allowedUpdateFields = [
+            'status',
+            'priority',
+            'queueID',
+            'dueDateTime',
+            'title',
+            'description',
+            'resolution',
+          ];
+
+          const updates = Object.entries(potentialUpdates)
+            .filter(([key, value]) => allowedUpdateFields.includes(key) && value !== undefined)
+            .reduce<Record<string, any>>((accumulator, [key, value]) => {
+              accumulator[key] = value;
+              return accumulator;
+            }, {});
+
+          if (Object.keys(updates).length === 0) {
+            throw new Error('At least one mutable field must be provided (status, priority, queueID, dueDateTime, title, description, or resolution).');
+          }
+
+          await this.autotaskService.updateTicket(ticketId, updates);
+          result = { ticketId, updatedFields: Object.keys(updates) };
+          message = `Ticket ${ticketId} updated successfully`;
+          break;
+        }
 
         case 'create_time_entry':
           result = await this.autotaskService.createTimeEntry(args);

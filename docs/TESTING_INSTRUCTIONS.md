@@ -1,6 +1,6 @@
-# Testing the Autotask MCP Server - Project Search Fix
+# Testing the Autotask MCP Server
 
-This document provides step-by-step instructions to validate that the project search functionality now works correctly in the MCP server.
+This document provides step-by-step instructions to validate key behaviours in the Autotask MCP server. It now covers the ticket patch tool introduced in Story 1.6 alongside the existing transport and project search checks.
 
 ## Prerequisites
 
@@ -29,6 +29,26 @@ npm run build
 ```
 
 ## Step 3: Test Options
+
+### Regression Suite (All Environments)
+
+Run the full Jest suite to confirm regressions have not been introduced:
+
+```bash
+npm test
+```
+
+This command compiles the TypeScript sources and exercises the unit/integration coverage, including the new handler logic for `update_ticket`.
+
+### Basic Autotask Connection (Requires Credentials)
+
+When live credentials are available, run the gated connection smoke to ensure Autotask PATCH calls can authenticate successfully:
+
+```bash
+AUTOTASK_ENABLE_LIVE_TESTS=true npm test -- basic-autotask-connection
+```
+
+The optional flag keeps CI runs stable while still enabling local verification.
 
 ### Smithery-Hosted Smoke Test (HTTP Transport)
 
@@ -85,12 +105,33 @@ npm start
 # Or use the server in Claude Desktop or other MCP client
 ```
 
+### Ticket Patch Tool Smoke Test (Story 1.6)
+
+Use the new script to verify `update_ticket` end-to-end against live Autotask data. Always target a sandbox or disposable ticket.
+
+#### Local stdio validation
+
+```bash
+# Ensure latest TypeScript build is available
+npm run build:ts
+
+# Provide the ticket to patch and the fields to change
+node scripts/test-ticket-update.js 123456 status=5 description="Updated via MCP smoke"
+```
+
+The script loads your existing `.env` credentials, calls the MCP tool handler directly, and prints the JSON response. A non-zero exit indicates validation failure or Autotask rejecting the PATCH.
+
+#### Hosted/Smithery validation
+
+When running through Smithery, reuse the same command after exporting the hosted environment variables (see "Smithery-Hosted Smoke Test"). The tool handler uses the same credentials regardless of transport, so expect consistent results between local and hosted runs.
+
 ## Step 4: Verify the Fix
 
 ### Success Indicators:
 1. **No 500 errors** with "Unable to find type in the Project Entity"
 2. **Projects returned** with valid data including `projectType` field
-3. **Tool listed** in available MCP tools
+3. **Tool listed** in available MCP tools (now including `update_ticket`)
+4. **Ticket patch succeeds** with confirmation payload when running `scripts/test-ticket-update.js`
 
 ### Possible Issues:
 
