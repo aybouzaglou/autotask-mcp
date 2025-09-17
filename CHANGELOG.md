@@ -1,3 +1,12 @@
+# 1.0.0 (2025-09-17)
+
+
+### Features
+
+* **config:** validate transport setup and docs ([89e9d66](https://github.com/aybouzaglou/autotask-mcp/commit/89e9d663e782f9a50b8cbef575519f0cc18e53b7))
+* integrate smithery runtime and http transport ([294d883](https://github.com/aybouzaglou/autotask-mcp/commit/294d88367c8d40a078344c5d37bddd4d10a29b57))
+* **ticket:** add update_ticket tool, unit tests, QA assessments, and gate\n\n- Implement update_ticket tool with field whitelist + validation\n- Add Jest coverage for listing, validation failure, success delegation\n- Add smoke script and testing guide updates\n- Create QA assessments (test-design, trace, risk, NFR) and PASS gate\n- Append QA Results to story 1.6 ([f044dca](https://github.com/aybouzaglou/autotask-mcp/commit/f044dcadca76365e1224c1eb06de2973528d4d70))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -259,4 +268,4 @@ Each release includes:
 - Advanced filtering and sorting options
 - Bulk operations for data manipulation
 - Performance optimizations and caching
-- GraphQL interface for advanced queries 
+- GraphQL interface for advanced queries
