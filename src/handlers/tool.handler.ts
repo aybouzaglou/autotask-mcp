@@ -1107,13 +1107,14 @@ export class AutotaskToolHandler {
       let message: string;
 
       switch (name) {
-        case 'test_connection':
+        case 'test_connection': {
           const connectionResult = await this.autotaskService.testConnection();
           result = { success: connectionResult };
           message = connectionResult
             ? 'Successfully connected to Autotask API'
             : 'Connection failed: Unable to connect to Autotask API';
           break;
+        }
 
         case 'search_companies':
           result = await this.autotaskService.searchCompanies(args);
@@ -1140,7 +1141,7 @@ export class AutotaskToolHandler {
           message = `Successfully created contact with ID: ${result}`;
           break;
 
-        case 'search_tickets':
+        case 'search_tickets': {
           // Map parameter names from tool schema to service expectations
           const { companyID, ...otherArgs } = args;
           const ticketSearchOptions = {
@@ -1150,6 +1151,7 @@ export class AutotaskToolHandler {
           result = await this.autotaskService.searchTickets(ticketSearchOptions);
           message = `Found ${result.length} tickets`;
           break;
+        }
 
         case 'get_ticket_details':
           result = await this.autotaskService.getTicket(args.ticketID, args.fullDetails);
