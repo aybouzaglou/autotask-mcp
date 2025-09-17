@@ -18,11 +18,11 @@ so that the core server logic is transport-agnostic.
 - **IV3**: All existing environment variables continue to work
 
 ## Tasks
-- [ ] Create transport interface/abstraction layer
-- [ ] Refactor AutotaskMcpServer to use transport abstraction
-- [ ] Extract stdio transport into separate module
-- [ ] Update configuration system for transport selection
-- [ ] Ensure no behavioral changes to existing functionality
+- [x] Create transport interface/abstraction layer
+- [x] Refactor AutotaskMcpServer to use transport abstraction
+- [x] Extract stdio transport into separate module
+- [x] Update configuration system for transport selection
+- [x] Ensure no behavioral changes to existing functionality (verified via stdio smoke tests)
 
 ## Dev Notes
 - Transport abstraction should be minimal and focused
@@ -30,9 +30,9 @@ so that the core server logic is transport-agnostic.
 - Prepare foundation for HTTP transport in next story
 
 ## Testing
-- [ ] Unit tests for transport abstraction
-- [ ] Integration tests confirm no behavioral changes
-- [ ] Performance tests show no degradation
+- [x] Unit tests for transport abstraction (`tests/transport.test.ts`)
+- [ ] Integration tests confirm no behavioral changes *(pending automated HTTP/stdio dual-run test)*
+- [ ] Performance tests show no degradation *(not yet executed)*
 
 ## Dev Agent Record
 
@@ -44,7 +44,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - [x] Refactor AutotaskMcpServer to use transport abstraction
 - [x] Extract stdio transport into separate module
 - [x] Update configuration system for transport selection
-- [x] Ensure no behavioral changes to existing functionality
+- [x] Ensure no behavioral regressions in stdio mode (manual smoke test)
 
 ### Debug Log References
 - Fixed import paths for Jest compatibility (removed .js extensions)
@@ -52,13 +52,10 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - Maintained backward compatibility with stdio transport default
 
 ### Completion Notes
-- Successfully created transport abstraction layer with McpTransport interface
-- Refactored AutotaskMcpServer to use transport factory pattern
-- Extracted stdio transport into reusable module
-- Updated configuration system to support AUTOTASK_TRANSPORT environment variable
-- Zero behavioral changes - existing functionality works identically
-- Added comprehensive unit tests for transport abstraction (8 tests passing)
-- Foundation ready for HTTP transport implementation in Story 1.3
+- Added `BaseTransport`, `StdioTransport`, and `TransportFactory` modules to decouple transport concerns.
+- Updated `AutotaskMcpServer` to delay transport instantiation until `start()` while preserving existing lifecycle callbacks.
+- `loadEnvironmentConfig` now emits transport settings; additional validation still needed for mismatched defaults (Smithery vs env loader).
+- Unit suite passes; integration/performance verification deferred to Story 1.3/1.5 follow-up.
 
 ### File List
 - src/transport/base.ts (new - transport interface)
@@ -79,4 +76,4 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 - 2025-09-15: Added comprehensive test suite for transport functionality
 
 ## Status
-Ready for Review
+Ready for Review (pending integration/performance validation tracked in Stories 1.3 & 1.5)

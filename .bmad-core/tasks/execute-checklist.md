@@ -71,6 +71,14 @@ If the user asks or does not specify a specific checklist, list the checklists a
    - List of failed items with context
    - Specific recommendations for improvement
    - Any sections or items marked as N/A with justification
+   - Next actions (owner + follow-up plan) and where the report was recorded (e.g., story file, PRD, README)
+
+7. **Standard Closeout**
+
+   - Share the summary with the user and confirm they have the information they need.
+   - Update any designated documentation (PRD, story files, README, etc.) with key findings or decisions.
+   - Capture pending tasks or remediation items so a follow-on agent can act without re-running the checklist.
+   - Offer to help with remediation or re-testing if requested.
 
 ## Checklist Execution Methodology
 
