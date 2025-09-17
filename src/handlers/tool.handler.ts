@@ -1178,12 +1178,11 @@ export class AutotaskToolHandler {
             'resolution',
           ];
 
-          const updates = Object.entries(potentialUpdates)
-            .filter(([key, value]) => allowedUpdateFields.includes(key) && value !== undefined)
-            .reduce<Record<string, any>>((accumulator, [key, value]) => {
-              accumulator[key] = value;
-              return accumulator;
-            }, {});
+          const updates = Object.fromEntries(
+            Object.entries(potentialUpdates).filter(
+              ([key, value]) => allowedUpdateFields.includes(key) && value !== undefined
+            )
+          );
 
           if (Object.keys(updates).length === 0) {
             throw new Error('At least one mutable field must be provided (status, priority, queueID, dueDateTime, title, description, or resolution).');
