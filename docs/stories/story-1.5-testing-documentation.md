@@ -59,11 +59,12 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 
 ### Completion Notes
 - README now includes a "Deploying via Smithery" section outlining config prompts, smoke test workflow, and hosted vs. local transport guidance.
-- Developer guide mirrors the Smithery workflow with curl-based verification steps and reiterates credential prerequisites; release notes/testing docs still require alignment.
+- Developer guide mirrors the Smithery workflow with curl-based verification steps and reiterates credential prerequisites; release docs now include hosted smoke test and env flag guidance.
 - Test suite compiles but requires live credentials for connection smoke test; consider mocking Autotask client or gating via env flag.
 - Hosted smoke test + parity suite now automated; release notes still need an alignment pass for final sign-off.
 - Added `scripts/test-smithery-http.js` with `npm run test:smithery` for hosted HTTP validation; opt-in env flags (`AUTOTASK_ENABLE_LIVE_TESTS`, `AUTOTASK_ENABLE_HTTP_TESTS`) documented in testing instructions.
 - Captured latency samples in `docs/transport-performance.md` to record stdio vs. HTTP behavior; instructions added for refreshing numbers.
+- Updated `RELEASE_SETUP.md` and `RELEASE_SUMMARY.md` so release documentation covers smoke scripts and env flag requirements.
 
 ### File List
 - README.md (transport documentation)
