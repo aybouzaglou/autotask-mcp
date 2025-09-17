@@ -43,8 +43,8 @@ jobs:
       - name: Run tests
         run: npm test
       
-      - name: Test Docker build
-        run: docker build -t autotask-mcp:test .
+      # - name: Test Docker build (disabled)
+      #   run: docker build -t autotask-mcp:test .
 
   code-quality:
     name: Code Quality

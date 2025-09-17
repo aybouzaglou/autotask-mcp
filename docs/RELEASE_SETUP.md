@@ -1,5 +1,7 @@
 # Release Setup Documentation
 
+> Note: Docker-related steps in CI are currently disabled. You can re-enable them later by uncommenting the Docker jobs in `.github/workflows/release.yml` and the Docker build step in `.github/workflows/test.yml`, or by running scripts/prepare-release.sh with `FORCE_DOCKER=1`.
+
 This document explains how to set up automated releases for the Autotask MCP Server, including GitHub releases, NPM publishing, and Docker Hub publishing.
 
 ## Overview

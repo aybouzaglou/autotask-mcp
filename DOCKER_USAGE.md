@@ -1,5 +1,7 @@
 # Docker Usage Guide
 
+> Note: Docker support is currently paused; this guide is retained for future reference. Current CI does not build/publish images.
+
 This document provides comprehensive instructions for running the Autotask MCP Server using Docker.
 
 ## Quick Start
