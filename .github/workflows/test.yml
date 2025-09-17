@@ -9,6 +9,10 @@ on:
       - beta
       - alpha
 
+# Restrict the default GITHUB_TOKEN to least privilege
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Test on Node.js ${{ matrix.node-version }}
