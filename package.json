@@ -46,7 +46,7 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.18.0",
+    "@modelcontextprotocol/sdk": "^1.18.2",
     "autotask-node": "^1.0.0",
     "axios": "^1.12.2",
     "winston": "^3.11.0",
