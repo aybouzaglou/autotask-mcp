@@ -34,3 +34,4 @@ WARP.md
 .claude/settings.local.json
 # BMAD (local only)
 .smithery/
+.envrc
