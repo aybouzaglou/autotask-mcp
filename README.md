@@ -1,4 +1,5 @@
 # Autotask MCP Server
+[![smithery badge](https://smithery.ai/badge/@aybouzaglou/autotask-mcp)](https://smithery.ai/server/@aybouzaglou/autotask-mcp)
 
 A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that provides AI assistants with structured access to Kaseya Autotask PSA data and operations.
 
@@ -45,6 +46,14 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that p
 - Node.js 18+ (LTS recommended)
 - Valid Autotask API credentials
 - MCP-compatible client (Claude Desktop, Continue, etc.)
+
+### Installing via Smithery
+
+To install Autotask PSA automatically via [Smithery](https://smithery.ai/server/@aybouzaglou/autotask-mcp):
+
+```bash
+npx -y @smithery/cli install @aybouzaglou/autotask-mcp
+```
 
 ### Local Tarball Installation
 
