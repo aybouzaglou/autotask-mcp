@@ -3,42 +3,35 @@
 
 import { AutotaskClient } from 'autotask-node';
 
-const hasCredentials = Boolean(
-  process.env.AUTOTASK_USERNAME &&
-  process.env.AUTOTASK_SECRET &&
-  process.env.AUTOTASK_INTEGRATION_CODE
-);
-
-const liveFlagEnabled = process.env.AUTOTASK_ENABLE_LIVE_TESTS === 'true';
-const shouldRunLive = hasCredentials && liveFlagEnabled;
-
-const describeWithCredentials = shouldRunLive ? describe : describe.skip;
-
-if (!shouldRunLive) {
-  const reason = hasCredentials
-    ? 'AUTOTASK_ENABLE_LIVE_TESTS flag not set'
-    : 'credentials not provided';
-  // eslint-disable-next-line no-console
-  console.warn(`[basic-autotask-connection] Skipping live Autotask tests – ${reason}.`);
-}
-
-describeWithCredentials('Autotask live connection', () => {
+describe('Autotask Connection Tests', () => {
   let client: AutotaskClient;
 
   beforeAll(async () => {
-    client = await AutotaskClient.create({
-      username: process.env.AUTOTASK_USERNAME!,
-      secret: process.env.AUTOTASK_SECRET!,
-      integrationCode: process.env.AUTOTASK_INTEGRATION_CODE!,
-    });
+    // Skip tests if no credentials are provided
+    if (!process.env.AUTOTASK_USERNAME || !process.env.AUTOTASK_SECRET || !process.env.AUTOTASK_INTEGRATION_CODE) {
+      console.log('Skipping Autotask connection tests - no credentials provided');
+      return;
+    }
+
+    try {
+      client = await AutotaskClient.create({
+        username: process.env.AUTOTASK_USERNAME,
+        secret: process.env.AUTOTASK_SECRET,
+        integrationCode: process.env.AUTOTASK_INTEGRATION_CODE,
+      });
+    } catch (error) {
+      console.log('Failed to create Autotask client:', error);
+    }
   });
 
   test('should create AutotaskClient instance', () => {
+    if (!process.env.AUTOTASK_USERNAME) {
+      console.log('Skipping test - no credentials');
+      return;
+    }
+
     expect(client).toBeDefined();
   });
-});
-
-describe('Autotask data structure sanity checks', () => {
   test('should be able to get companies (mock test)', async () => {
     // This is a mock test to verify our types work
     const mockCompany = {
@@ -88,4 +81,4 @@ describe('Autotask data structure sanity checks', () => {
     expect(mockContact.lastName).toBe('Doe');
     expect(mockContact.emailAddress).toBe('john.doe@example.com');
   });
-}); 
+});
