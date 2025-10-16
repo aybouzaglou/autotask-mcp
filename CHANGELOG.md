@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/aybouzaglou/autotask-mcp/compare/v1.0.0...v1.1.0) (2025-10-16)
+
+
+### Bug Fixes
+
+* update Node.js requirement to >=20.0.0 for Smithery CLI compatibility ([b78fe23](https://github.com/aybouzaglou/autotask-mcp/commit/b78fe236e6db363c36eb1030ac98d2ec7eccd017))
+
+
+### Features
+
+* **ci:** adopt upstream GHCR migration and pragmatic test handling ([6ff37be](https://github.com/aybouzaglou/autotask-mcp/commit/6ff37be84af07f86dda4f244b125a748bb59f726))
+
 # 1.0.0 (2025-09-17)
 
 
