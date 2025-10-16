@@ -35,3 +35,7 @@ WARP.md
 # BMAD (local only)
 .smithery/
 .envrc
+.codex/sessions/2025/10/16/rollout-2025-10-16T19-37-33-0199ef62-cd68-74d0-869b-c8ea6a4e3376.jsonl
+.codex/auth.json
+.codex/config.toml
+.codex/version.json
