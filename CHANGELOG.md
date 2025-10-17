@@ -1,3 +1,10 @@
+## [2.1.5](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.4...v2.1.5) (2025-10-17)
+
+
+### Bug Fixes
+
+* refactor resources to follow MCP best practices… ([2b57b33](https://github.com/aybouzaglou/autotask-mcp/commit/2b57b3302cef027fa9f4ae174b8215c1e17a8ede))
+
 ## [2.1.4](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.3...v2.1.4) (2025-10-17)
 
 
