@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.0...v2.1.1) (2025-10-17)
+
+
+### Bug Fixes
+
+* Make pagination limits more explicit in tool descriptions… ([475e1ea](https://github.com/aybouzaglou/autotask-mcp/commit/475e1ea50228681e0b6a3989ca372ed953680473))
+
 # [2.1.0](https://github.com/aybouzaglou/autotask-mcp/compare/v2.0.1...v2.1.0) (2025-10-17)
 
 
