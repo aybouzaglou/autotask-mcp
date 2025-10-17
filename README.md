@@ -740,7 +740,7 @@ npm test -- tests/autotask-service.test.ts
 
 ## Release Process
 
-Semantic Release still runs on pushes to `main`, but it now skips publishing unless a commit explicitly requests a release.
+Semantic Release still runs on pushes to `main`, but it now skips publishing unless a commit explicitly requests a release. We no longer publish GitHub Releases or attach build artifacts—GitHub Container Registry is the canonical distribution channel.
 
 ### Triggering A Release
 - `release: Cut patch release` → publishes a patch (default)
@@ -753,6 +753,7 @@ Semantic Release still runs on pushes to `main`, but it now skips publishing unl
 - Conventional commit types such as `feat`, `fix`, `docs`, `chore`, etc. now skip publishing automatically
 - No extra tag is required to skip a release—just commit normally
 - When in doubt, run `npm run build` locally before pushing a release commit to confirm everything passes
+- Docker images for `latest` and `vX.Y.Z` still publish from the release workflow; check GHCR for available tags instead of GitHub Releases
 
 ## Configuration Reference
 
