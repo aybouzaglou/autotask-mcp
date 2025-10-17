@@ -394,15 +394,72 @@ If you export a `configSchema` from `src/index.ts`, Smithery will render a confi
 
 > **Generated bundle note:** The `.smithery/` directory is created by `@smithery/cli` during `npm run build`, `npm run dev`, and the Smithery cloud pipeline. Keep it out of version control (it's already listed in `.gitignore`). If a stale `.smithery/index.cjs` is committed, Smithery deploys two copies of the server and the container fails to start with `EADDRINUSE` on port 8181.
 
-## Legacy Docker Notes
+## Docker Deployment
 
-Historically this repo shipped Docker images, but the container entrypoint currently launches `dist/index.js`, which only exports the Smithery factory and never starts transports. The included `docker-compose.yml` health check also probes an unsupported GET endpoint. You can revive the Docker path, but expect to:
+Docker images are **actively maintained and published** to GitHub Container Registry (GHCR).
 
-- Update the image command to `node dist/cli.js` or similar.
-- Implement a real HTTP transport rather than the stub in `src/transport/http.ts`.
-- Replace the health check with a POST probe that speaks MCP streamable HTTP.
+### Quick Start with Docker
 
-Until those gaps are resolved we recommend avoiding Docker for production deployments and using Smithery hosting instead.
+#### Pull from GitHub Container Registry
+
+```bash
+# Public image (no authentication required)
+docker pull ghcr.io/aybouzaglou/autotask-mcp:latest
+
+# Run with environment file
+docker run --rm --env-file .env ghcr.io/aybouzaglou/autotask-mcp:latest
+
+# Run with inline environment variables
+docker run --rm \
+  -e AUTOTASK_USERNAME="your-user@example.com" \
+  -e AUTOTASK_SECRET="your-secret" \
+  -e AUTOTASK_INTEGRATION_CODE="your-code" \
+  ghcr.io/aybouzaglou/autotask-mcp:latest
+```
+
+#### Using Docker Compose
+
+```bash
+# Pull and start with docker-compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop
+docker-compose down
+```
+
+### Docker Features
+
+- **Multi-platform support**: linux/amd64, linux/arm64
+- **Automated publishing**: Images built and published on every release via GitHub Actions
+- **Security scanning**: Trivy vulnerability scanning in CI/CD pipeline
+- **Versioned tags**: Both `:latest` and semantic version tags (e.g., `:v2.0.0`)
+
+### Authentication (Private Repositories Only)
+
+If the repository is private, authenticate with GitHub Personal Access Token:
+
+```bash
+# Create PAT with read:packages scope at https://github.com/settings/tokens
+echo $GITHUB_PAT | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+
+# Pull image
+docker pull ghcr.io/aybouzaglou/autotask-mcp:latest
+```
+
+### Published Location
+
+**Container Registry:** https://github.com/aybouzaglou/autotask-mcp/pkgs/container/autotask-mcp
+
+### When to Use Docker vs Smithery
+
+| Deployment Method | Best For | Pros | Cons |
+|-------------------|----------|------|------|
+| **Smithery** | Managed production hosting | Auto-scaling, HTTPS, zero infrastructure | Less control, hosted only |
+| **Docker** | Self-hosted, air-gapped | Full control, any infrastructure | Manual management, security updates |
+| **Local npm** | Development, Claude Desktop | Easy debugging, hot reload | Not production-ready |
 
 ## Claude Desktop Integration
 

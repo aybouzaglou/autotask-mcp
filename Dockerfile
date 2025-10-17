@@ -62,7 +62,7 @@ ENV LOG_FORMAT=json
 VOLUME ["/app/logs"]
 
 # Start the application
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/cli.js"]
 
 # Build arguments for runtime
 ARG VERSION="unknown"
@@ -78,8 +78,8 @@ LABEL org.opencontainers.image.description="Model Context Protocol server for Ka
 LABEL org.opencontainers.image.version="${VERSION}"
 LABEL org.opencontainers.image.created="${BUILD_DATE}"
 LABEL org.opencontainers.image.revision="${COMMIT_SHA}"
-LABEL org.opencontainers.image.source="https://github.com/asachs01/autotask-mcp"
-LABEL org.opencontainers.image.documentation="https://github.com/asachs01/autotask-mcp/blob/main/README.md"
-LABEL org.opencontainers.image.url="https://hub.docker.com/r/asachs01/autotask-mcp"
+LABEL org.opencontainers.image.source="https://github.com/aybouzaglou/autotask-mcp"
+LABEL org.opencontainers.image.documentation="https://github.com/aybouzaglou/autotask-mcp#readme"
+LABEL org.opencontainers.image.url="https://ghcr.io/aybouzaglou/autotask-mcp"
 LABEL org.opencontainers.image.vendor="Autotask MCP"
 LABEL org.opencontainers.image.licenses="MIT" 

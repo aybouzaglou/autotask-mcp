@@ -2,11 +2,13 @@
 
 services:
   autotask-mcp:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production
-    image: autotask-mcp:latest
+    # Use published image from GitHub Container Registry
+    # To build locally instead: uncomment build section and change image to autotask-mcp:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   target: production
+    image: ghcr.io/aybouzaglou/autotask-mcp:latest
     container_name: autotask-mcp-server
     restart: unless-stopped
     env_file:

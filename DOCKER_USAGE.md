@@ -1,15 +1,28 @@
 # Docker Usage Guide
 
-> Note: Docker support is currently paused; this guide is retained for future reference. Current CI does not build/publish images.
-
 This document provides comprehensive instructions for running the Autotask MCP Server using Docker.
+
+Docker images are actively built and published to **GitHub Container Registry (GHCR)** on every release.
 
 ## Quick Start
 
-### Pull from Docker Hub
+### Pull from GitHub Container Registry
 
 ```bash
-docker pull asachs01/autotask-mcp:latest
+# Public image - no authentication required
+docker pull ghcr.io/aybouzaglou/autotask-mcp:latest
+```
+
+### Authentication (Private Repositories Only)
+
+If the repository is private, authenticate with a GitHub Personal Access Token:
+
+```bash
+# Create PAT with read:packages scope at https://github.com/settings/tokens
+echo $GITHUB_PAT | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+
+# Then pull the image
+docker pull ghcr.io/aybouzaglou/autotask-mcp:latest
 ```
 
 ### Run with Environment Variables
@@ -21,7 +34,7 @@ docker run -d \
   -e AUTOTASK_SECRET="your-secret-key" \
   -e AUTOTASK_INTEGRATION_CODE="your-integration-code" \
   -e LOG_LEVEL="info" \
-  asachs01/autotask-mcp:latest
+  ghcr.io/aybouzaglou/autotask-mcp:latest
 ```
 
 ### Run with Environment File
@@ -40,7 +53,7 @@ Run with env file:
 docker run -d \
   --name autotask-mcp \
   --env-file .env \
-  asachs01/autotask-mcp:latest
+  ghcr.io/aybouzaglou/autotask-mcp:latest
 ```
 
 ## Docker Compose
@@ -52,7 +65,7 @@ version: '3.8'
 
 services:
   autotask-mcp:
-    image: asachs01/autotask-mcp:latest
+    image: ghcr.io/aybouzaglou/autotask-mcp:latest
     container_name: autotask-mcp
     restart: unless-stopped
     environment:
@@ -87,7 +100,7 @@ docker-compose up -d
 
 ```bash
 # Clone the repository
-git clone https://github.com/asachs01/autotask-mcp.git
+git clone https://github.com/aybouzaglou/autotask-mcp.git
 cd autotask-mcp
 
 # Build the Docker image
@@ -142,7 +155,7 @@ Add to your Claude Desktop configuration:
       "args": [
         "run", "--rm", "-i",
         "--env-file", "/path/to/your/.env",
-        "asachs01/autotask-mcp:latest"
+        "ghcr.io/aybouzaglou/autotask-mcp:latest"
       ]
     }
   }
@@ -156,7 +169,7 @@ Add to your Claude Desktop configuration:
 docker run -d \
   --name autotask-mcp-server \
   --env-file .env \
-  asachs01/autotask-mcp:latest
+  ghcr.io/aybouzaglou/autotask-mcp:latest
 
 # Use with MCP client
 docker exec -i autotask-mcp-server node dist/index.js
@@ -228,7 +241,7 @@ docker run -d \
   --name autotask-mcp \
   --memory=512m \
   --env-file .env \
-  asachs01/autotask-mcp:latest
+  ghcr.io/aybouzaglou/autotask-mcp:latest
 ```
 
 ### Debug Mode
@@ -239,7 +252,7 @@ Run container in debug mode:
 docker run -it --rm \
   --env-file .env \
   -e LOG_LEVEL=debug \
-  asachs01/autotask-mcp:latest
+  ghcr.io/aybouzaglou/autotask-mcp:latest
 ```
 
 ### Interactive Debugging
@@ -249,7 +262,7 @@ docker run -it --rm \
 docker run -it --rm \
   --env-file .env \
   --entrypoint /bin/sh \
-  asachs01/autotask-mcp:latest
+  ghcr.io/aybouzaglou/autotask-mcp:latest
 
 # Inside container, run manually
 node dist/index.js
@@ -271,7 +284,7 @@ docker run -d \
   --name autotask-mcp \
   --network autotask-network \
   --env-file .env \
-  asachs01/autotask-mcp:latest
+  ghcr.io/aybouzaglou/autotask-mcp:latest
 ```
 
 ### Read-Only Container
@@ -281,7 +294,7 @@ docker run -d \
   --read-only \
   --tmpfs /tmp \
   --env-file .env \
-  asachs01/autotask-mcp:latest
+  ghcr.io/aybouzaglou/autotask-mcp:latest
 ```
 
 ## Production Deployment
@@ -305,7 +318,7 @@ spec:
     spec:
       containers:
       - name: autotask-mcp
-        image: asachs01/autotask-mcp:latest
+        image: ghcr.io/aybouzaglou/autotask-mcp:latest
         env:
         - name: AUTOTASK_USERNAME
           valueFrom:
@@ -338,7 +351,7 @@ version: '3.8'
 
 services:
   autotask-mcp:
-    image: asachs01/autotask-mcp:latest
+    image: ghcr.io/aybouzaglou/autotask-mcp:latest
     deploy:
       replicas: 1
       restart_policy:
@@ -368,7 +381,7 @@ secrets:
 
 ```bash
 # Pull latest version
-docker pull asachs01/autotask-mcp:latest
+docker pull ghcr.io/aybouzaglou/autotask-mcp:latest
 
 # Stop and remove old container
 docker stop autotask-mcp
@@ -378,7 +391,7 @@ docker rm autotask-mcp
 docker run -d \
   --name autotask-mcp \
   --env-file .env \
-  asachs01/autotask-mcp:latest
+  ghcr.io/aybouzaglou/autotask-mcp:latest
 ```
 
 ### Backup and Restore
@@ -393,4 +406,17 @@ docker run --rm -v autotask-logs:/data -v $(pwd):/backup \
   alpine tar xzf /backup/autotask-logs-backup.tar.gz -C /data
 ```
 
-For more information, see the main [README.md](README.md) or visit the [GitHub repository](https://github.com/asachs01/autotask-mcp). 
+For more information, see the main [README.md](README.md) or visit the [GitHub repository](https://github.com/aybouzaglou/autotask-mcp).
+
+## CI/CD Integration
+
+Docker images are automatically built and published via GitHub Actions:
+
+- **Workflow:** `.github/workflows/release.yml`
+- **Trigger:** Every push to `main` branch
+- **Registry:** GitHub Container Registry (GHCR)
+- **Security:** Trivy vulnerability scanning
+- **Platforms:** linux/amd64, linux/arm64
+- **Tags:** `:latest` and semantic version tags (e.g., `:v2.0.0`)
+
+**Published images:** https://github.com/aybouzaglou/autotask-mcp/pkgs/container/autotask-mcp
