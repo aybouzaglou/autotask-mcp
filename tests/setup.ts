@@ -22,4 +22,32 @@ beforeAll(() => {
 // Global test cleanup
 afterAll(() => {
   // Any cleanup operations
-}); 
+});
+
+// Ticket metadata fixtures for testing
+export const MOCK_TICKET_STATUSES = [
+  { id: 1, name: 'New', isActive: true },
+  { id: 2, name: 'In Progress', isActive: true },
+  { id: 5, name: 'Complete', isActive: true },
+  { id: 7, name: 'Waiting Customer', isActive: true },
+  { id: 8, name: 'Waiting Vendor', isActive: true },
+  { id: 9, name: 'Escalated', isActive: true }
+];
+
+export const MOCK_TICKET_PRIORITIES = [
+  { id: 1, name: 'Low', isActive: true },
+  { id: 2, name: 'Medium', isActive: true },
+  { id: 3, name: 'High', isActive: true },
+  { id: 4, name: 'Critical', isActive: true },
+  { id: 5, name: 'Urgent', isActive: true }
+];
+
+export const MOCK_ACTIVE_RESOURCES = [
+  { id: 100, firstName: 'John', lastName: 'Doe', isActive: true, email: 'john.doe@example.com' },
+  { id: 101, firstName: 'Jane', lastName: 'Smith', isActive: true, email: 'jane.smith@example.com' },
+  { id: 102, firstName: 'Bob', lastName: 'Johnson', isActive: true, email: 'bob.johnson@example.com' }
+];
+
+export const MOCK_INACTIVE_RESOURCES = [
+  { id: 200, firstName: 'Inactive', lastName: 'User', isActive: false, email: 'inactive@example.com' }
+];

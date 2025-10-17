@@ -11,12 +11,6 @@ Restore reliable Autotask ticket updates via the MCP server so assistants can re
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
 **Language/Version**: TypeScript 5.3 targeting Node.js 18 (existing MCP server stack)  
 **Primary Dependencies**: `@modelcontextprotocol/sdk`, `autotask-node`, `axios`, `winston`  
 **Storage**: N/A (Autotask SaaS as system of record)  
@@ -52,30 +46,29 @@ specs/001-specify-scripts-bash/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
-
 ```
 src/
 ├── handlers/
-│   └── ticket.handler.ts
-├── services/
-│   └── autotask.service.ts
+│   └── tool.handler.ts
 ├── mcp/
 │   └── server.ts
+├── services/
+│   ├── autotask.service.ts
+│   ├── ticket-metadata.cache.ts
+│   └── ticket-update.validator.ts
 └── utils/
+    ├── error-mapper.ts
     └── logger.ts
 
 tests/
 ├── integration/
-│   └── tickets.integration.test.ts
+│   └── ticket-updates.integration.test.ts
 └── unit/
-    └── handlers/
-        └── ticket.handler.test.ts
+    ├── handlers/
+    │   ├── tool-handler.update-ticket.test.ts
+    │   └── tool-handler.create-ticket-note.test.ts
+    └── utils/
+        └── error-mapper.test.ts
 ```
 
 **Structure Decision**: Extend existing single-project backend layout; focus changes in ticket handler/service files and add complementary Jest tests under `tests/unit` and `tests/integration`.

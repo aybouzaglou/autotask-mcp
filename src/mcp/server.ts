@@ -219,7 +219,7 @@ This server provides access to Kaseya Autotask PSA data and operations through t
 - **update_contact** - Update contact information
 - **search_tickets** - Search for tickets with filters
 - **create_ticket** - Create a new ticket
-- **update_ticket** - Update ticket information
+- **update_ticket** - Update ticket assignment, status, priority, queue, title, description, and resolution with validation and structured error feedback
 - **create_time_entry** - Log time against a ticket or project
 - **test_connection** - Test Autotask API connectivity
 
