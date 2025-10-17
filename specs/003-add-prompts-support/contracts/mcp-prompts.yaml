@@ -1,0 +1,192 @@
+openapi: 3.0.3
+info:
+  title: Autotask MCP Prompts API
+  version: "0.1.0"
+  description: |
+    Describes the JSON-RPC methods exposed by the Autotask MCP server for prompt discovery and retrieval.
+servers:
+  - url: mcp://autotask
+    description: Model Context Protocol transport channel
+components:
+  schemas:
+    PromptSummary:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - arguments
+      properties:
+        id:
+          type: string
+          description: Unique prompt identifier returned to clients.
+        name:
+          type: string
+          description: Human-readable prompt title.
+        description:
+          type: string
+          description: Short summary of the workflow supported.
+        tags:
+          type: array
+          items:
+            type: string
+          description: Optional categorisation tags.
+        arguments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromptArgument'
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional prompt metadata (version, activation flags).
+    PromptArgument:
+      type: object
+      required:
+        - name
+        - description
+        - required
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        required:
+          type: boolean
+        default:
+          type: string
+          nullable: true
+        example:
+          type: string
+          nullable: true
+    PromptDetail:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - instructions
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        instructions:
+          type: string
+          description: Fully expanded prompt text returned to the client.
+        context:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromptContextBlock'
+        metadata:
+          type: object
+          additionalProperties: true
+    PromptContextBlock:
+      type: object
+      required:
+        - title
+        - summary
+      properties:
+        title:
+          type: string
+        summary:
+          type: string
+        raw:
+          type: object
+          additionalProperties: true
+          description: Sanitised Autotask payload exposed to clients.
+methods:
+  prompts/list:
+    description: List active prompts available from the Autotask MCP server.
+    request:
+      jsonrpc: "2.0"
+      method: prompts/list
+      params:
+        type: object
+        properties: {}
+    responses:
+      "200":
+        description: Successful list of prompts.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - result
+              properties:
+                jsonrpc:
+                  type: string
+                  enum: ["2.0"]
+                id:
+                  type: integer
+                result:
+                  type: object
+                  required:
+                    - prompts
+                  properties:
+                    prompts:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/PromptSummary'
+    errors:
+      MethodNotFound:
+        code: -32601
+        message: Method not found
+      InternalError:
+        code: -32603
+        message: Unexpected failure listing prompts
+  prompts/get:
+    description: Retrieve detailed instructions for a specific prompt.
+    request:
+      jsonrpc: "2.0"
+      method: prompts/get
+      params:
+        type: object
+        required:
+          - id
+        properties:
+          id:
+            type: string
+            description: Prompt identifier to fetch.
+          arguments:
+            type: object
+            additionalProperties:
+              type: string
+            description: Runtime argument values supplied by the client.
+    responses:
+      "200":
+        description: Prompt retrieved successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - result
+              properties:
+                jsonrpc:
+                  type: string
+                  enum: ["2.0"]
+                id:
+                  type: integer
+                result:
+                  type: object
+                  required:
+                    - prompt
+                  properties:
+                    prompt:
+                      $ref: '#/components/schemas/PromptDetail'
+    errors:
+      PromptMissingArguments:
+        code: 40001
+        message: Required arguments missing for prompt
+      PromptNotFound:
+        code: 40401
+        message: Prompt id not found
+      InternalError:
+        code: -32603
+        message: Unexpected failure retrieving prompt
