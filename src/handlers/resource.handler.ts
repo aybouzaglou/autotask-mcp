@@ -37,8 +37,8 @@ export class AutotaskResourceHandler {
       // Company resources
       {
         uri: 'autotask://companies',
-        name: 'All Companies',
-        description: 'List of all companies in Autotask',
+        name: 'Companies (Limited)',
+        description: 'Returns ONLY FIRST 100 companies. For complete searches with filters, use the search_companies TOOL instead.',
         mimeType: 'application/json'
       },
       {
@@ -51,8 +51,8 @@ export class AutotaskResourceHandler {
       // Contact resources
       {
         uri: 'autotask://contacts',
-        name: 'All Contacts',
-        description: 'List of all contacts in Autotask',
+        name: 'Contacts (Limited)',
+        description: 'Returns ONLY FIRST 100 contacts. For complete searches with filters, use the search_contacts TOOL instead.',
         mimeType: 'application/json'
       },
       {
@@ -65,8 +65,8 @@ export class AutotaskResourceHandler {
       // Ticket resources
       {
         uri: 'autotask://tickets',
-        name: 'All Tickets',
-        description: 'List of all tickets in Autotask',
+        name: 'Tickets (Limited)',
+        description: 'Returns ONLY FIRST 100 tickets. For complete searches with filters, use the search_tickets TOOL instead.',
         mimeType: 'application/json'
       },
       {
@@ -111,7 +111,7 @@ export class AutotaskResourceHandler {
           description = `Company: ${data.companyName || 'Unknown'}`;
         } else {
           data = await this.autotaskService.searchCompanies({ pageSize: 100 });
-          description = `List of ${data.length} companies`;
+          description = `⚠️ Showing first ${data.length} companies only (limited to 100). Use search_companies tool with pageSize: -1 for complete results.`;
         }
         break;
 
@@ -124,7 +124,7 @@ export class AutotaskResourceHandler {
           description = `Contact: ${data.firstName} ${data.lastName}`;
         } else {
           data = await this.autotaskService.searchContacts({ pageSize: 100 });
-          description = `List of ${data.length} contacts`;
+          description = `⚠️ Showing first ${data.length} contacts only (limited to 100). Use search_contacts tool with pageSize: -1 for complete results.`;
         }
         break;
 
@@ -137,13 +137,13 @@ export class AutotaskResourceHandler {
           description = `Ticket: ${data.title || data.ticketNumber || 'Unknown'}`;
         } else {
           data = await this.autotaskService.searchTickets({ pageSize: 100 });
-          description = `List of ${data.length} tickets`;
+          description = `⚠️ Showing first ${data.length} tickets only (limited to 100). Use search_tickets tool with pageSize: -1 for complete results.`;
         }
         break;
 
       case 'time-entries':
         data = await this.autotaskService.getTimeEntries({ pageSize: 100 });
-        description = `List of ${data.length} time entries`;
+        description = `⚠️ Showing first ${data.length} time entries only (limited to 100). Use appropriate tool for complete results.`;
         break;
 
       default:
