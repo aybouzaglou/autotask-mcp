@@ -34,6 +34,7 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that p
 - [Claude Desktop Integration](#claude-desktop-integration)
 - [Development](#development)
 - [Testing](#testing)
+- [Release Process](#release-process)
 - [Architecture Documentation](#architecture-documentation)
 - [Contributing](#contributing)
 - [License](#license)
@@ -736,6 +737,22 @@ npm test -- tests/autotask-service.test.ts
 
 - Minimum 80% coverage for all metrics
 - 100% coverage for critical paths (authentication, data handling)
+
+## Release Process
+
+Semantic Release still runs on pushes to `main`, but it now skips publishing unless a commit explicitly requests a release.
+
+### Triggering A Release
+- `release: Cut patch release` → publishes a patch (default)
+- `release(minor): Highlight new feature` → publishes a minor release
+- `release(major): Upcoming v3` or any `release!` commit → publishes a major release
+- `release(alpha): Preview build` / `release(beta): Candidate build` → publishes prerelease tags
+- Any commit with a `BREAKING CHANGE:` note also forces a major version
+
+### Everyday Commits
+- Conventional commit types such as `feat`, `fix`, `docs`, `chore`, etc. now skip publishing automatically
+- No extra tag is required to skip a release—just commit normally
+- When in doubt, run `npm run build` locally before pushing a release commit to confirm everything passes
 
 ## Configuration Reference
 
