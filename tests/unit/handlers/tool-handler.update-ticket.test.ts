@@ -27,6 +27,7 @@ const createHandler = (overrides: Partial<AutotaskService> = {}) => {
   const mockService = {
     updateTicket: jest.fn(),
     getMetadataCache: jest.fn().mockReturnValue(mockMetadataCache),
+    ensureMetadataCacheInitialized: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   } as unknown as AutotaskService;
 
@@ -128,7 +129,7 @@ describe("AutotaskToolHandler.update_ticket", () => {
 
     const payload = JSON.parse(response.content[0].text);
     expect(payload.isError).toBe(true);
-    expect(payload.error.message).toContain(
+    expect(payload.error.guidance).toContain(
       "At least one field must be provided",
     );
   });

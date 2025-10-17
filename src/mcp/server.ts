@@ -5,6 +5,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
   ErrorCode,
+  ListResourceTemplatesRequestSchema,
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   McpError,
@@ -45,7 +46,10 @@ export class AutotaskMcpServer {
         capabilities: {
           resources: {
             subscribe: false,
-            listChanged: true
+            listChanged: true,
+            resourceTemplates: {
+              listChanged: true
+            }
           },
           tools: {
             listChanged: true
@@ -82,6 +86,26 @@ export class AutotaskMcpServer {
         throw new McpError(
           ErrorCode.InternalError,
           `Failed to list resources: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+      }
+    });
+
+    // List resource templates
+    this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
+      try {
+        this.logger.debug('Handling list resource templates request');
+        const resourceTemplates = this.resourceHandler.getResourceTemplates().map((uriTemplate) => ({
+          name: uriTemplate,
+          uriTemplate,
+          description: `Template for resources matching ${uriTemplate}`,
+          mimeType: 'application/json'
+        }));
+        return { resourceTemplates };
+      } catch (error) {
+        this.logger.error('Failed to list resource templates:', error);
+        throw new McpError(
+          ErrorCode.InternalError,
+          `Failed to list resource templates: ${error instanceof Error ? error.message : 'Unknown error'}`
         );
       }
     });

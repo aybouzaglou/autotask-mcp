@@ -43,6 +43,7 @@ const createService = (logger: Logger) => {
   );
 
   jest.spyOn(service, "getMetadataCache").mockReturnValue(metadataStub as any);
+  jest.spyOn(service, "ensureMetadataCacheInitialized").mockResolvedValue();
   return service;
 };
 
@@ -251,7 +252,7 @@ describe("Ticket note creation flow", () => {
     const payload = JSON.parse(response.content[0].text);
     expect(payload.isError).toBe(true);
     // Should contain validation error message
-    expect(payload.error.message).toMatch(
+    expect(payload.error.guidance).toMatch(
       /Invalid note payload|Invalid publish level/,
     );
   });
@@ -311,7 +312,7 @@ describe("Ticket note creation flow", () => {
     const payload = JSON.parse(response.content[0].text);
     expect(payload.isError).toBe(true);
     // Should contain validation error about length
-    expect(payload.error.message).toMatch(
+    expect(payload.error.guidance).toMatch(
       /Invalid note payload|exceeds maximum length/,
     );
   });
