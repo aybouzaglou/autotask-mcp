@@ -100,17 +100,17 @@ export class AutotaskToolHandler {
       {
         name: "search_companies",
         description:
-          "Search for companies in Autotask. **IMPORTANT: Returns ONLY first 50 matching companies by default** - if you need ALL companies matching your query, you MUST set pageSize: -1. Use filters (searchTerm, isActive) to narrow results.",
+          "Search for companies in Autotask. Returns 50 companies by default. **BEST PRACTICE: Always use 'searchTerm' for targeted lookups** (e.g., searchTerm: 'mandevco' to find 'Mandevco Properties Inc.'). Use 'isActive: true' to filter active companies only. Only use pageSize: -1 if you genuinely need all matching records.",
         inputSchema: {
           type: "object",
           properties: {
             searchTerm: {
               type: "string",
-              description: "Search term for company name",
+              description: "Search term for company name (RECOMMENDED: use this for targeted searches)",
             },
             isActive: {
               type: "boolean",
-              description: "Filter by active status",
+              description: "Filter by active status (RECOMMENDED: set to true to exclude inactive companies)",
             },
             pageSize: PAGE_SIZE_STANDARD,
           },
@@ -1124,17 +1124,74 @@ export class AutotaskToolHandler {
         }
 
         case "search_companies": {
+          const startTime = Date.now();
           const requestedPageSize = args.pageSize;
           const defaultPageSize = 50;
+          const searchTerm = args.searchTerm?.toLowerCase().trim();
+          
+          // Log query parameters for observability
+          this.logger.info('search_companies query', {
+            searchTerm: args.searchTerm,
+            isActive: args.isActive,
+            requestedPageSize,
+            hasFilters: !!(args.searchTerm || args.isActive !== undefined)
+          });
+          
+          // Strategy 1: Targeted search with safe defaults
+          // If searchTerm is provided and pageSize not specified, use safe default
+          const searchOptions = {
+            ...args,
+            pageSize: requestedPageSize !== undefined ? requestedPageSize : defaultPageSize
+          };
+          
+          result = await this.autotaskService.searchCompanies(searchOptions);
+          
+          const queryTime = Date.now() - startTime;
           const effectivePageSize = requestedPageSize === -1 ? Infinity : (requestedPageSize || defaultPageSize);
           
-          result = await this.autotaskService.searchCompanies(args);
+          // Log result metrics
+          this.logger.info('search_companies results', {
+            resultCount: result.length,
+            queryTimeMs: queryTime,
+            wasTruncated: result.length >= effectivePageSize && effectivePageSize !== Infinity
+          });
           
-          // Check if results might be truncated
+          // Performance warning for large result sets
+          if (result.length > 100) {
+            this.logger.warn(`Large result set returned: ${result.length} companies. Consider using more specific filters (searchTerm, isActive).`);
+          }
+          
+          // Strategy 2: Exact match prioritization
+          // If searchTerm provided, check for exact match first
+          if (searchTerm && result.length > 1) {
+            const exactMatches = result.filter(
+              (company: any) => company.companyName?.toLowerCase().trim() === searchTerm
+            );
+            
+            if (exactMatches.length === 1) {
+              // Found exactly one exact match - prioritize it
+              result = [exactMatches[0], ...result.filter((c: any) => c.id !== exactMatches[0].id)];
+              message = `Found exact match: "${exactMatches[0].companyName}" (plus ${result.length - 1} similar results)`;
+              break;
+            } else if (exactMatches.length > 1) {
+              // Multiple exact matches (rare) - return them first
+              const otherMatches = result.filter(
+                (c: any) => !exactMatches.some((em: any) => em.id === c.id)
+              );
+              result = [...exactMatches, ...otherMatches];
+              message = `Found ${exactMatches.length} exact matches for "${args.searchTerm}" (plus ${otherMatches.length} similar results)`;
+              break;
+            }
+          }
+          
+          // Default messaging
           const isTruncated = result.length >= effectivePageSize && effectivePageSize !== Infinity;
           
           if (isTruncated) {
             message = `Returning ${result.length} companies (results may be truncated). To see all results, use pageSize: -1 or add filters (searchTerm, isActive).`;
+          } else if (result.length === 0 && !searchTerm && requestedPageSize !== -1) {
+            // No results and no filters - suggest using searchTerm
+            message = `No companies found. Try adding searchTerm parameter or use pageSize: -1 to fetch all companies.`;
           } else {
             message = `Found ${result.length} companies`;
           }
