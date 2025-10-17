@@ -31,7 +31,11 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- Backend-Only MCP Charter: Confirm the feature stays within the TypeScript MCP server and does not introduce frontend stacks or unrelated runtimes.
+- Autotask Data Stewardship: List the Autotask entities and endpoints touched and document safeguards for sensitive data handling.
+- Quality Gates & Test Discipline: Record planned lint, test, and coverage work (≥80% overall, 100% for critical paths) and how it will be validated.
+- Structured Observability & Error Hygiene: Outline logging, error reporting, and operational telemetry adjustments required.
+- Secure Configuration & Operational Readiness: Call out new environment variables, deployment steps, or documentation updates needed for release readiness.
 
 ## Project Structure
 
@@ -102,4 +106,3 @@ directories captured above]
 |-----------|------------|-------------------------------------|
 | [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
-

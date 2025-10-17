@@ -5,6 +5,14 @@
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
 
+## Constitution Alignment (fill before drafting stories)
+
+- Backend scope: Confirm work remains within the existing TypeScript MCP server (no frontend or unrelated services).
+- Autotask touchpoints: Enumerate Autotask entities/endpoints impacted and required permissions.
+- Quality gates: Identify mandatory linting, testing, and coverage expectations (≥80% overall, 100% on critical paths).
+- Observability: Describe logging/telemetry changes or confirm none required.
+- Configuration: List environment variables, deployment notes, or documentation updates that must accompany delivery.
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -113,4 +121,3 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
-

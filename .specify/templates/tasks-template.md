@@ -11,6 +11,12 @@ description: "Task list template for feature implementation"
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
+**Constitution Alignment**:
+- Keep all tasks within the existing backend TypeScript MCP server; reject frontend or unrelated runtime work.
+- Tie each task to specific Autotask entities/endpoints and include safeguards for sensitive data.
+- Ensure test/lint/coverage tasks reach ≥80% overall coverage and 100% on authentication, data mapping, and transport negotiation paths.
+- Capture logging, error-handling, and documentation updates required for observability and operational readiness.
+
 ## Format: `[ID] [P?] [Story] Description`
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
@@ -246,6 +252,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-
 
 
