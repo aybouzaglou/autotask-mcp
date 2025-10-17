@@ -1,3 +1,17 @@
+# [1.2.0](https://github.com/aybouzaglou/autotask-mcp/compare/v1.1.0...v1.2.0) (2025-10-17)
+
+
+### Bug Fixes
+
+* address code review issues for ticket update reliability ([5cec8d2](https://github.com/aybouzaglou/autotask-mcp/commit/5cec8d253395c93155bd9bd91514b1136aca1799))
+* handle possibly undefined note.description in TypeScript strict mode ([fd71ee5](https://github.com/aybouzaglou/autotask-mcp/commit/fd71ee5ee702d58303d4bb67954f6e4230bd630e))
+* relax test assertions for error message variations ([ecfee28](https://github.com/aybouzaglou/autotask-mcp/commit/ecfee286edfd6d28e528ff74f368ea22a1bf4cf2))
+
+
+### Features
+
+* implement ticket update reliability with validation and error handling ([7f6b279](https://github.com/aybouzaglou/autotask-mcp/commit/7f6b279dbbc7e4bd7a31966031d8fbea3ffd91db))
+
 # [1.1.0](https://github.com/aybouzaglou/autotask-mcp/compare/v1.0.0...v1.1.0) (2025-10-16)
 
 
