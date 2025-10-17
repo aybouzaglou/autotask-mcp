@@ -42,6 +42,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **🎯 PAGINATION STANDARDIZATION**: Complete overhaul of pagination behavior for safe defaults and better UX
+  - **Safe Defaults**: All search operations now use safe default page sizes (25 or 50 depending on entity type)
+  - **Explicit Limits**: Maximum page sizes enforced (500 for most entities, 100 for API-limited entities)
+  - **Unlimited Option**: New `-1` page size option for explicit opt-in to unlimited results
+  - **Consistent Behavior**: Missing or zero page sizes now use safe defaults instead of undefined behavior
+  - **Performance**: Automatically batched fetching for unlimited requests (500-item chunks)
+  - **User Guidance**: Enhanced tool descriptions with default values, limits, and best practices
+  - **Logging**: Warnings for unlimited requests and automatic page size capping
+  - **Documentation**: Comprehensive user guide and technical documentation
+
 ### Added
 - **Ticket Update Reliability**: Comprehensive ticket field updates and note creation with validation
   - **Metadata Caching**: Pre-load and cache statuses, priorities, and resources for fast validation
@@ -50,6 +61,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Structured Error Handling**: Actionable error responses with correlation IDs and guidance for operators
   - **Enhanced Logging**: Sanitized structured logs with metadata for observability without credential exposure
   - **Comprehensive Testing**: Unit and integration test coverage for ticket updates and note creation flows
+- **Pagination Documentation**:
+  - New `docs/pagination-guide.md` - User-facing pagination guide with examples and best practices
+  - New `docs/pagination-improvements.md` - Technical documentation of pagination changes
+  - Updated README with pagination behavior table and usage examples
+- **Reusable Pagination Constants**: Standardized schema definitions across all search tools
+  - `PAGE_SIZE_STANDARD` (default: 50, max: 500)
+  - `PAGE_SIZE_MEDIUM` (default: 25, max: 500)
+  - `PAGE_SIZE_LIMITED` (default: 25, max: 100)
+  - `PAGE_SIZE_ATTACHMENTS` (default: 10, max: 50)
 
 ### Fixed
 - **🚨 CRITICAL DATA ACCURACY FIX**: Implemented pagination-by-default to eliminate massive ticket undercounts

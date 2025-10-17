@@ -24,6 +24,39 @@ export interface McpToolResult {
   isError?: boolean;
 }
 
+// Reusable pageSize parameter schemas for different entity types
+const PAGE_SIZE_STANDARD = {
+  type: "number",
+  description:
+    "Number of results (default: 50, max: 500). Use -1 for unlimited (may be slow). Tip: Use filters to narrow results before increasing pageSize.",
+  minimum: -1,
+  maximum: 500,
+};
+
+const PAGE_SIZE_MEDIUM = {
+  type: "number",
+  description:
+    "Number of results (default: 25, max: 500). Use -1 for unlimited (may be slow). Tip: Use filters to narrow results before increasing pageSize.",
+  minimum: -1,
+  maximum: 500,
+};
+
+const PAGE_SIZE_LIMITED = {
+  type: "number",
+  description:
+    "Number of results (default: 25, max: 100). Use -1 for up to 100 results. Note: This endpoint has API limitations.",
+  minimum: -1,
+  maximum: 100,
+};
+
+const PAGE_SIZE_ATTACHMENTS = {
+  type: "number",
+  description:
+    "Number of results (default: 10, max: 50). Attachments are large binary objects - use small pageSizes to manage response size.",
+  minimum: 1,
+  maximum: 50,
+};
+
 export class AutotaskToolHandler {
   protected autotaskService: AutotaskService;
   protected logger: Logger;
@@ -66,7 +99,8 @@ export class AutotaskToolHandler {
       // Company tools
       {
         name: "search_companies",
-        description: "Search for companies in Autotask with optional filters",
+        description:
+          "Search for companies in Autotask. Returns 50 companies by default. Use filters (searchTerm, isActive) to narrow results before requesting more data.",
         inputSchema: {
           type: "object",
           properties: {
@@ -78,13 +112,7 @@ export class AutotaskToolHandler {
               type: "boolean",
               description: "Filter by active status",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 50, max: 200)",
-              minimum: 1,
-              maximum: 200,
-            },
+            pageSize: PAGE_SIZE_STANDARD,
           },
           required: [],
         },
@@ -181,7 +209,8 @@ export class AutotaskToolHandler {
       // Contact tools
       {
         name: "search_contacts",
-        description: "Search for contacts in Autotask with optional filters",
+        description:
+          "Search for contacts in Autotask. Returns 50 contacts by default. Use filters (searchTerm, companyID, isActive) to narrow results before requesting more data.",
         inputSchema: {
           type: "object",
           properties: {
@@ -197,13 +226,7 @@ export class AutotaskToolHandler {
               type: "number",
               description: "Filter by active status (1=active, 0=inactive)",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 50, max: 200)",
-              minimum: 1,
-              maximum: 200,
-            },
+            pageSize: PAGE_SIZE_STANDARD,
           },
           required: [],
         },
@@ -247,7 +270,7 @@ export class AutotaskToolHandler {
       {
         name: "search_tickets",
         description:
-          "Search for tickets in Autotask with optional filters. BY DEFAULT retrieves ALL matching tickets via pagination for complete accuracy. Only specify pageSize to limit results. Perfect for reports and analytics.",
+          "Search for tickets in Autotask. Returns 50 optimized tickets by default. Use filters (searchTerm, companyID, status, assignedResourceID) to narrow results. For full ticket data, use get_ticket_details.",
         inputSchema: {
           type: "object",
           properties: {
@@ -274,13 +297,7 @@ export class AutotaskToolHandler {
               description:
                 "Set to true to find tickets that are not assigned to any resource (where assignedResourceID is null)",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "OPTIONAL: Limit number of results. If omitted, retrieves ALL matching tickets for complete accuracy.",
-              minimum: 1,
-              maximum: 500,
-            },
+            pageSize: PAGE_SIZE_STANDARD,
           },
           required: [],
         },
@@ -442,7 +459,7 @@ export class AutotaskToolHandler {
       {
         name: "search_projects",
         description:
-          "Search for projects in Autotask with optional filters. Returns optimized project data to prevent large responses.",
+          "Search for projects in Autotask. Returns 25 optimized projects by default (API limited to max 100). Use filters (searchTerm, companyID, status) to narrow results.",
         inputSchema: {
           type: "object",
           properties: {
@@ -462,13 +479,7 @@ export class AutotaskToolHandler {
               type: "number",
               description: "Filter by project manager resource ID",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 100)",
-              minimum: 1,
-              maximum: 100,
-            },
+            pageSize: PAGE_SIZE_LIMITED,
           },
           required: [],
         },
@@ -520,7 +531,7 @@ export class AutotaskToolHandler {
       {
         name: "search_resources",
         description:
-          "Search for resources (users) in Autotask with optional filters",
+          "Search for resources (users) in Autotask. Returns 25 resources by default. Use filters (searchTerm, isActive, resourceType) to narrow results before requesting more data.",
         inputSchema: {
           type: "object",
           properties: {
@@ -537,13 +548,7 @@ export class AutotaskToolHandler {
               description:
                 "Filter by resource type (1=Employee, 2=Contractor, 3=Temporary)",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 500)",
-              minimum: 1,
-              maximum: 500,
-            },
+            pageSize: PAGE_SIZE_MEDIUM,
           },
           required: [],
         },
@@ -574,7 +579,8 @@ export class AutotaskToolHandler {
       },
       {
         name: "search_ticket_notes",
-        description: "Search for notes on a specific ticket",
+        description:
+          "Search for notes on a specific ticket. Returns 25 notes by default (max: 100).",
         inputSchema: {
           type: "object",
           properties: {
@@ -582,13 +588,7 @@ export class AutotaskToolHandler {
               type: "number",
               description: "The ticket ID to search notes for",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 100)",
-              minimum: 1,
-              maximum: 100,
-            },
+            pageSize: PAGE_SIZE_LIMITED,
           },
           required: ["ticketId"],
         },
@@ -647,7 +647,8 @@ export class AutotaskToolHandler {
       },
       {
         name: "search_project_notes",
-        description: "Search for notes on a specific project",
+        description:
+          "Search for notes on a specific project. Returns 25 notes by default (max: 100).",
         inputSchema: {
           type: "object",
           properties: {
@@ -655,13 +656,7 @@ export class AutotaskToolHandler {
               type: "number",
               description: "The project ID to search notes for",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 100)",
-              minimum: 1,
-              maximum: 100,
-            },
+            pageSize: PAGE_SIZE_LIMITED,
           },
           required: ["projectId"],
         },
@@ -715,7 +710,8 @@ export class AutotaskToolHandler {
       },
       {
         name: "search_company_notes",
-        description: "Search for notes on a specific company",
+        description:
+          "Search for notes on a specific company. Returns 25 notes by default (max: 100).",
         inputSchema: {
           type: "object",
           properties: {
@@ -723,13 +719,7 @@ export class AutotaskToolHandler {
               type: "number",
               description: "The company ID to search notes for",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 100)",
-              minimum: 1,
-              maximum: 100,
-            },
+            pageSize: PAGE_SIZE_LIMITED,
           },
           required: ["companyId"],
         },
@@ -763,6 +753,22 @@ export class AutotaskToolHandler {
 
       // Ticket Attachments tools
       {
+        name: "search_ticket_attachments",
+        description:
+          "Search for attachments on a specific ticket. Returns 10 attachments by default (max: 50). Attachments can be large.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            ticketId: {
+              type: "number",
+              description: "The ticket ID to search attachments for",
+            },
+            pageSize: PAGE_SIZE_ATTACHMENTS,
+          },
+          required: ["ticketId"],
+        },
+      },
+      {
         name: "get_ticket_attachment",
         description:
           "Get a specific ticket attachment by ticket ID and attachment ID",
@@ -787,26 +793,6 @@ export class AutotaskToolHandler {
           required: ["ticketId", "attachmentId"],
         },
       },
-      {
-        name: "search_ticket_attachments",
-        description: "Search for attachments on a specific ticket",
-        inputSchema: {
-          type: "object",
-          properties: {
-            ticketId: {
-              type: "number",
-              description: "The ticket ID to search attachments for",
-            },
-            pageSize: {
-              type: "number",
-              description: "Number of results to return (default: 10, max: 50)",
-              minimum: 1,
-              maximum: 50,
-            },
-          },
-          required: ["ticketId"],
-        },
-      },
 
       // Expense Reports tools
       {
@@ -825,7 +811,8 @@ export class AutotaskToolHandler {
       },
       {
         name: "search_expense_reports",
-        description: "Search for expense reports with optional filters",
+        description:
+          "Search for expense reports. Returns 25 reports by default (max: 100). Use filters (submitterId, status) to narrow results.",
         inputSchema: {
           type: "object",
           properties: {
@@ -838,13 +825,7 @@ export class AutotaskToolHandler {
               description:
                 "Filter by status (1=New, 2=Submitted, 3=Approved, 4=Paid, 5=Rejected, 6=InReview)",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 100)",
-              minimum: 1,
-              maximum: 100,
-            },
+            pageSize: PAGE_SIZE_LIMITED,
           },
           required: [],
         },
@@ -893,7 +874,8 @@ export class AutotaskToolHandler {
       },
       {
         name: "search_quotes",
-        description: "Search for quotes with optional filters",
+        description:
+          "Search for quotes. Returns 25 quotes by default (max: 100). Use filters (companyId, contactId, opportunityId, searchTerm) to narrow results.",
         inputSchema: {
           type: "object",
           properties: {
@@ -913,13 +895,7 @@ export class AutotaskToolHandler {
               type: "string",
               description: "Search term for quote name or description",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 100)",
-              minimum: 1,
-              maximum: 100,
-            },
+            pageSize: PAGE_SIZE_LIMITED,
           },
           required: [],
         },
@@ -967,7 +943,7 @@ export class AutotaskToolHandler {
       {
         name: "search_configuration_items",
         description:
-          "Search for configuration items in Autotask with optional filters",
+          "Search for configuration items (assets) in Autotask. Returns 25 items by default. Use filters (searchTerm, companyID, isActive, productID) to narrow results.",
         inputSchema: {
           type: "object",
           properties: {
@@ -987,13 +963,7 @@ export class AutotaskToolHandler {
               type: "number",
               description: "Filter by product ID",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 500)",
-              minimum: 1,
-              maximum: 500,
-            },
+            pageSize: PAGE_SIZE_MEDIUM,
           },
           required: [],
         },
@@ -1002,7 +972,8 @@ export class AutotaskToolHandler {
       // Contract tools
       {
         name: "search_contracts",
-        description: "Search for contracts in Autotask with optional filters",
+        description:
+          "Search for contracts in Autotask. Returns 25 contracts by default. Use filters (searchTerm, companyID, status) to narrow results before requesting more data.",
         inputSchema: {
           type: "object",
           properties: {
@@ -1019,13 +990,7 @@ export class AutotaskToolHandler {
               description:
                 "Filter by contract status (1=In Effect, 3=Terminated)",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 500)",
-              minimum: 1,
-              maximum: 500,
-            },
+            pageSize: PAGE_SIZE_MEDIUM,
           },
           required: [],
         },
@@ -1034,7 +999,8 @@ export class AutotaskToolHandler {
       // Invoice tools
       {
         name: "search_invoices",
-        description: "Search for invoices in Autotask with optional filters",
+        description:
+          "Search for invoices in Autotask. Returns 25 invoices by default. Use filters (companyID, invoiceNumber, isVoided) to narrow results before requesting more data.",
         inputSchema: {
           type: "object",
           properties: {
@@ -1050,13 +1016,7 @@ export class AutotaskToolHandler {
               type: "boolean",
               description: "Filter by voided status",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 500)",
-              minimum: 1,
-              maximum: 500,
-            },
+            pageSize: PAGE_SIZE_MEDIUM,
           },
           required: [],
         },
@@ -1066,7 +1026,7 @@ export class AutotaskToolHandler {
       {
         name: "search_tasks",
         description:
-          "Search for tasks in Autotask with optional filters. Returns optimized task data to prevent large responses.",
+          "Search for tasks in Autotask. Returns 25 optimized tasks by default (API limited to max 100). Use filters (searchTerm, projectID, status, assignedResourceID) to narrow results.",
         inputSchema: {
           type: "object",
           properties: {
@@ -1087,13 +1047,7 @@ export class AutotaskToolHandler {
               type: "number",
               description: "Filter by assigned resource ID",
             },
-            pageSize: {
-              type: "number",
-              description:
-                "Number of results to return (default: 25, max: 100)",
-              minimum: 1,
-              maximum: 100,
-            },
+            pageSize: PAGE_SIZE_LIMITED,
           },
           required: [],
         },

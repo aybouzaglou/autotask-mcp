@@ -129,6 +129,55 @@ export class AutotaskService {
     await this.ensureClient();
   }
 
+  /**
+   * Resolve pagination options with safe defaults
+   * 
+   * @param options - Query options with optional pageSize
+   * @param defaultPageSize - Default page size to use (entity-specific)
+   * @returns Resolved pagination configuration
+   * 
+   * Behavior:
+   * - undefined or 0 → use defaultPageSize (safe default)
+   * - positive number → use value (capped at 500)
+   * - -1 → unlimited results (explicit opt-in)
+   * 
+   * @example
+   * resolvePaginationOptions({}, 50) // → { pageSize: 50, unlimited: false }
+   * resolvePaginationOptions({ pageSize: 100 }, 50) // → { pageSize: 100, unlimited: false }
+   * resolvePaginationOptions({ pageSize: -1 }, 50) // → { pageSize: null, unlimited: true }
+   */
+  private resolvePaginationOptions(
+    options: AutotaskQueryOptions,
+    defaultPageSize: number
+  ): { pageSize: number | null; unlimited: boolean } {
+    const requestedPageSize = options.pageSize;
+
+    // Case 1: Unlimited results explicitly requested (-1)
+    if (requestedPageSize === -1) {
+      this.logger.warn(
+        'Fetching unlimited results may cause performance issues. Consider using filters or explicit pageSize limit.'
+      );
+      return { pageSize: null, unlimited: true };
+    }
+
+    // Case 2: Explicit positive value provided
+    if (requestedPageSize !== undefined && requestedPageSize > 0) {
+      const cappedPageSize = Math.min(requestedPageSize, 500);
+      if (requestedPageSize > 500) {
+        this.logger.warn(
+          `Requested pageSize ${requestedPageSize} exceeds maximum 500, capping at 500`
+        );
+      }
+      return { pageSize: cappedPageSize, unlimited: false };
+    }
+
+    // Case 3: Undefined or 0 → apply safe default
+    this.logger.debug(
+      `Applying default pageSize: ${defaultPageSize} (specify pageSize explicitly or use -1 for unlimited)`
+    );
+    return { pageSize: defaultPageSize, unlimited: false };
+  }
+
   // Company operations (using accounts in autotask-node)
   async getCompany(id: number): Promise<AutotaskCompany | null> {
     const client = await this.ensureClient();
@@ -143,6 +192,17 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for companies with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of companies
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 50 companies (safe default)
+   * - pageSize: N (1-500): Returns up to N companies
+   * - pageSize: -1: Returns ALL companies (use with caution)
+   */
   async searchCompanies(
     options: AutotaskQueryOptions = {},
   ): Promise<AutotaskCompany[]> {
@@ -151,38 +211,20 @@ export class AutotaskService {
     try {
       this.logger.debug("Searching companies with options:", options);
 
-      // PAGINATION BY DEFAULT for data accuracy
-      // Only limit results when user explicitly provides pageSize
-      if (options.pageSize !== undefined && options.pageSize > 0) {
-        // User wants limited results
-        const queryOptions = {
-          ...options,
-          pageSize: Math.min(options.pageSize, 500), // Respect user limit, max 500 per request
-        };
+      // Resolve pagination with safe defaults
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 50);
 
-        this.logger.debug(
-          "Single page request with user-specified limit:",
-          queryOptions,
-        );
-
-        const result = await client.accounts.list(queryOptions as any);
-        const companies = (result.data as AutotaskCompany[]) || [];
-
-        this.logger.info(
-          `Retrieved ${companies.length} companies (limited by user to ${options.pageSize})`,
-        );
-        return companies;
-      } else {
-        // DEFAULT: Get ALL matching companies via pagination for complete accuracy
+      if (unlimited) {
+        // Unlimited mode: fetch ALL companies via pagination
         const allCompanies: AutotaskCompany[] = [];
-        const pageSize = 500; // Use max safe page size for efficiency
+        const batchSize = 500; // Use max safe page size for efficiency
         let currentPage = 1;
         let hasMorePages = true;
 
         while (hasMorePages) {
           const queryOptions = {
             ...options,
-            pageSize: pageSize,
+            pageSize: batchSize,
             page: currentPage,
           };
 
@@ -197,7 +239,7 @@ export class AutotaskService {
             allCompanies.push(...companies);
 
             // Check if we got a full page - if not, we're done
-            if (companies.length < pageSize) {
+            if (companies.length < batchSize) {
               hasMorePages = false;
             } else {
               currentPage++;
@@ -214,9 +256,28 @@ export class AutotaskService {
         }
 
         this.logger.info(
-          `Retrieved ${allCompanies.length} companies across ${currentPage} pages (COMPLETE dataset for accuracy)`,
+          `Retrieved ${allCompanies.length} companies across ${currentPage} pages (unlimited mode)`,
         );
         return allCompanies;
+      } else {
+        // Limited mode: fetch single page with specified/default pageSize
+        const queryOptions = {
+          ...options,
+          pageSize: pageSize!,
+        };
+
+        this.logger.debug(
+          "Single page request with limit:",
+          queryOptions,
+        );
+
+        const result = await client.accounts.list(queryOptions as any);
+        const companies = (result.data as AutotaskCompany[]) || [];
+
+        this.logger.info(
+          `Retrieved ${companies.length} companies (pageSize: ${pageSize})`,
+        );
+        return companies;
       }
     } catch (error) {
       this.logger.error("Failed to search companies:", error);
@@ -269,6 +330,17 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for contacts with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of contacts
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 50 contacts (safe default)
+   * - pageSize: N (1-500): Returns up to N contacts
+   * - pageSize: -1: Returns ALL contacts (use with caution)
+   */
   async searchContacts(
     options: AutotaskQueryOptions = {},
   ): Promise<AutotaskContact[]> {
@@ -277,38 +349,20 @@ export class AutotaskService {
     try {
       this.logger.debug("Searching contacts with options:", options);
 
-      // PAGINATION BY DEFAULT for data accuracy
-      // Only limit results when user explicitly provides pageSize
-      if (options.pageSize !== undefined && options.pageSize > 0) {
-        // User wants limited results
-        const queryOptions = {
-          ...options,
-          pageSize: Math.min(options.pageSize, 500), // Respect user limit, max 500 per request
-        };
+      // Resolve pagination with safe defaults
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 50);
 
-        this.logger.debug(
-          "Single page request with user-specified limit:",
-          queryOptions,
-        );
-
-        const result = await client.contacts.list(queryOptions as any);
-        const contacts = (result.data as AutotaskContact[]) || [];
-
-        this.logger.info(
-          `Retrieved ${contacts.length} contacts (limited by user to ${options.pageSize})`,
-        );
-        return contacts;
-      } else {
-        // DEFAULT: Get ALL matching contacts via pagination for complete accuracy
+      if (unlimited) {
+        // Unlimited mode: fetch ALL contacts via pagination
         const allContacts: AutotaskContact[] = [];
-        const pageSize = 500; // Use max safe page size for efficiency
+        const batchSize = 500;
         let currentPage = 1;
         let hasMorePages = true;
 
         while (hasMorePages) {
           const queryOptions = {
             ...options,
-            pageSize: pageSize,
+            pageSize: batchSize,
             page: currentPage,
           };
 
@@ -322,8 +376,7 @@ export class AutotaskService {
           } else {
             allContacts.push(...contacts);
 
-            // Check if we got a full page - if not, we're done
-            if (contacts.length < pageSize) {
+            if (contacts.length < batchSize) {
               hasMorePages = false;
             } else {
               currentPage++;
@@ -340,9 +393,23 @@ export class AutotaskService {
         }
 
         this.logger.info(
-          `Retrieved ${allContacts.length} contacts across ${currentPage} pages (COMPLETE dataset for accuracy)`,
+          `Retrieved ${allContacts.length} contacts across ${currentPage} pages (unlimited mode)`,
         );
         return allContacts;
+      } else {
+        // Limited mode: fetch single page
+        const queryOptions = {
+          ...options,
+          pageSize: pageSize!,
+        };
+
+        const result = await client.contacts.list(queryOptions as any);
+        const contacts = (result.data as AutotaskContact[]) || [];
+
+        this.logger.info(
+          `Retrieved ${contacts.length} contacts (pageSize: ${pageSize})`,
+        );
+        return contacts;
       }
     } catch (error) {
       this.logger.error("Failed to search contacts:", error);
@@ -408,6 +475,20 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for tickets with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of optimized tickets
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 50 tickets (safe default)
+   * - pageSize: N (1-500): Returns up to N tickets
+   * - pageSize: -1: Returns ALL tickets (use with caution)
+   * 
+   * Note: All tickets are aggressively optimized to reduce response size.
+   * Use get_ticket_details for full ticket data.
+   */
   async searchTickets(
     options: AutotaskQueryOptionsExtended = {},
   ): Promise<AutotaskTicket[]> {
@@ -472,47 +553,25 @@ export class AutotaskService {
         });
       }
 
-      // PAGINATION BY DEFAULT for data accuracy
-      // Only limit results when user explicitly provides pageSize
-      if (options.pageSize !== undefined && options.pageSize > 0) {
-        // User wants limited results
-        const queryOptions = {
-          filter: filters,
-          pageSize: Math.min(options.pageSize, 500), // Respect user limit, max 500 per request
-        };
+      // Resolve pagination with safe defaults
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 50);
 
-        this.logger.debug(
-          "Single page request with user-specified limit:",
-          queryOptions,
-        );
-
-        const result = await client.tickets.list(queryOptions);
-        const tickets = (result.data as AutotaskTicket[]) || [];
-
-        const optimizedTickets = tickets.map((ticket) =>
-          this.optimizeTicketDataAggressive(ticket),
-        );
-
-        this.logger.info(
-          `Retrieved ${optimizedTickets.length} tickets (limited by user to ${options.pageSize})`,
-        );
-        return optimizedTickets;
-      } else {
-        // DEFAULT: Get ALL matching tickets via pagination for complete accuracy
+      if (unlimited) {
+        // Unlimited mode: fetch ALL tickets via pagination
         const allTickets: AutotaskTicket[] = [];
-        const pageSize = 500; // Use max safe page size for efficiency
+        const batchSize = 500;
         let currentPage = 1;
         let hasMorePages = true;
 
         while (hasMorePages) {
           const queryOptions = {
             filter: filters,
-            pageSize: pageSize,
+            pageSize: batchSize,
             page: currentPage,
           };
 
           this.logger.debug(
-            `Fetching page ${currentPage} with filter:`,
+            `Fetching tickets page ${currentPage} with filter:`,
             filters,
           );
 
@@ -528,8 +587,7 @@ export class AutotaskService {
             );
             allTickets.push(...optimizedTickets);
 
-            // Check if we got a full page - if not, we're done
-            if (tickets.length < pageSize) {
+            if (tickets.length < batchSize) {
               hasMorePages = false;
             } else {
               currentPage++;
@@ -546,9 +604,32 @@ export class AutotaskService {
         }
 
         this.logger.info(
-          `Retrieved ${allTickets.length} tickets across ${currentPage} pages (COMPLETE dataset for accuracy)`,
+          `Retrieved ${allTickets.length} tickets across ${currentPage} pages (unlimited mode)`,
         );
         return allTickets;
+      } else {
+        // Limited mode: fetch single page
+        const queryOptions = {
+          filter: filters,
+          pageSize: pageSize!,
+        };
+
+        this.logger.debug(
+          "Single page ticket request:",
+          queryOptions,
+        );
+
+        const result = await client.tickets.list(queryOptions);
+        const tickets = (result.data as AutotaskTicket[]) || [];
+
+        const optimizedTickets = tickets.map((ticket) =>
+          this.optimizeTicketDataAggressive(ticket),
+        );
+
+        this.logger.info(
+          `Retrieved ${optimizedTickets.length} tickets (pageSize: ${pageSize})`,
+        );
+        return optimizedTickets;
       }
     } catch (error) {
       this.logger.error("Failed to search tickets:", error);
@@ -778,6 +859,19 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for projects with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of optimized projects
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 25 projects (safe default)
+   * - pageSize: N (1-100): Returns up to N projects (capped at 100 for this endpoint)
+   * - pageSize: -1: Returns up to 100 projects (API limit)
+   * 
+   * Note: This method uses direct API calls due to autotask-node library limitations.
+   */
   async searchProjects(
     options: AutotaskQueryOptions = {},
   ): Promise<AutotaskProject[]> {
@@ -785,6 +879,10 @@ export class AutotaskService {
 
     try {
       this.logger.debug("Searching projects with options:", options);
+
+      // Resolve pagination with safe defaults (capped at 100 for projects API)
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 25);
+      const finalPageSize = Math.min(unlimited ? 100 : pageSize!, 100); // Projects API max is 100
 
       // WORKAROUND: The autotask-node library's projects.list() method is broken
       // It uses GET with query params instead of POST with body like the working companies endpoint
@@ -849,17 +947,14 @@ export class AutotaskService {
       // Add other search parameters
       if (options.sort) searchBody.sort = options.sort;
       if (options.page) searchBody.page = options.page;
-      if (options.pageSize) searchBody.pageSize = options.pageSize;
+      
+      // Apply resolved pageSize
+      searchBody.pageSize = finalPageSize;
 
       // Add field limiting for optimization
       if (essentialFields.length > 0) {
         searchBody.includeFields = essentialFields;
       }
-
-      // Set default pagination and field limits
-      const pageSize = options.pageSize || 25;
-      const finalPageSize = pageSize > 100 ? 100 : pageSize;
-      searchBody.pageSize = finalPageSize;
 
       this.logger.debug(
         "Making direct API call to Projects/query with body:",
@@ -892,7 +987,7 @@ export class AutotaskService {
       );
 
       this.logger.info(
-        `Retrieved ${optimizedProjects.length} projects (optimized for size)`,
+        `Retrieved ${optimizedProjects.length} projects (pageSize: ${finalPageSize})`,
       );
       return optimizedProjects;
     } catch (error: any) {
@@ -974,6 +1069,17 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for resources with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of resources
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 25 resources (safe default for larger records)
+   * - pageSize: N (1-500): Returns up to N resources
+   * - pageSize: -1: Returns ALL resources (use with caution)
+   */
   async searchResources(
     options: AutotaskQueryOptions = {},
   ): Promise<AutotaskResource[]> {
@@ -982,38 +1088,20 @@ export class AutotaskService {
     try {
       this.logger.debug("Searching resources with options:", options);
 
-      // PAGINATION BY DEFAULT for data accuracy
-      // Only limit results when user explicitly provides pageSize
-      if (options.pageSize !== undefined && options.pageSize > 0) {
-        // User wants limited results
-        const queryOptions = {
-          ...options,
-          pageSize: Math.min(options.pageSize, 500), // Respect user limit, max 500 per request
-        };
+      // Resolve pagination with safe defaults (25 for larger records)
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 25);
 
-        this.logger.debug(
-          "Single page request with user-specified limit:",
-          queryOptions,
-        );
-
-        const result = await client.resources.list(queryOptions as any);
-        const resources = (result.data as AutotaskResource[]) || [];
-
-        this.logger.info(
-          `Retrieved ${resources.length} resources (limited by user to ${options.pageSize})`,
-        );
-        return resources;
-      } else {
-        // DEFAULT: Get ALL matching resources via pagination for complete accuracy
+      if (unlimited) {
+        // Unlimited mode: fetch ALL resources via pagination
         const allResources: AutotaskResource[] = [];
-        const pageSize = 500; // Use max safe page size for efficiency
+        const batchSize = 500;
         let currentPage = 1;
         let hasMorePages = true;
 
         while (hasMorePages) {
           const queryOptions = {
             ...options,
-            pageSize: pageSize,
+            pageSize: batchSize,
             page: currentPage,
           };
 
@@ -1027,8 +1115,7 @@ export class AutotaskService {
           } else {
             allResources.push(...resources);
 
-            // Check if we got a full page - if not, we're done
-            if (resources.length < pageSize) {
+            if (resources.length < batchSize) {
               hasMorePages = false;
             } else {
               currentPage++;
@@ -1045,9 +1132,23 @@ export class AutotaskService {
         }
 
         this.logger.info(
-          `Retrieved ${allResources.length} resources across ${currentPage} pages (COMPLETE dataset for accuracy)`,
+          `Retrieved ${allResources.length} resources across ${currentPage} pages (unlimited mode)`,
         );
         return allResources;
+      } else {
+        // Limited mode: fetch single page
+        const queryOptions = {
+          ...options,
+          pageSize: pageSize!,
+        };
+
+        const result = await client.resources.list(queryOptions as any);
+        const resources = (result.data as AutotaskResource[]) || [];
+
+        this.logger.info(
+          `Retrieved ${resources.length} resources (pageSize: ${pageSize})`,
+        );
+        return resources;
       }
     } catch (error) {
       this.logger.error("Failed to search resources:", error);
@@ -1126,6 +1227,17 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for configuration items with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of configuration items
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 25 configuration items (safe default)
+   * - pageSize: N (1-500): Returns up to N items
+   * - pageSize: -1: Returns ALL items (use with caution)
+   */
   async searchConfigurationItems(
     options: AutotaskQueryOptions = {},
   ): Promise<AutotaskConfigurationItem[]> {
@@ -1133,8 +1245,22 @@ export class AutotaskService {
 
     try {
       this.logger.debug("Searching configuration items with options:", options);
-      const result = await client.configurationItems.list(options as any);
-      return (result.data as AutotaskConfigurationItem[]) || [];
+      
+      // Resolve pagination with safe defaults
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 25);
+      
+      const queryOptions = {
+        ...options,
+        pageSize: unlimited ? 500 : pageSize!,
+      };
+      
+      const result = await client.configurationItems.list(queryOptions as any);
+      const items = (result.data as AutotaskConfigurationItem[]) || [];
+      
+      this.logger.info(
+        `Retrieved ${items.length} configuration items (pageSize: ${pageSize || 'unlimited'})`,
+      );
+      return items;
     } catch (error) {
       this.logger.error("Failed to search configuration items:", error);
       throw error;
@@ -1215,6 +1341,17 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for contracts with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of contracts
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 25 contracts (safe default)
+   * - pageSize: N (1-500): Returns up to N contracts
+   * - pageSize: -1: Returns ALL contracts (use with caution)
+   */
   async searchContracts(
     options: AutotaskQueryOptions = {},
   ): Promise<AutotaskContract[]> {
@@ -1222,8 +1359,22 @@ export class AutotaskService {
 
     try {
       this.logger.debug("Searching contracts with options:", options);
-      const result = await client.contracts.list(options as any);
-      return (result.data as unknown as AutotaskContract[]) || [];
+      
+      // Resolve pagination with safe defaults
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 25);
+      
+      const queryOptions = {
+        ...options,
+        pageSize: unlimited ? 500 : pageSize!,
+      };
+      
+      const result = await client.contracts.list(queryOptions as any);
+      const contracts = (result.data as unknown as AutotaskContract[]) || [];
+      
+      this.logger.info(
+        `Retrieved ${contracts.length} contracts (pageSize: ${pageSize || 'unlimited'})`,
+      );
+      return contracts;
     } catch (error) {
       this.logger.error("Failed to search contracts:", error);
       throw error;
@@ -1244,6 +1395,17 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for invoices with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of invoices
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 25 invoices (safe default)
+   * - pageSize: N (1-500): Returns up to N invoices
+   * - pageSize: -1: Returns ALL invoices (use with caution)
+   */
   async searchInvoices(
     options: AutotaskQueryOptions = {},
   ): Promise<AutotaskInvoice[]> {
@@ -1251,8 +1413,22 @@ export class AutotaskService {
 
     try {
       this.logger.debug("Searching invoices with options:", options);
-      const result = await client.invoices.list(options as any);
-      return (result.data as AutotaskInvoice[]) || [];
+      
+      // Resolve pagination with safe defaults
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 25);
+      
+      const queryOptions = {
+        ...options,
+        pageSize: unlimited ? 500 : pageSize!,
+      };
+      
+      const result = await client.invoices.list(queryOptions as any);
+      const invoices = (result.data as AutotaskInvoice[]) || [];
+      
+      this.logger.info(
+        `Retrieved ${invoices.length} invoices (pageSize: ${pageSize || 'unlimited'})`,
+      );
+      return invoices;
     } catch (error) {
       this.logger.error("Failed to search invoices:", error);
       throw error;
@@ -1273,6 +1449,19 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for tasks with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of optimized tasks
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 25 tasks (safe default)
+   * - pageSize: N (1-100): Returns up to N tasks (capped at 100)
+   * - pageSize: -1: Returns up to 100 tasks (API limit)
+   * 
+   * Note: Tasks are optimized with field limiting for reduced response size.
+   */
   async searchTasks(
     options: AutotaskQueryOptions = {},
   ): Promise<AutotaskTask[]> {
@@ -1280,6 +1469,10 @@ export class AutotaskService {
 
     try {
       this.logger.debug("Searching tasks with options:", options);
+
+      // Resolve pagination with safe defaults
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 25);
+      const finalPageSize = Math.min(unlimited ? 100 : pageSize!, 100); // Tasks API max is 100
 
       // Define essential task fields to minimize response size
       const essentialFields = [
@@ -1307,8 +1500,7 @@ export class AutotaskService {
       const optimizedOptions = {
         ...options,
         includeFields: essentialFields,
-        pageSize: options.pageSize || 25,
-        ...(options.pageSize && options.pageSize > 100 && { pageSize: 100 }),
+        pageSize: finalPageSize,
       };
 
       const result = await client.tasks.list(optimizedOptions as any);
@@ -1318,7 +1510,7 @@ export class AutotaskService {
       const optimizedTasks = tasks.map((task) => this.optimizeTaskData(task));
 
       this.logger.info(
-        `Retrieved ${optimizedTasks.length} tasks (optimized for size)`,
+        `Retrieved ${optimizedTasks.length} tasks (pageSize: ${finalPageSize})`,
       );
       return optimizedTasks;
     } catch (error) {
@@ -1785,6 +1977,17 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for expense reports with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of expense reports
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 25 expense reports (safe default)
+   * - pageSize: N (1-500): Returns up to N reports
+   * - pageSize: -1: Returns up to 500 reports
+   */
   async searchExpenseReports(
     options: AutotaskQueryOptionsExtended = {},
   ): Promise<AutotaskExpenseReport[]> {
@@ -1792,6 +1995,9 @@ export class AutotaskService {
 
     try {
       this.logger.debug("Searching expense reports with options:", options);
+
+      // Resolve pagination with safe defaults
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 25);
 
       // Build filter based on provided options
       const filters = [];
@@ -1809,13 +2015,15 @@ export class AutotaskService {
       const queryOptions = {
         filter:
           filters.length > 0 ? filters : [{ field: "id", op: "gte", value: 0 }],
-        pageSize: options.pageSize || 25,
+        pageSize: unlimited ? 500 : pageSize!,
       };
 
       const result = await client.expenses.list(queryOptions);
       const reports = (result.data as any[]) || [];
 
-      this.logger.info(`Retrieved ${reports.length} expense reports`);
+      this.logger.info(
+        `Retrieved ${reports.length} expense reports (pageSize: ${pageSize || 'unlimited'})`,
+      );
       return reports as AutotaskExpenseReport[];
     } catch (error) {
       this.logger.error("Failed to search expense reports:", error);
@@ -1886,6 +2094,17 @@ export class AutotaskService {
     }
   }
 
+  /**
+   * Search for quotes with safe pagination defaults
+   * 
+   * @param options - Search options with optional pageSize
+   * @returns Array of quotes
+   * 
+   * Pagination behavior (v2.0.0+):
+   * - No pageSize specified: Returns 25 quotes (safe default)
+   * - pageSize: N (1-500): Returns up to N quotes
+   * - pageSize: -1: Returns up to 500 quotes
+   */
   async searchQuotes(
     options: AutotaskQueryOptionsExtended = {},
   ): Promise<AutotaskQuote[]> {
@@ -1893,6 +2112,9 @@ export class AutotaskService {
 
     try {
       this.logger.debug("Searching quotes with options:", options);
+
+      // Resolve pagination with safe defaults
+      const { pageSize, unlimited } = this.resolvePaginationOptions(options, 25);
 
       // Build filter based on provided options
       const filters = [];
@@ -1928,13 +2150,15 @@ export class AutotaskService {
       const queryOptions = {
         filter:
           filters.length > 0 ? filters : [{ field: "id", op: "gte", value: 0 }],
-        pageSize: options.pageSize || 25,
+        pageSize: unlimited ? 500 : pageSize!,
       };
 
       const result = await client.quotes.list(queryOptions);
       const quotes = (result.data as any[]) || [];
 
-      this.logger.info(`Retrieved ${quotes.length} quotes`);
+      this.logger.info(
+        `Retrieved ${quotes.length} quotes (pageSize: ${pageSize || 'unlimited'})`,
+      );
       return quotes as AutotaskQuote[];
     } catch (error) {
       this.logger.error("Failed to search quotes:", error);

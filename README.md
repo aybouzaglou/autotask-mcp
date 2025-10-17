@@ -195,13 +195,31 @@ Tools provide interactive operations:
 ### Example Tool Usage
 
 ```javascript
-// Search for companies
+// Search for companies (returns 50 by default)
 {
   "name": "search_companies",
   "arguments": {
     "searchTerm": "Acme Corp",
+    "isActive": true
+  }
+}
+
+// Search with explicit page size
+{
+  "name": "search_companies",
+  "arguments": {
+    "searchTerm": "Acme",
+    "pageSize": 100  // Request more results
+  }
+}
+
+// Search for all matching companies (use filters to narrow results)
+{
+  "name": "search_companies",
+  "arguments": {
+    "searchTerm": "Tech",
     "isActive": true,
-    "pageSize": 10
+    "pageSize": -1  // Get all results (use with caution)
   }
 }
 
@@ -217,6 +235,32 @@ Tools provide interactive operations:
   }
 }
 ```
+
+### Pagination Behavior
+
+All search operations use **safe default page sizes** to prevent large responses:
+
+| Tool | Default | Maximum | Unlimited Support |
+|------|---------|---------|------------------|
+| `search_companies` | 50 | 500 | ✅ Use `-1` |
+| `search_contacts` | 50 | 500 | ✅ Use `-1` |
+| `search_tickets` | 50 | 500 | ✅ Use `-1` |
+| `search_resources` | 25 | 500 | ✅ Use `-1` |
+| `search_configuration_items` | 25 | 500 | ✅ Use `-1` |
+| `search_contracts` | 25 | 500 | ✅ Use `-1` |
+| `search_invoices` | 25 | 500 | ✅ Use `-1` |
+| `search_projects` | 25 | 100 | ⚠️ API limited |
+| `search_tasks` | 25 | 100 | ⚠️ API limited |
+| `search_quotes` | 25 | 100 | ⚠️ API limited |
+| `search_expense_reports` | 25 | 100 | ⚠️ API limited |
+
+**Best Practices:**
+- 🎯 **Use filters first** (searchTerm, companyID, status, etc.) to narrow results
+- ⚡ **Default size is usually enough** - only increase pageSize when needed
+- 🚀 **Unlimited mode (`-1`)** fetches all matching records in batches of 500
+- ⚠️ **Large requests** may be slow and consume more API rate limits
+
+For detailed pagination documentation, see [docs/pagination-improvements.md](docs/pagination-improvements.md).
 
 ## ID-to-Name Mapping
 
