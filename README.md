@@ -156,19 +156,7 @@ Add to your MCP client configuration (e.g., Claude Desktop):
 
 ## API Reference
 
-### Resources vs Tools
-
-**Resources** provide READ-ONLY context about specific entities (what the AI should **KNOW**):
-
-- `autotask://companies/{id}` - Get full context for a specific company
-- `autotask://contacts/{id}` - Get full context for a specific contact
-- `autotask://tickets/{id}` - Get full context for a specific ticket
-
-Resources are designed for retrieving detailed information about **known entities** when you have the ID. For searching, listing, or bulk operations, use **Tools** instead.
-
 ### Tools
-
-**Tools** perform actions and searches (what the AI can **DO**):
 
 #### Search & List Operations
 - `search_companies` - Search/list companies with filters (supports pagination)
@@ -191,8 +179,6 @@ Resources are designed for retrieving detailed information about **known entitie
 
 #### Utility Operations
 - `test_connection` - Test API connectivity
-
-**Note:** For listing or searching entities, always use the appropriate search tool (`search_companies`, `search_tickets`, etc.) rather than resources. Resources are only for retrieving specific entity details when you already have the ID.
 
 ### Example Tool Usage
 
@@ -569,21 +555,6 @@ Create a new ticket for Company ID 123 with title "Server maintenance"
 ```
 Search for contacts with email containing "@example.com"
 ```
-
-### Available MCP Resources
-
-Once connected, Claude can access these **read-only** Autotask resources for specific entity context:
-
-#### Companies
-- `autotask://companies/{id}` - Get full context for a specific company (requires ID)
-
-#### Contacts
-- `autotask://contacts/{id}` - Get full context for a specific contact (requires ID)
-
-#### Tickets
-- `autotask://tickets/{id}` - Get full context for a specific ticket (requires ID)
-
-**Note:** Resources require a specific entity ID. For searching or listing multiple entities, use the search tools below instead.
 
 ### Available MCP Tools
 

@@ -5,24 +5,19 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   CallToolRequestSchema,
   ErrorCode,
-  ListResourceTemplatesRequestSchema,
-  ListResourcesRequestSchema,
   ListToolsRequestSchema,
   McpError,
-  ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
 import { AutotaskService } from '../services/autotask.service.js';
 import { Logger } from '../utils/logger.js';
 import { McpServerConfig } from '../types/mcp.js';
-import { AutotaskResourceHandler } from '../handlers/resource.handler.js';
 import { EnhancedAutotaskToolHandler } from '../handlers/enhanced.tool.handler.js';
 import { McpTransport, TransportFactory, TransportConfig } from '../transport/index.js';
 
 export class AutotaskMcpServer {
   private server: Server;
   private autotaskService: AutotaskService;
-  private resourceHandler: AutotaskResourceHandler;
   private toolHandler: EnhancedAutotaskToolHandler;
   private logger: Logger;
   private transports: McpTransport[] = [];
@@ -44,13 +39,6 @@ export class AutotaskMcpServer {
       },
       {
         capabilities: {
-          resources: {
-            subscribe: false,
-            listChanged: true,
-            resourceTemplates: {
-              listChanged: true
-            }
-          },
           tools: {
             listChanged: true
           }
@@ -62,8 +50,7 @@ export class AutotaskMcpServer {
     // Initialize Autotask service
     this.autotaskService = new AutotaskService(config, logger);
     
-    // Initialize handlers
-    this.resourceHandler = new AutotaskResourceHandler(this.autotaskService, logger);
+    // Initialize tool handler
     this.toolHandler = new EnhancedAutotaskToolHandler(this.autotaskService, logger);
 
     this.setupHandlers();
@@ -74,51 +61,6 @@ export class AutotaskMcpServer {
    */
   private setupHandlers(): void {
     this.logger.info('Setting up MCP request handlers...');
-
-    // List available resources
-    this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
-      try {
-        this.logger.debug('Handling list resources request');
-        const resources = await this.resourceHandler.listResources();
-        return { resources };
-      } catch (error) {
-        this.logger.error('Failed to list resources:', error);
-        throw new McpError(
-          ErrorCode.InternalError,
-          `Failed to list resources: ${error instanceof Error ? error.message : 'Unknown error'}`
-        );
-      }
-    });
-
-    // List resource templates
-    this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
-      try {
-        this.logger.debug('Handling list resource templates request');
-        const templates = this.resourceHandler.getResourceTemplates();
-        return { resourceTemplates: templates };
-      } catch (error) {
-        this.logger.error('Failed to list resource templates:', error);
-        throw new McpError(
-          ErrorCode.InternalError,
-          `Failed to list resource templates: ${error instanceof Error ? error.message : 'Unknown error'}`
-        );
-      }
-    });
-
-    // Read a specific resource
-    this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
-      try {
-        this.logger.debug(`Handling read resource request for: ${request.params.uri}`);
-        const content = await this.resourceHandler.readResource(request.params.uri);
-        return { contents: [content] };
-      } catch (error) {
-        this.logger.error(`Failed to read resource ${request.params.uri}:`, error);
-        throw new McpError(
-          ErrorCode.InternalError,
-          `Failed to read resource: ${error instanceof Error ? error.message : 'Unknown error'}`
-        );
-      }
-    });
 
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -221,16 +163,7 @@ export class AutotaskMcpServer {
 
 This server provides access to Kaseya Autotask PSA data and operations through the Model Context Protocol.
 
-## Resources vs Tools
-
-**Resources** provide READ-ONLY context about specific entities (what the AI should KNOW):
-- **autotask://companies/{id}** - Retrieve full context for a specific company
-- **autotask://contacts/{id}** - Retrieve full context for a specific contact
-- **autotask://tickets/{id}** - Retrieve full context for a specific ticket
-
-Use resources when you need detailed information about a known entity ID.
-
-**Tools** perform actions and searches (what the AI can DO):
+## Available Tools
 
 ### Search & List Tools:
 - **search_companies** - Search/list companies with filters (supports pagination)
