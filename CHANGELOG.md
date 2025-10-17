@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.2...v2.1.3) (2025-10-17)
+
+
+### Bug Fixes
+
+* Clarify resource limitations and guide LLMs to use tools… ([3c17601](https://github.com/aybouzaglou/autotask-mcp/commit/3c17601fdda3206dd2f579ae857f49382c4252f0))
+
 ## [2.1.2](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.1...v2.1.2) (2025-10-17)
 
 
