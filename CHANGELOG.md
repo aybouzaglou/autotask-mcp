@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.1...v2.1.2) (2025-10-17)
+
+
+### Bug Fixes
+
+* Make pageSize parameter descriptions explicitly warn about defaults… ([0d676cc](https://github.com/aybouzaglou/autotask-mcp/commit/0d676cc4afc11638c502bddeea3a6c7ae15ec42a))
+
 ## [2.1.1](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.0...v2.1.1) (2025-10-17)
 
 
