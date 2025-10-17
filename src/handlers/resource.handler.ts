@@ -28,69 +28,43 @@ export class AutotaskResourceHandler {
   }
 
   /**
-   * List all available resources
+   * FUTURE: Resource Change Notifications
+   * 
+   * MCP best practice: Notify clients when resources change.
+   * To implement, add notification methods that call:
+   * - server.notification({ method: 'notifications/resources/updated', params: { uri } })
+   * 
+   * Trigger these notifications when:
+   * - update_company tool modifies a company → notify autotask://companies/{id}
+   * - update_ticket tool modifies a ticket → notify autotask://tickets/{id}
+   * - create_contact tool adds a contact → notify parent resource if applicable
+   * 
+   * This requires:
+   * 1. Reference to MCP Server instance in handler
+   * 2. Tool handlers calling resource handler notification methods
+   * 3. Clients subscribing to resource URIs they're tracking
+   */
+
+  /**
+   * List all available resource templates (metadata only, no data fetching)
+   * Resources are READ-ONLY context for specific entities, not bulk searches.
+   * For searches/lists, use tools (search_companies, search_tickets, etc.)
    */
   async listResources(): Promise<McpResource[]> {
-    this.logger.debug('Listing available Autotask resources');
+    this.logger.debug('Listing available Autotask resource templates');
 
-    const resources: McpResource[] = [
-      // Company resources
-      {
-        uri: 'autotask://companies',
-        name: 'Companies (Limited)',
-        description: 'Returns ONLY FIRST 100 companies. For complete searches with filters, use the search_companies TOOL instead.',
-        mimeType: 'application/json'
-      },
-      {
-        uri: 'autotask://companies/{id}',
-        name: 'Company by ID',
-        description: 'Get specific company details by ID',
-        mimeType: 'application/json'
-      },
+    // Return only template metadata - no data fetching at this stage
+    // Resources provide specific entity context when the AI needs details about a known entity
+    const resources: McpResource[] = [];
 
-      // Contact resources
-      {
-        uri: 'autotask://contacts',
-        name: 'Contacts (Limited)',
-        description: 'Returns ONLY FIRST 100 contacts. For complete searches with filters, use the search_contacts TOOL instead.',
-        mimeType: 'application/json'
-      },
-      {
-        uri: 'autotask://contacts/{id}',
-        name: 'Contact by ID',
-        description: 'Get specific contact details by ID',
-        mimeType: 'application/json'
-      },
-
-      // Ticket resources
-      {
-        uri: 'autotask://tickets',
-        name: 'Tickets (Limited)',
-        description: 'Returns ONLY FIRST 100 tickets. For complete searches with filters, use the search_tickets TOOL instead.',
-        mimeType: 'application/json'
-      },
-      {
-        uri: 'autotask://tickets/{id}',
-        name: 'Ticket by ID',
-        description: 'Get specific ticket details by ID',
-        mimeType: 'application/json'
-      },
-
-      // Time entry resources
-      {
-        uri: 'autotask://time-entries',
-        name: 'Time Entries',
-        description: 'List of time entries in Autotask',
-        mimeType: 'application/json'
-      }
-    ];
-
-    this.logger.debug(`Listed ${resources.length} available resources`);
+    this.logger.debug(`Listed ${resources.length} concrete resources (templates available via listResourceTemplates)`);
     return resources;
   }
 
   /**
    * Read a specific resource by URI
+   * Resources provide READ-ONLY context for specific entities.
+   * Bulk searches/lists should use tools, not resources.
    */
   async readResource(uri: string): Promise<McpResourceContent> {
     this.logger.debug(`Reading resource: ${uri}`);
@@ -98,53 +72,47 @@ export class AutotaskResourceHandler {
     // Parse the URI to determine the resource type and ID
     const { resourceType, resourceId } = this.parseUri(uri);
 
+    // Resources REQUIRE a specific ID - no bulk operations
+    if (!resourceId) {
+      throw new Error(
+        `Resource URI must include a specific ID. Got: ${uri}. ` +
+        `For searching/listing, use tools like search_${resourceType} instead.`
+      );
+    }
+
     let data: any;
     let description: string;
 
     switch (resourceType) {
       case 'companies':
-        if (resourceId) {
-          data = await this.autotaskService.getCompany(parseInt(resourceId, 10));
-          if (!data) {
-            throw new Error(`Company with ID ${resourceId} not found`);
-          }
-          description = `Company: ${data.companyName || 'Unknown'}`;
-        } else {
-          data = await this.autotaskService.searchCompanies({ pageSize: 100 });
-          description = `⚠️ Showing first ${data.length} companies only (limited to 100). Use search_companies tool with pageSize: -1 for complete results.`;
+        data = await this.autotaskService.getCompany(parseInt(resourceId, 10));
+        if (!data) {
+          throw new Error(`Company with ID ${resourceId} not found`);
         }
+        description = `Company: ${data.companyName || 'Unknown'}`;
         break;
 
       case 'contacts':
-        if (resourceId) {
-          data = await this.autotaskService.getContact(parseInt(resourceId, 10));
-          if (!data) {
-            throw new Error(`Contact with ID ${resourceId} not found`);
-          }
-          description = `Contact: ${data.firstName} ${data.lastName}`;
-        } else {
-          data = await this.autotaskService.searchContacts({ pageSize: 100 });
-          description = `⚠️ Showing first ${data.length} contacts only (limited to 100). Use search_contacts tool with pageSize: -1 for complete results.`;
+        data = await this.autotaskService.getContact(parseInt(resourceId, 10));
+        if (!data) {
+          throw new Error(`Contact with ID ${resourceId} not found`);
         }
+        description = `Contact: ${data.firstName} ${data.lastName}`;
         break;
 
       case 'tickets':
-        if (resourceId) {
-          data = await this.autotaskService.getTicket(parseInt(resourceId, 10));
-          if (!data) {
-            throw new Error(`Ticket with ID ${resourceId} not found`);
-          }
-          description = `Ticket: ${data.title || data.ticketNumber || 'Unknown'}`;
-        } else {
-          data = await this.autotaskService.searchTickets({ pageSize: 100 });
-          description = `⚠️ Showing first ${data.length} tickets only (limited to 100). Use search_tickets tool with pageSize: -1 for complete results.`;
+        data = await this.autotaskService.getTicket(parseInt(resourceId, 10));
+        if (!data) {
+          throw new Error(`Ticket with ID ${resourceId} not found`);
         }
+        description = `Ticket: ${data.title || data.ticketNumber || 'Unknown'}`;
         break;
 
       case 'time-entries':
-        data = await this.autotaskService.getTimeEntries({ pageSize: 100 });
-        description = `⚠️ Showing first ${data.length} time entries only (limited to 100). Use appropriate tool for complete results.`;
-        break;
+        // Time entries don't have a direct getById method, so we reject
+        throw new Error(
+          `Time entry resources by ID are not supported. Use search_time_entries tool instead.`
+        );
 
       default:
         throw new Error(`Unknown resource type: ${resourceType}`);
@@ -160,8 +128,7 @@ export class AutotaskResourceHandler {
         metadata: {
           timestamp: new Date().toISOString(),
           resourceType,
-          resourceId: resourceId || null,
-          count: Array.isArray(data) ? data.length : 1
+          resourceId
         }
       }, null, 2)
     };
@@ -194,17 +161,29 @@ export class AutotaskResourceHandler {
   }
 
   /**
-   * Get available resource templates for documentation
+   * Get available resource templates for dynamic URI construction
+   * Templates allow clients to construct URIs for specific entities
    */
-  getResourceTemplates(): string[] {
+  getResourceTemplates(): Array<{ uriTemplate: string; name: string; description: string; mimeType: string }> {
     return [
-      'autotask://companies',
-      'autotask://companies/{id}',
-      'autotask://contacts',
-      'autotask://contacts/{id}',
-      'autotask://tickets',
-      'autotask://tickets/{id}',
-      'autotask://time-entries'
+      {
+        uriTemplate: 'autotask://companies/{id}',
+        name: 'Company by ID',
+        description: 'Get specific company context by ID. Provides full company details for a known company.',
+        mimeType: 'application/json'
+      },
+      {
+        uriTemplate: 'autotask://contacts/{id}',
+        name: 'Contact by ID',
+        description: 'Get specific contact context by ID. Provides full contact details for a known contact.',
+        mimeType: 'application/json'
+      },
+      {
+        uriTemplate: 'autotask://tickets/{id}',
+        name: 'Ticket by ID',
+        description: 'Get specific ticket context by ID. Provides full ticket details including status, priority, and description.',
+        mimeType: 'application/json'
+      }
     ];
   }
 } 

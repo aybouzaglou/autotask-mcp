@@ -94,13 +94,8 @@ export class AutotaskMcpServer {
     this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
       try {
         this.logger.debug('Handling list resource templates request');
-        const resourceTemplates = this.resourceHandler.getResourceTemplates().map((uriTemplate) => ({
-          name: uriTemplate,
-          uriTemplate,
-          description: `Template for resources matching ${uriTemplate}`,
-          mimeType: 'application/json'
-        }));
-        return { resourceTemplates };
+        const templates = this.resourceHandler.getResourceTemplates();
+        return { resourceTemplates: templates };
       } catch (error) {
         this.logger.error('Failed to list resource templates:', error);
         throw new McpError(
@@ -226,39 +221,46 @@ export class AutotaskMcpServer {
 
 This server provides access to Kaseya Autotask PSA data and operations through the Model Context Protocol.
 
-## Available Resources:
-- **autotask://companies/{id}** - Get company details by ID
-- **autotask://companies** - List all companies
-- **autotask://contacts/{id}** - Get contact details by ID  
-- **autotask://contacts** - List all contacts
-- **autotask://tickets/{id}** - Get ticket details by ID
-- **autotask://tickets** - List all tickets
+## Resources vs Tools
 
-## Available Tools:
-- **search_companies** - Search for companies with filters
+**Resources** provide READ-ONLY context about specific entities (what the AI should KNOW):
+- **autotask://companies/{id}** - Retrieve full context for a specific company
+- **autotask://contacts/{id}** - Retrieve full context for a specific contact
+- **autotask://tickets/{id}** - Retrieve full context for a specific ticket
+
+Use resources when you need detailed information about a known entity ID.
+
+**Tools** perform actions and searches (what the AI can DO):
+
+### Search & List Tools:
+- **search_companies** - Search/list companies with filters (supports pagination)
+- **search_contacts** - Search/list contacts with filters (supports pagination)
+- **search_tickets** - Search/list tickets with filters (supports pagination)
+
+### Modification Tools:
 - **create_company** - Create a new company
 - **update_company** - Update company information
-- **search_contacts** - Search for contacts with filters
 - **create_contact** - Create a new contact
 - **update_contact** - Update contact information
-- **search_tickets** - Search for tickets with filters
 - **create_ticket** - Create a new ticket
-- **update_ticket** - Update ticket assignment, status, priority, queue, title, description, and resolution with validation and structured error feedback
+- **update_ticket** - Update ticket assignment, status, priority, queue, title, description, and resolution
 - **create_time_entry** - Log time against a ticket or project
+
+### Utility Tools:
 - **test_connection** - Test Autotask API connectivity
 
-## ID-to-Name Mapping Tools:
-- **get_company_name** - Get company name by ID
-- **get_resource_name** - Get resource name by ID
-- **get_mapping_cache_stats** - Get mapping cache statistics
+### ID-to-Name Mapping Tools:
+- **get_company_name** - Resolve company ID to name
+- **get_resource_name** - Resolve resource ID to name
+- **get_mapping_cache_stats** - View mapping cache statistics
 - **clear_mapping_cache** - Clear mapping cache
 - **preload_mapping_cache** - Preload mapping cache for better performance
 
 ## Enhanced Features:
-All search and detail tools automatically include human-readable names for company and resource IDs in the enhanced field of each result.
+All search and detail tools automatically include human-readable names for company and resource IDs in the _enhanced field of each result.
 
 ## Authentication:
-This server requires valid Autotask API credentials. Ensure you have:
+This server requires valid Autotask API credentials:
 - AUTOTASK_USERNAME (API user email)
 - AUTOTASK_SECRET (API secret key)
 - AUTOTASK_INTEGRATION_CODE (integration code)

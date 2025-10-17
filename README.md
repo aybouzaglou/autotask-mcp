@@ -156,33 +156,33 @@ Add to your MCP client configuration (e.g., Claude Desktop):
 
 ## API Reference
 
-### Resources
+### Resources vs Tools
 
-Resources provide read-only access to Autotask data:
+**Resources** provide READ-ONLY context about specific entities (what the AI should **KNOW**):
 
-- `autotask://companies` - List all companies
-- `autotask://companies/{id}` - Get specific company
-- `autotask://contacts` - List all contacts  
-- `autotask://contacts/{id}` - Get specific contact
-- `autotask://tickets` - List all tickets
-- `autotask://tickets/{id}` - Get specific ticket
-- `autotask://time-entries` - List time entries
+- `autotask://companies/{id}` - Get full context for a specific company
+- `autotask://contacts/{id}` - Get full context for a specific contact
+- `autotask://tickets/{id}` - Get full context for a specific ticket
+
+Resources are designed for retrieving detailed information about **known entities** when you have the ID. For searching, listing, or bulk operations, use **Tools** instead.
 
 ### Tools
 
-Tools provide interactive operations:
+**Tools** perform actions and searches (what the AI can **DO**):
+
+#### Search & List Operations
+- `search_companies` - Search/list companies with filters (supports pagination)
+- `search_contacts` - Search/list contacts with filters (supports pagination)
+- `search_tickets` - Search/list tickets with filters (supports pagination)
 
 #### Company Operations
-- `search_companies` - Search companies with filters
 - `create_company` - Create new company
 - `update_company` - Update existing company
 
 #### Contact Operations  
-- `search_contacts` - Search contacts with filters
 - `create_contact` - Create new contact
 
 #### Ticket Operations
-- `search_tickets` - Search tickets with filters
 - `create_ticket` - Create new ticket
 - `update_ticket` - Patch an existing ticket (status, priority, queue, due date, summary, description, resolution)
 
@@ -191,6 +191,8 @@ Tools provide interactive operations:
 
 #### Utility Operations
 - `test_connection` - Test API connectivity
+
+**Note:** For listing or searching entities, always use the appropriate search tool (`search_companies`, `search_tickets`, etc.) rather than resources. Resources are only for retrieving specific entity details when you already have the ID.
 
 ### Example Tool Usage
 
@@ -570,22 +572,18 @@ Search for contacts with email containing "@example.com"
 
 ### Available MCP Resources
 
-Once connected, Claude can access these Autotask resources:
+Once connected, Claude can access these **read-only** Autotask resources for specific entity context:
 
 #### Companies
-- `autotask://companies` - List all companies
-- `autotask://companies/{id}` - Get specific company details
+- `autotask://companies/{id}` - Get full context for a specific company (requires ID)
 
 #### Contacts
-- `autotask://contacts` - List all contacts
-- `autotask://contacts/{id}` - Get specific contact details
+- `autotask://contacts/{id}` - Get full context for a specific contact (requires ID)
 
 #### Tickets
-- `autotask://tickets` - List all tickets
-- `autotask://tickets/{id}` - Get specific ticket details
+- `autotask://tickets/{id}` - Get full context for a specific ticket (requires ID)
 
-#### Time Entries
-- `autotask://time-entries` - List all time entries
+**Note:** Resources require a specific entity ID. For searching or listing multiple entities, use the search tools below instead.
 
 ### Available MCP Tools
 
