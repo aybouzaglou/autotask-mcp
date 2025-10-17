@@ -8,14 +8,17 @@ The Autotask MCP server uses **smart pagination** to balance performance, API ef
 
 ### Default Behavior
 
-When you search without specifying `pageSize`, you get safe defaults:
+⚠️ **IMPORTANT**: When you search without specifying `pageSize`, you get **ONLY THE FIRST** results up to the safe default limit:
 
 ```javascript
-// Returns 50 companies
+// Returns ONLY FIRST 50 matching companies (not all matches!)
 search_companies({ searchTerm: "Acme" })
 
-// Returns 25 projects (smaller objects, better performance)
+// Returns ONLY FIRST 25 matching projects (not all matches!)
 search_projects({ companyID: 12345 })
+
+// To get ALL matches, you MUST use pageSize: -1
+search_companies({ searchTerm: "Acme", pageSize: -1 })
 ```
 
 ### Explicit Page Sizes

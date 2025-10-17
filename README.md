@@ -195,31 +195,32 @@ Tools provide interactive operations:
 ### Example Tool Usage
 
 ```javascript
-// Search for companies (returns 50 by default)
+// Search for companies (returns ONLY FIRST 50 matches by default)
 {
   "name": "search_companies",
   "arguments": {
     "searchTerm": "Acme Corp",
     "isActive": true
+    // ⚠️ Without pageSize, only first 50 companies returned!
   }
 }
 
-// Search with explicit page size
+// Search with explicit page size for more results
 {
   "name": "search_companies",
   "arguments": {
     "searchTerm": "Acme",
-    "pageSize": 100  // Request more results
+    "pageSize": 100  // Request 100 results instead of default 50
   }
 }
 
-// Search for all matching companies (use filters to narrow results)
+// Search for ALL matching companies (use filters to narrow results first)
 {
   "name": "search_companies",
   "arguments": {
     "searchTerm": "Tech",
     "isActive": true,
-    "pageSize": -1  // Get all results (use with caution)
+    "pageSize": -1  // ✅ Get ALL results (may be slow for large datasets)
   }
 }
 

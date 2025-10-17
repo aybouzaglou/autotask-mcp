@@ -28,7 +28,7 @@ export interface McpToolResult {
 const PAGE_SIZE_STANDARD = {
   type: "number",
   description:
-    "Number of results (default: 50, max: 500). Use -1 for unlimited (may be slow). Tip: Use filters to narrow results before increasing pageSize.",
+    "Number of results to return. **IMPORTANT: If omitted, returns ONLY FIRST 50 results!** Set to -1 to get ALL matching results (may be slow). Max: 500.",
   minimum: -1,
   maximum: 500,
 };
@@ -36,7 +36,7 @@ const PAGE_SIZE_STANDARD = {
 const PAGE_SIZE_MEDIUM = {
   type: "number",
   description:
-    "Number of results (default: 25, max: 500). Use -1 for unlimited (may be slow). Tip: Use filters to narrow results before increasing pageSize.",
+    "Number of results to return. **IMPORTANT: If omitted, returns ONLY FIRST 25 results!** Set to -1 to get ALL matching results (may be slow). Max: 500.",
   minimum: -1,
   maximum: 500,
 };
@@ -44,7 +44,7 @@ const PAGE_SIZE_MEDIUM = {
 const PAGE_SIZE_LIMITED = {
   type: "number",
   description:
-    "Number of results (default: 25, max: 100). Use -1 for up to 100 results. Note: This endpoint has API limitations.",
+    "Number of results to return. **IMPORTANT: If omitted, returns ONLY FIRST 25 results!** Set to -1 to get up to 100 results (API limited). Max: 100.",
   minimum: -1,
   maximum: 100,
 };
