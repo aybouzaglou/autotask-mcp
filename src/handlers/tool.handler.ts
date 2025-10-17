@@ -100,7 +100,7 @@ export class AutotaskToolHandler {
       {
         name: "search_companies",
         description:
-          "Search for companies in Autotask. Returns 50 companies by default. Use filters (searchTerm, isActive) to narrow results before requesting more data.",
+          "Search for companies in Autotask. **IMPORTANT: Returns ONLY first 50 matching companies by default** - if you need ALL companies matching your query, you MUST set pageSize: -1. Use filters (searchTerm, isActive) to narrow results.",
         inputSchema: {
           type: "object",
           properties: {
@@ -210,7 +210,7 @@ export class AutotaskToolHandler {
       {
         name: "search_contacts",
         description:
-          "Search for contacts in Autotask. Returns 50 contacts by default. Use filters (searchTerm, companyID, isActive) to narrow results before requesting more data.",
+          "Search for contacts in Autotask. **IMPORTANT: Returns ONLY first 50 matching contacts by default** - if you need ALL contacts matching your query, you MUST set pageSize: -1. Use filters (searchTerm, companyID, isActive) to narrow results.",
         inputSchema: {
           type: "object",
           properties: {
@@ -270,7 +270,7 @@ export class AutotaskToolHandler {
       {
         name: "search_tickets",
         description:
-          "Search for tickets in Autotask. Returns 50 optimized tickets by default. Use filters (searchTerm, companyID, status, assignedResourceID) to narrow results. For full ticket data, use get_ticket_details.",
+          "Search for tickets in Autotask. **IMPORTANT: Returns ONLY first 50 matching tickets by default** - if you need ALL tickets matching your query, you MUST set pageSize: -1. Use filters (searchTerm, companyID, status, assignedResourceID) to narrow results. For full ticket data, use get_ticket_details.",
         inputSchema: {
           type: "object",
           properties: {
