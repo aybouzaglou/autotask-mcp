@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/aybouzaglou/autotask-mcp/compare/v2.0.0...v2.0.1) (2025-10-17)
+
+
+### Bug Fixes
+
+* **docker:** correct entry point and update all Docker documentation ([67fe4f4](https://github.com/aybouzaglou/autotask-mcp/commit/67fe4f4cabd6616391d6ae958b72871da8cc0f7f))
+
 # [1.2.0](https://github.com/aybouzaglou/autotask-mcp/compare/v1.1.0...v1.2.0) (2025-10-17)
 
 
