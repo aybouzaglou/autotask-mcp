@@ -1123,10 +1123,23 @@ export class AutotaskToolHandler {
           break;
         }
 
-        case "search_companies":
+        case "search_companies": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 50;
+          const effectivePageSize = requestedPageSize === -1 ? Infinity : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchCompanies(args);
-          message = `Found ${result.length} companies`;
+          
+          // Check if results might be truncated
+          const isTruncated = result.length >= effectivePageSize && effectivePageSize !== Infinity;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} companies (results may be truncated). To see all results, use pageSize: -1 or add filters (searchTerm, isActive).`;
+          } else {
+            message = `Found ${result.length} companies`;
+          }
           break;
+        }
 
         case "create_company":
           result = await this.autotaskService.createCompany(args);
@@ -1138,10 +1151,23 @@ export class AutotaskToolHandler {
           message = `Successfully updated company ID: ${args.id}`;
           break;
 
-        case "search_contacts":
+        case "search_contacts": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 50;
+          const effectivePageSize = requestedPageSize === -1 ? Infinity : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchContacts(args);
-          message = `Found ${result.length} contacts`;
+          
+          // Check if results might be truncated
+          const isTruncated = result.length >= effectivePageSize && effectivePageSize !== Infinity;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} contacts (results may be truncated). To see all results, use pageSize: -1 or add filters (searchTerm, companyID, isActive).`;
+          } else {
+            message = `Found ${result.length} contacts`;
+          }
           break;
+        }
 
         case "create_contact":
           result = await this.autotaskService.createContact(args);
@@ -1151,13 +1177,25 @@ export class AutotaskToolHandler {
         case "search_tickets": {
           // Map parameter names from tool schema to service expectations
           const { companyID, ...otherArgs } = args;
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 50;
+          const effectivePageSize = requestedPageSize === -1 ? Infinity : (requestedPageSize || defaultPageSize);
+          
           const ticketSearchOptions = {
             ...otherArgs,
             ...(companyID !== undefined && { companyId: companyID }),
           };
           result =
             await this.autotaskService.searchTickets(ticketSearchOptions);
-          message = `Found ${result.length} tickets`;
+          
+          // Check if results might be truncated
+          const isTruncated = result.length >= effectivePageSize && effectivePageSize !== Infinity;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} tickets (results may be truncated). To see all results, use pageSize: -1 or add filters (searchTerm, companyID, status, assignedResourceID).`;
+          } else {
+            message = `Found ${result.length} tickets`;
+          }
           break;
         }
 
@@ -1286,10 +1324,23 @@ export class AutotaskToolHandler {
           break;
 
         // Project tools
-        case "search_projects":
+        case "search_projects": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? 100 : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchProjects(args);
-          message = `Found ${result.length} projects`;
+          
+          // Check if results might be truncated (LIMITED endpoint - max 100)
+          const isTruncated = result.length >= effectivePageSize;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} projects (results may be truncated, API max: 100). Add filters (searchTerm, companyID, status, projectManagerResourceID) to narrow results.`;
+          } else {
+            message = `Found ${result.length} projects`;
+          }
           break;
+        }
 
         case "create_project":
           result = await this.autotaskService.createProject(args);
@@ -1297,34 +1348,100 @@ export class AutotaskToolHandler {
           break;
 
         // Resource tools
-        case "search_resources":
+        case "search_resources": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? Infinity : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchResources(args);
-          message = `Found ${result.length} resources`;
+          
+          // Check if results might be truncated
+          const isTruncated = result.length >= effectivePageSize && effectivePageSize !== Infinity;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} resources (results may be truncated). To see all results, use pageSize: -1 or add filters (searchTerm, isActive, resourceType).`;
+          } else {
+            message = `Found ${result.length} resources`;
+          }
           break;
+        }
 
         // Configuration Item tools
-        case "search_configuration_items":
+        case "search_configuration_items": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? Infinity : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchConfigurationItems(args);
-          message = `Found ${result.length} configuration items`;
+          
+          // Check if results might be truncated
+          const isTruncated = result.length >= effectivePageSize && effectivePageSize !== Infinity;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} configuration items (results may be truncated). To see all results, use pageSize: -1 or add filters (searchTerm, companyID, isActive, productID).`;
+          } else {
+            message = `Found ${result.length} configuration items`;
+          }
           break;
+        }
 
         // Contract tools
-        case "search_contracts":
+        case "search_contracts": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? Infinity : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchContracts(args);
-          message = `Found ${result.length} contracts`;
+          
+          // Check if results might be truncated
+          const isTruncated = result.length >= effectivePageSize && effectivePageSize !== Infinity;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} contracts (results may be truncated). To see all results, use pageSize: -1 or add filters (searchTerm, companyID, status).`;
+          } else {
+            message = `Found ${result.length} contracts`;
+          }
           break;
+        }
+
 
         // Invoice tools
-        case "search_invoices":
+        case "search_invoices": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? Infinity : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchInvoices(args);
-          message = `Found ${result.length} invoices`;
+          
+          // Check if results might be truncated
+          const isTruncated = result.length >= effectivePageSize && effectivePageSize !== Infinity;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} invoices (results may be truncated). To see all results, use pageSize: -1 or add filters (companyID, invoiceNumber, isVoided).`;
+          } else {
+            message = `Found ${result.length} invoices`;
+          }
           break;
+        }
 
         // Task tools
-        case "search_tasks":
+        case "search_tasks": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? 100 : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchTasks(args);
-          message = `Found ${result.length} tasks`;
+          
+          // Check if results might be truncated (LIMITED endpoint - max 100)
+          const isTruncated = result.length >= effectivePageSize;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} tasks (results may be truncated, API max: 100). Add filters (searchTerm, projectID, status, assignedResourceID) to narrow results.`;
+          } else {
+            message = `Found ${result.length} tasks`;
+          }
           break;
+        }
 
         case "create_task":
           result = await this.autotaskService.createTask(args);
@@ -1340,12 +1457,25 @@ export class AutotaskToolHandler {
           message = `Ticket note retrieved successfully`;
           break;
 
-        case "search_ticket_notes":
+        case "search_ticket_notes": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? 100 : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchTicketNotes(args.ticketId, {
             pageSize: args.pageSize,
           });
-          message = `Found ${result.length} ticket notes`;
+          
+          // Check if results might be truncated (LIMITED endpoint - max 100)
+          const isTruncated = result.length >= effectivePageSize;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} ticket notes (results may be truncated, API max: 100). Consider limiting the time range of your query.`;
+          } else {
+            message = `Found ${result.length} ticket notes`;
+          }
           break;
+        }
 
         case "create_ticket_note": {
           // Ensure metadata cache is initialized before validation
@@ -1394,13 +1524,26 @@ export class AutotaskToolHandler {
           message = `Project note retrieved successfully`;
           break;
 
-        case "search_project_notes":
+        case "search_project_notes": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? 100 : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchProjectNotes(
             args.projectId,
             { pageSize: args.pageSize },
           );
-          message = `Found ${result.length} project notes`;
+          
+          // Check if results might be truncated (LIMITED endpoint - max 100)
+          const isTruncated = result.length >= effectivePageSize;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} project notes (results may be truncated, API max: 100). Consider limiting the time range of your query.`;
+          } else {
+            message = `Found ${result.length} project notes`;
+          }
           break;
+        }
 
         case "create_project_note":
           result = await this.autotaskService.createProjectNote(
@@ -1423,13 +1566,26 @@ export class AutotaskToolHandler {
           message = `Company note retrieved successfully`;
           break;
 
-        case "search_company_notes":
+        case "search_company_notes": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? 100 : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchCompanyNotes(
             args.companyId,
             { pageSize: args.pageSize },
           );
-          message = `Found ${result.length} company notes`;
+          
+          // Check if results might be truncated (LIMITED endpoint - max 100)
+          const isTruncated = result.length >= effectivePageSize;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} company notes (results may be truncated, API max: 100). Consider limiting the time range of your query.`;
+          } else {
+            message = `Found ${result.length} company notes`;
+          }
           break;
+        }
 
         case "create_company_note":
           result = await this.autotaskService.createCompanyNote(
@@ -1453,13 +1609,26 @@ export class AutotaskToolHandler {
           message = `Ticket attachment retrieved successfully`;
           break;
 
-        case "search_ticket_attachments":
+        case "search_ticket_attachments": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 10;
+          const effectivePageSize = requestedPageSize || defaultPageSize; // No unlimited mode for attachments
+          
           result = await this.autotaskService.searchTicketAttachments(
             args.ticketId,
             { pageSize: args.pageSize },
           );
-          message = `Found ${result.length} ticket attachments`;
+          
+          // Check if results might be truncated (max 50, default 10)
+          const isTruncated = result.length >= effectivePageSize && effectivePageSize < 50;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} ticket attachments (results may be truncated, max: 50). Attachments are large - use small pageSize values.`;
+          } else {
+            message = `Found ${result.length} ticket attachments`;
+          }
           break;
+        }
 
         // Expense Reports tools
         case "get_expense_report":
@@ -1467,14 +1636,27 @@ export class AutotaskToolHandler {
           message = `Expense report retrieved successfully`;
           break;
 
-        case "search_expense_reports":
+        case "search_expense_reports": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? 100 : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchExpenseReports({
             submitterId: args.submitterId,
             status: args.status,
             pageSize: args.pageSize,
           });
-          message = `Found ${result.length} expense reports`;
+          
+          // Check if results might be truncated (LIMITED endpoint - max 100)
+          const isTruncated = result.length >= effectivePageSize;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} expense reports (results may be truncated, API max: 100). Add filters (submitterId, status) to narrow results.`;
+          } else {
+            message = `Found ${result.length} expense reports`;
+          }
           break;
+        }
 
         case "create_expense_report":
           result = await this.autotaskService.createExpenseReport({
@@ -1500,7 +1682,11 @@ export class AutotaskToolHandler {
           message = `Quote retrieved successfully`;
           break;
 
-        case "search_quotes":
+        case "search_quotes": {
+          const requestedPageSize = args.pageSize;
+          const defaultPageSize = 25;
+          const effectivePageSize = requestedPageSize === -1 ? 100 : (requestedPageSize || defaultPageSize);
+          
           result = await this.autotaskService.searchQuotes({
             companyId: args.companyId,
             contactId: args.contactId,
@@ -1508,8 +1694,17 @@ export class AutotaskToolHandler {
             searchTerm: args.searchTerm,
             pageSize: args.pageSize,
           });
-          message = `Found ${result.length} quotes`;
+          
+          // Check if results might be truncated (LIMITED endpoint - max 100)
+          const isTruncated = result.length >= effectivePageSize;
+          
+          if (isTruncated) {
+            message = `Returning ${result.length} quotes (results may be truncated, API max: 100). Add filters (companyId, contactId, opportunityId, searchTerm) to narrow results.`;
+          } else {
+            message = `Found ${result.length} quotes`;
+          }
           break;
+        }
 
         case "create_quote":
           result = await this.autotaskService.createQuote({
