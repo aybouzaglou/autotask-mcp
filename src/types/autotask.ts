@@ -58,6 +58,37 @@ export interface AutotaskTicket {
   [key: string]: any;
 }
 
+export type TicketNotePublishLevel = 1 | 3;
+
+export interface TicketUpdateFields {
+  assignedResourceID?: number | null;
+  status?: number;
+  priority?: number;
+  queueID?: number;
+  title?: string;
+  description?: string;
+  resolution?: string;
+  dueDateTime?: string;
+  lastActivityDate?: string;
+}
+
+export interface TicketUpdateRequest extends TicketUpdateFields {
+  id: number;
+}
+
+export interface TicketUpdateResult {
+  ticketId: number;
+  updatedFields: string[];
+  ticket: AutotaskTicket;
+}
+
+export interface TicketNoteCreateRequest {
+  ticketID: number;
+  title?: string;
+  description: string;
+  publish: TicketNotePublishLevel;
+}
+
 export interface AutotaskResource {
   id?: number;
   firstName?: string;

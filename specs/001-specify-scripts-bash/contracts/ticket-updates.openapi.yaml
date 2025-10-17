@@ -1,0 +1,135 @@
+openapi: 3.0.3
+info:
+  title: Ticket Update Reliability
+  version: 1.0.0
+  description: |
+    Contract excerpts for Autotask ticket updates executed by the MCP server.
+servers:
+  - url: https://ww14.autotask.net/ATServicesRest
+paths:
+  /Tickets/{id}:
+    patch:
+      summary: Update ticket assignment, status, or priority
+      operationId: updateTicketFields
+      tags: [Tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketPatch'
+      responses:
+        '200':
+          description: Ticket updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Invalid field value (e.g., inactive resource, disallowed status)
+        '405':
+          description: Method not allowed (typically incorrect HTTP verb)
+        '409':
+          description: Conflict due to stale data or locked ticket
+        '5XX':
+          description: Autotask service error
+  /TicketNotes/query:
+    post:
+      summary: Create a ticket note
+      operationId: createTicketNote
+      tags: [TicketNotes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketNoteCreate'
+      responses:
+        '200':
+          description: Note created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketNote'
+        '400':
+          description: Validation error (missing description or invalid publish level)
+        '403':
+          description: Permission denied
+        '5XX':
+          description: Autotask service error
+components:
+  schemas:
+    TicketPatch:
+      type: object
+      properties:
+        AssignedResourceID:
+          type: integer
+          nullable: true
+        Status:
+          type: integer
+        Priority:
+          type: integer
+        QueueID:
+          type: integer
+        LastActivityDate:
+          type: string
+          format: date-time
+          description: Optional concurrency token
+      additionalProperties: false
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: integer
+        AssignedResourceID:
+          type: integer
+          nullable: true
+        Status:
+          type: integer
+        Priority:
+          type: integer
+        QueueID:
+          type: integer
+        LastActivityDate:
+          type: string
+          format: date-time
+    TicketNoteCreate:
+      type: object
+      required: [TicketID, Description, Publish]
+      properties:
+        TicketID:
+          type: integer
+        Title:
+          type: string
+          maxLength: 255
+        Description:
+          type: string
+          maxLength: 32000
+        Publish:
+          type: integer
+          enum: [1, 3]
+          description: 1=Internal, 3=Customer-facing
+    TicketNote:
+      type: object
+      properties:
+        id:
+          type: integer
+        TicketID:
+          type: integer
+        Title:
+          type: string
+        Description:
+          type: string
+        Publish:
+          type: integer
+        CreatedByResourceID:
+          type: integer
+        CreatedDate:
+          type: string
+          format: date-time
