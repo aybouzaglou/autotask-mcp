@@ -1499,7 +1499,7 @@ export class AutotaskService {
       // Note: Validation is performed by TicketUpdateValidator in the handler layer
       const payload: any = {
         TicketID: note.ticketID,
-        Description: note.description.trim(),
+        Description: note.description?.trim() || "",
         Publish: note.publish,
       };
 
