@@ -121,6 +121,14 @@ export class AutotaskService {
     return this.metadataCache;
   }
 
+  /**
+   * Ensure metadata cache is initialized (required before validation)
+   */
+  async ensureMetadataCacheInitialized(): Promise<void> {
+    // Ensure client is initialized first (which initializes the cache)
+    await this.ensureClient();
+  }
+
   // Company operations (using accounts in autotask-node)
   async getCompany(id: number): Promise<AutotaskCompany | null> {
     const client = await this.ensureClient();
@@ -1487,19 +1495,8 @@ export class AutotaskService {
         throw error;
       }
 
-      // Enforce description required
-      if (!note.description || note.description.trim().length === 0) {
-        const error = new Error(
-          "Note description is required and cannot be empty",
-        );
-        this.logger.error(
-          "Ticket note creation failed - missing description:",
-          error,
-        );
-        throw error;
-      }
-
       // Build PascalCase payload for Autotask REST API
+      // Note: Validation is performed by TicketUpdateValidator in the handler layer
       const payload: any = {
         TicketID: note.ticketID,
         Description: note.description.trim(),

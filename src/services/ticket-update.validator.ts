@@ -216,46 +216,4 @@ export class TicketUpdateValidator {
       .replace(/\r\n/g, '\n') // Normalize line endings
       .replace(/\r/g, '\n');
   }
-
-  /**
-   * Build a PATCH payload for Autotask REST API (field names in PascalCase)
-   */
-  buildAutotaskPatchPayload(validated: ValidatedTicketUpdate): Record<string, any> {
-    const payload: Record<string, any> = {};
-
-    if (validated.payload.assignedResourceID !== undefined) {
-      payload.AssignedResourceID = validated.payload.assignedResourceID;
-    }
-    if (validated.payload.status !== undefined) {
-      payload.Status = validated.payload.status;
-    }
-    if (validated.payload.priority !== undefined) {
-      payload.Priority = validated.payload.priority;
-    }
-    if (validated.payload.queueID !== undefined) {
-      payload.QueueID = validated.payload.queueID;
-    }
-    if (validated.payload.lastActivityDate) {
-      payload.LastActivityDate = validated.payload.lastActivityDate;
-    }
-
-    return payload;
-  }
-
-  /**
-   * Build a note creation payload for Autotask REST API (field names in PascalCase)
-   */
-  buildAutotaskNotePayload(validated: ValidatedTicketNote): Record<string, any> {
-    const payload: Record<string, any> = {
-      TicketID: validated.payload.ticketID,
-      Description: validated.payload.description,
-      Publish: validated.payload.publish
-    };
-
-    if (validated.payload.title) {
-      payload.Title = validated.payload.title;
-    }
-
-    return payload;
-  }
 }

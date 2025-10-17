@@ -1269,6 +1269,9 @@ export class AutotaskToolHandler {
             lastActivityDate,
           };
 
+          // Ensure metadata cache is initialized before validation
+          await this.autotaskService.ensureMetadataCacheInitialized();
+
           // Validate using the validator
           const validator = this.getValidator();
           const validated = validator.validateTicketUpdate(updateRequest);
@@ -1391,6 +1394,9 @@ export class AutotaskToolHandler {
           break;
 
         case "create_ticket_note": {
+          // Ensure metadata cache is initialized before validation
+          await this.autotaskService.ensureMetadataCacheInitialized();
+
           // Validate note payload using validator
           const validator = this.getValidator();
 
@@ -1402,9 +1408,19 @@ export class AutotaskToolHandler {
           });
 
           if (!noteValidation.validation.isValid) {
-            throw new Error(
-              `Invalid note payload: ${noteValidation.validation.errors.join("; ")}`,
+            const mappedError = ErrorMapper.mapValidationErrors(
+              noteValidation.validation.errors,
+              "create_ticket_note",
             );
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: JSON.stringify({ isError: true, error: mappedError }),
+                },
+              ],
+              isError: true,
+            };
           }
 
           // Use validated and sanitized payload
