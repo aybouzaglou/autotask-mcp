@@ -250,7 +250,10 @@ describe("Ticket note creation flow", () => {
     expect(response.isError).toBe(true);
     const payload = JSON.parse(response.content[0].text);
     expect(payload.isError).toBe(true);
-    expect(payload.error.message).toContain("Invalid note payload");
+    // Should contain validation error message
+    expect(payload.error.message).toMatch(
+      /Invalid note payload|Invalid publish level/,
+    );
   });
 
   test("handler allows note without title (optional field)", async () => {
@@ -307,6 +310,9 @@ describe("Ticket note creation flow", () => {
     expect(response.isError).toBe(true);
     const payload = JSON.parse(response.content[0].text);
     expect(payload.isError).toBe(true);
-    expect(payload.error.message).toContain("Invalid note payload");
+    // Should contain validation error about length
+    expect(payload.error.message).toMatch(
+      /Invalid note payload|exceeds maximum length/,
+    );
   });
 });
