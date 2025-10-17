@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/aybouzaglou/autotask-mcp/compare/v2.0.1...v2.1.0) (2025-10-17)
+
+
+### Features
+
+* Add pagination truncation warnings to search operations ([8756cec](https://github.com/aybouzaglou/autotask-mcp/commit/8756cec4dc582032dd25e4dbe05e4a3f7cd22160))
+
 ## [2.0.1](https://github.com/aybouzaglou/autotask-mcp/compare/v2.0.0...v2.0.1) (2025-10-17)
 
 
