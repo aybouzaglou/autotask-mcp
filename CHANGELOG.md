@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.3...v2.1.4) (2025-10-17)
+
+
+### Bug Fixes
+
+* implement smart search_companies with exact-match-first and safe defaults… ([1683d93](https://github.com/aybouzaglou/autotask-mcp/commit/1683d93e893a58ab361eabb136f5907fddf98d5c))
+
 ## [2.1.3](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.2...v2.1.3) (2025-10-17)
 
 
