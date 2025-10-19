@@ -61,9 +61,9 @@
 - [X] T012 [US1] Rename all tool names with `autotask_` prefix in listTools() method in src/handlers/tool.handler.ts
 - [X] T013 [US1] Update all tool name references in callTool() switch cases in src/handlers/tool.handler.ts
 - [X] T014 [US1] Add tool name validation helper isValidAutotaskToolName() in src/utils/validation/tool-name.validator.ts
-- [ ] T015 [US1] Update README.md with new tool names and examples
-- [ ] T016 [US1] Update Claude Desktop configuration examples in docs/ with new tool names
-- [ ] T017 [US1] Create MIGRATION.md guide for users upgrading from pre-compliance versions
+- [X] T015 [US1] Update README.md with new tool names and examples
+- [X] T016 [US1] Update Claude Desktop configuration examples in docs/ with new tool names
+- [X] T017 [US1] Create MIGRATION.md guide for users upgrading from pre-compliance versions
 
 **Checkpoint**: All tools now have `autotask_` prefix and can coexist with other MCP servers
 
@@ -245,35 +245,35 @@
 
 ### Unit Tests
 
-- [ ] T095 [P] Create unit tests for common validation schemas in tests/unit/utils/validation/common.schemas.test.ts
-- [ ] T096 [P] Create unit tests for validation error formatting in tests/unit/utils/validation/error-formatter.test.ts
-- [ ] T097 [P] Create unit tests for character limit enforcement in tests/unit/utils/formatting/truncation.test.ts
-- [ ] T098 [P] Create unit tests for base Markdown formatter in tests/unit/utils/formatting/base.formatter.test.ts
-- [ ] T099 [P] Create unit tests for Company Markdown formatter in tests/unit/utils/formatting/company.formatter.test.ts
-- [ ] T100 [P] Create unit tests for tool name validation in tests/unit/utils/validation/tool-name.validator.test.ts
-- [ ] T101 [P] Create unit tests for tool annotations validation in tests/unit/utils/validation/tool-annotations.test.ts
+- [X] T095 [P] Create unit tests for common validation schemas in tests/unit/utils/validation/common.schemas.test.ts
+- [X] T096 [P] Create unit tests for validation error formatting in tests/unit/utils/validation/error-formatter.test.ts
+- [X] T097 [P] Create unit tests for character limit enforcement in tests/unit/utils/formatting/truncation.test.ts
+- [X] T098 [P] Create unit tests for base Markdown formatter in tests/unit/utils/formatting/base.formatter.test.ts
+- [X] T099 [P] Create unit tests for Company Markdown formatter in tests/unit/utils/formatting/company.formatter.test.ts
+- [X] T100 [P] Create unit tests for tool name validation in tests/unit/utils/validation/tool-name.validator.test.ts
+- [X] T101 [P] Create unit tests for tool annotations validation in tests/unit/utils/validation/tool-annotations.test.ts
 
 ### Integration Tests
 
-- [ ] T102 Update existing tool handler integration tests with new tool names in tests/integration/tool-integration.test.ts
-- [ ] T103 [P] Add integration tests for Zod validation errors in tests/integration/validation-integration.test.ts
-- [ ] T104 [P] Add integration tests for response format switching in tests/integration/response-format.test.ts
-- [ ] T105 [P] Add integration tests for character limit truncation in tests/integration/truncation.test.ts
-- [ ] T106 [P] Add integration tests for tool annotations behavior in tests/integration/annotations.test.ts
+- [X] T102 Update existing tool handler integration tests with new tool names in tests/integration/tool-integration.test.ts
+- [X] T103 [P] Add integration tests for Zod validation errors in tests/integration/validation-integration.test.ts
+- [X] T104 [P] Add integration tests for response format switching in tests/integration/response-format.test.ts
+- [X] T105 [P] Add integration tests for character limit truncation in tests/integration/truncation.test.ts
+- [X] T106 [P] Add integration tests for tool annotations behavior in tests/integration/annotations.test.ts
 
 ### Tool-Specific Validation Tests
 
-- [ ] T107 [P] Create validation tests for Company tool schemas in tests/unit/utils/validation/company.schemas.test.ts
-- [ ] T108 [P] Create validation tests for Contact tool schemas in tests/unit/utils/validation/contact.schemas.test.ts
-- [ ] T109 [P] Create validation tests for Ticket tool schemas in tests/unit/utils/validation/ticket.schemas.test.ts
+- [X] T107 [P] Create validation tests for Company tool schemas in tests/unit/utils/validation/company.schemas.test.ts
+- [X] T108 [P] Create validation tests for Contact tool schemas in tests/unit/utils/validation/contact.schemas.test.ts
+- [X] T109 [P] Create validation tests for Ticket tool schemas in tests/unit/utils/validation/ticket.schemas.test.ts
 
 ### Coverage & Quality Validation
 
-- [ ] T110 Run npm test and ensure all tests pass
+- [X] T110 Run npm test and ensure all tests pass
 - [ ] T111 Run npm run test:coverage and verify ≥80% overall coverage
 - [ ] T112 Verify 100% coverage on tool registration and validation paths
-- [ ] T113 Run npm run lint and fix any linting issues
-- [ ] T114 Run npm run build and ensure TypeScript compilation succeeds
+- [X] T113 Run npm run lint and fix any linting issues
+- [X] T114 Run npm run build and ensure TypeScript compilation succeeds
 
 **Checkpoint**: All tests pass, coverage targets met, no linting errors
 

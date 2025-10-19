@@ -28,9 +28,9 @@ console.debug = (...args: any[]) => {
 const originalProcessStdoutWrite = process.stdout.write.bind(process.stdout);
 
 // Completely override process.stdout.write to filter everything
-process.stdout.write = function(chunk: any, encoding?: any, callback?: any) {
+process.stdout.write = function (chunk: any, encoding?: any, callback?: any) {
   const chunkStr = chunk.toString();
-  
+
   // Check if this looks like a valid JSON-RPC message
   const isJsonRpcMessage = () => {
     try {
@@ -44,12 +44,12 @@ process.stdout.write = function(chunk: any, encoding?: any, callback?: any) {
       return false;
     }
   };
-  
+
   // Only allow valid JSON-RPC messages to stdout
   if (isJsonRpcMessage()) {
     return originalProcessStdoutWrite(chunk, encoding, callback);
   }
-  
+
   // Everything else (including Winston logs) goes to stderr
   process.stderr.write('[STDOUT->STDERR] ' + chunkStr);
   if (typeof callback === 'function') {
@@ -59,4 +59,4 @@ process.stdout.write = function(chunk: any, encoding?: any, callback?: any) {
 };
 
 // Now load and run the actual application
-require('./index.js'); 
+require('./index.js');

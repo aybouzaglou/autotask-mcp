@@ -1,11 +1,7 @@
 // Ticket Update Validator
 // Validates and builds ticket update and note creation requests
 
-import type {
-  TicketNoteCreateRequest,
-  TicketNotePublishLevel,
-  TicketUpdateRequest,
-} from '../types/autotask.js';
+import type { TicketNoteCreateRequest, TicketNotePublishLevel, TicketUpdateRequest } from '../types/autotask.js';
 import { TicketMetadataCache } from './ticket-metadata.cache.js';
 
 export interface ValidationResult {
@@ -49,26 +45,22 @@ export class TicketUpdateValidator {
     // Validate status if provided
     if (request.status !== undefined) {
       if (!this.metadataCache.isValidStatus(request.status)) {
-        const validStatuses = this.metadataCache.getAllStatuses()
-          .map(s => `${s.id} (${s.name})`)
+        const validStatuses = this.metadataCache
+          .getAllStatuses()
+          .map((s) => `${s.id} (${s.name})`)
           .join(', ');
-        errors.push(
-          `Invalid status ID: ${request.status}. ` +
-          `Valid statuses: ${validStatuses}`
-        );
+        errors.push(`Invalid status ID: ${request.status}. ` + `Valid statuses: ${validStatuses}`);
       }
     }
 
     // Validate priority if provided
     if (request.priority !== undefined) {
       if (!this.metadataCache.isValidPriority(request.priority)) {
-        const validPriorities = this.metadataCache.getAllPriorities()
-          .map(p => `${p.id} (${p.name})`)
+        const validPriorities = this.metadataCache
+          .getAllPriorities()
+          .map((p) => `${p.id} (${p.name})`)
           .join(', ');
-        errors.push(
-          `Invalid priority ID: ${request.priority}. ` +
-          `Valid priorities: ${validPriorities}`
-        );
+        errors.push(`Invalid priority ID: ${request.priority}. ` + `Valid priorities: ${validPriorities}`);
       }
     }
 
@@ -79,12 +71,11 @@ export class TicketUpdateValidator {
         if (resource) {
           errors.push(
             `Resource ID ${request.assignedResourceID} is inactive. ` +
-            `Only active resources can be assigned to tickets.`
+              `Only active resources can be assigned to tickets.`,
           );
         } else {
           errors.push(
-            `Resource ID ${request.assignedResourceID} not found. ` +
-            `Ensure the resource exists and is active.`
+            `Resource ID ${request.assignedResourceID} not found. ` + `Ensure the resource exists and is active.`,
           );
         }
       }
@@ -92,7 +83,7 @@ export class TicketUpdateValidator {
 
     // Build the payload
     const payload: TicketUpdateRequest = {
-      id: request.id!
+      id: request.id!,
     };
 
     // Add optional fields if provided and valid
@@ -125,11 +116,11 @@ export class TicketUpdateValidator {
     }
 
     // Check if at least one field beyond ticket ID is provided
-    const hasUpdateFields = Object.keys(payload).some(key => key !== 'id');
+    const hasUpdateFields = Object.keys(payload).some((key) => key !== 'id');
     if (!hasUpdateFields) {
       errors.push(
         'At least one field must be provided for update. ' +
-        'Supported fields: assignedResourceID, status, priority, queueID, title, description, resolution, dueDateTime, lastActivityDate'
+          'Supported fields: assignedResourceID, status, priority, queueID, title, description, resolution, dueDateTime, lastActivityDate',
       );
     }
 
@@ -137,8 +128,8 @@ export class TicketUpdateValidator {
       payload,
       validation: {
         isValid: errors.length === 0,
-        errors
-      }
+        errors,
+      },
     };
   }
 
@@ -161,7 +152,7 @@ export class TicketUpdateValidator {
     } else if (request.description.length > this.MAX_NOTE_LENGTH) {
       errors.push(
         `Note description exceeds maximum length of ${this.MAX_NOTE_LENGTH} characters. ` +
-        `Current length: ${request.description.length}`
+          `Current length: ${request.description.length}`,
       );
     }
 
@@ -169,10 +160,7 @@ export class TicketUpdateValidator {
     if (request.publish === undefined || typeof request.publish !== 'number') {
       errors.push('Publish level is required and must be a number (1=Internal, 3=External)');
     } else if (!this.ALLOWED_PUBLISH_LEVELS.includes(request.publish)) {
-      errors.push(
-        `Invalid publish level: ${request.publish}. ` +
-        `Allowed values: 1 (Internal), 3 (External)`
-      );
+      errors.push(`Invalid publish level: ${request.publish}. ` + `Allowed values: 1 (Internal), 3 (External)`);
     }
 
     // Validate title if provided (optional)
@@ -182,7 +170,7 @@ export class TicketUpdateValidator {
       } else if (request.title.length > this.MAX_TITLE_LENGTH) {
         errors.push(
           `Note title exceeds maximum length of ${this.MAX_TITLE_LENGTH} characters. ` +
-          `Current length: ${request.title.length}`
+            `Current length: ${request.title.length}`,
         );
       }
     }
@@ -191,7 +179,7 @@ export class TicketUpdateValidator {
     const payload: TicketNoteCreateRequest = {
       ticketID: request.ticketID!,
       description: request.description ? this.sanitizeNoteContent(request.description) : '',
-      publish: request.publish!
+      publish: request.publish!,
     };
 
     if (request.title) {
@@ -202,8 +190,8 @@ export class TicketUpdateValidator {
       payload,
       validation: {
         isValid: errors.length === 0,
-        errors
-      }
+        errors,
+      },
     };
   }
 

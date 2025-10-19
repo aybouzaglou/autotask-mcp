@@ -29,16 +29,16 @@ export class AutotaskResourceHandler {
 
   /**
    * FUTURE: Resource Change Notifications
-   * 
+   *
    * MCP best practice: Notify clients when resources change.
    * To implement, add notification methods that call:
    * - server.notification({ method: 'notifications/resources/updated', params: { uri } })
-   * 
+   *
    * Trigger these notifications when:
    * - update_company tool modifies a company → notify autotask://companies/{id}
    * - update_ticket tool modifies a ticket → notify autotask://tickets/{id}
    * - create_contact tool adds a contact → notify parent resource if applicable
-   * 
+   *
    * This requires:
    * 1. Reference to MCP Server instance in handler
    * 2. Tool handlers calling resource handler notification methods
@@ -76,7 +76,7 @@ export class AutotaskResourceHandler {
     if (!resourceId) {
       throw new Error(
         `Resource URI must include a specific ID. Got: ${uri}. ` +
-        `For searching/listing, use tools like search_${resourceType} instead.`
+          `For searching/listing, use tools like search_${resourceType} instead.`,
       );
     }
 
@@ -110,9 +110,7 @@ export class AutotaskResourceHandler {
 
       case 'time-entries':
         // Time entries don't have a direct getById method, so we reject
-        throw new Error(
-          `Time entry resources by ID are not supported. Use search_time_entries tool instead.`
-        );
+        throw new Error(`Time entry resources by ID are not supported. Use search_time_entries tool instead.`);
 
       default:
         throw new Error(`Unknown resource type: ${resourceType}`);
@@ -121,16 +119,20 @@ export class AutotaskResourceHandler {
     const content: McpResourceContent = {
       uri,
       mimeType: 'application/json',
-      text: JSON.stringify({
-        description,
-        uri,
-        data,
-        metadata: {
-          timestamp: new Date().toISOString(),
-          resourceType,
-          resourceId
-        }
-      }, null, 2)
+      text: JSON.stringify(
+        {
+          description,
+          uri,
+          data,
+          metadata: {
+            timestamp: new Date().toISOString(),
+            resourceType,
+            resourceId,
+          },
+        },
+        null,
+        2,
+      ),
     };
 
     this.logger.debug(`Successfully read resource: ${uri}`);
@@ -142,7 +144,7 @@ export class AutotaskResourceHandler {
    */
   private parseUri(uri: string): { resourceType: string; resourceId?: string } {
     const match = uri.match(/^autotask:\/\/([^/]+)(?:\/(.+))?$/);
-    
+
     if (!match) {
       throw new Error(`Invalid Autotask URI format: ${uri}`);
     }
@@ -156,7 +158,7 @@ export class AutotaskResourceHandler {
 
     return {
       resourceType,
-      resourceId
+      resourceId,
     };
   }
 
@@ -170,20 +172,21 @@ export class AutotaskResourceHandler {
         uriTemplate: 'autotask://companies/{id}',
         name: 'Company by ID',
         description: 'Get specific company context by ID. Provides full company details for a known company.',
-        mimeType: 'application/json'
+        mimeType: 'application/json',
       },
       {
         uriTemplate: 'autotask://contacts/{id}',
         name: 'Contact by ID',
         description: 'Get specific contact context by ID. Provides full contact details for a known contact.',
-        mimeType: 'application/json'
+        mimeType: 'application/json',
       },
       {
         uriTemplate: 'autotask://tickets/{id}',
         name: 'Ticket by ID',
-        description: 'Get specific ticket context by ID. Provides full ticket details including status, priority, and description.',
-        mimeType: 'application/json'
-      }
+        description:
+          'Get specific ticket context by ID. Provides full ticket details including status, priority, and description.',
+        mimeType: 'application/json',
+      },
     ];
   }
-} 
+}

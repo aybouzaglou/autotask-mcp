@@ -410,7 +410,7 @@ describe('MCP Server', () => {
   test('should list tools correctly', async () => {
     const server = new AutotaskMcpServer(config, logger);
     const tools = await server.toolHandler.listTools();
-    expect(tools.find(t => t.name === 'search_companies')).toBeDefined();
+    expect(tools.find(t => t.name === 'autotask_search_companies')).toBeDefined();
   });
 });
 ```
@@ -624,7 +624,7 @@ async function debugEntityFields(entityName: string): Promise<void> {
      -d '{"jsonrpc":"2.0","id":"resources","method":"resources/list"}'
 
    curl -sS -X POST "<URL>" -H 'Content-Type: application/json' \
-     -d '{"jsonrpc":"2.0","id":"status","method":"tools/call","params":{"name":"test_connection"}}'
+     -d '{"jsonrpc":"2.0","id":"status","method":"tools/call","params":{"name":"autotask_test_connection"}}'
    ```
 4. Capture noted headers (`Mcp-Session-Id`, SSE events) and document anomalies in Story 1.3 / 1.5 as follow-up items.
 

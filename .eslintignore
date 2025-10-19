@@ -1,5 +1,6 @@
 # Build artifacts and vendor
 /dist/
+/build/
 /node_modules/
 /coverage/
 /.turbo/

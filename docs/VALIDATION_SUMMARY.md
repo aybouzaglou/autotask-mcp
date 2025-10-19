@@ -87,7 +87,7 @@ node scripts/test-mcp-projects.js
 ```
 
 **Expected**:
-- ✅ search_projects tool found in MCP server
+- ✅ autotask_search_projects tool found in MCP server
 - ✅ Tool call succeeds with project data
 - ✅ projectType field is present in results
 

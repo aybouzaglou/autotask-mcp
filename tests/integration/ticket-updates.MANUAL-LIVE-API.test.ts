@@ -7,10 +7,17 @@ import { AutotaskToolHandler } from '../../src/handlers/tool.handler';
 import { Logger } from '../../src/utils/logger';
 import { McpServerConfig } from '../../src/types/mcp';
 
+const parseResponse = (response: any) => {
+  const text = response.content?.[0]?.text;
+  if (typeof text !== 'string') {
+    throw new Error('Expected textual content in tool response');
+  }
+  return JSON.parse(text);
+};
+
 // Skip these tests if Autotask credentials are not available
-const hasCredentials = process.env.AUTOTASK_USERNAME && 
-                       process.env.AUTOTASK_SECRET && 
-                       process.env.AUTOTASK_INTEGRATION_CODE;
+const hasCredentials =
+  process.env.AUTOTASK_USERNAME && process.env.AUTOTASK_SECRET && process.env.AUTOTASK_INTEGRATION_CODE;
 
 const describeIfCredentials = hasCredentials ? describe : describe.skip;
 
@@ -25,7 +32,7 @@ describeIfCredentials('Ticket Update Reliability - Integration Tests [LIVE API]'
     console.warn('⚠️  RATE LIMIT WARNING: Waiting 2 seconds before connecting...');
     console.warn('⚠️  If tests fail with 401, your account may be locked.');
     console.warn('⚠️  Wait 60+ seconds before re-running tests.');
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     const apiUrl = process.env.AUTOTASK_API_URL;
     const config: McpServerConfig = {
       name: 'integration-test',
@@ -34,8 +41,8 @@ describeIfCredentials('Ticket Update Reliability - Integration Tests [LIVE API]'
         username: process.env.AUTOTASK_USERNAME!,
         secret: process.env.AUTOTASK_SECRET!,
         integrationCode: process.env.AUTOTASK_INTEGRATION_CODE!,
-        ...(apiUrl && { apiUrl })
-      }
+        ...(apiUrl && { apiUrl }),
+      },
     };
 
     logger = new Logger('info');
@@ -84,36 +91,36 @@ describeIfCredentials('Ticket Update Reliability - Integration Tests [LIVE API]'
   describe('US1: Ticket Field Updates (Assignment, Status, Priority)', () => {
     describe('Validation (without API calls)', () => {
       it('should reject invalid status codes before API call', async () => {
-        const response = await toolHandler.callTool('update_ticket', {
+        const response = await toolHandler.callTool('autotask_update_ticket', {
           ticketId: 12345, // Doesn't matter, validation happens first
-          status: 9999 // Invalid status
+          status: 9999, // Invalid status
         });
 
         expect(response.isError).toBe(true);
-        const content = JSON.parse(response.content[0].text);
+        const content = parseResponse(response);
         expect(content.error.code).toBe('VALIDATION_ERROR');
         expect(content.error.guidance).toContain('Invalid status');
       });
 
       it('should reject invalid priority codes before API call', async () => {
-        const response = await toolHandler.callTool('update_ticket', {
+        const response = await toolHandler.callTool('autotask_update_ticket', {
           ticketId: 12345,
-          priority: 9999 // Invalid priority
+          priority: 9999, // Invalid priority
         });
 
         expect(response.isError).toBe(true);
-        const content = JSON.parse(response.content[0].text);
+        const content = parseResponse(response);
         expect(content.error.code).toBe('VALIDATION_ERROR');
         expect(content.error.guidance).toContain('Invalid priority');
       });
 
       it('should reject updates with no fields', async () => {
-        const response = await toolHandler.callTool('update_ticket', {
-          ticketId: 12345
+        const response = await toolHandler.callTool('autotask_update_ticket', {
+          ticketId: 12345,
         });
 
         expect(response.isError).toBe(true);
-        const content = JSON.parse(response.content[0].text);
+        const content = parseResponse(response);
         expect(content.error.code).toBe('VALIDATION_ERROR');
         expect(content.error.guidance).toContain('At least one field must be provided');
       });
@@ -140,11 +147,11 @@ describeIfCredentials('Ticket Update Reliability - Integration Tests [LIVE API]'
   describe('US3: Actionable Error Responses', () => {
     it('should provide actionable guidance for invalid status', async () => {
       // This is already tested above in validation tests
-      const response = await toolHandler.callTool('update_ticket', {
+      const response = await toolHandler.callTool('autotask_update_ticket', {
         ticketId: 12345,
-        status: 9999
+        status: 9999,
       });
-      const content = JSON.parse(response.content[0].text);
+      const content = parseResponse(response);
       expect(content.error.correlationId).toBeDefined();
       expect(content.error.correlationId).toMatch(/^ERR-/);
     });

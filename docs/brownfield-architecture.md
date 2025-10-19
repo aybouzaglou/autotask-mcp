@@ -2,8 +2,9 @@
 
 ## Introduction
 - Purpose-built Model Context Protocol server exposing the Kaseya Autotask PSA API to AI assistants.
-- TypeScript codebase using `autotask-node`, packaged via Smithery, and distributed as a CLI (`autotask-mcp`).
+- TypeScript codebase using `autotask-node` (REST API client) with axios fallback for broken library methods, packaged via Smithery, and distributed as a CLI (`autotask-mcp`).
 - This document reflects the actual system as of commit time and highlights legacy behaviour, workarounds, and technical debt that agents must respect.
+- **Important**: All Autotask API interactions use REST/JSON endpoints. No SOAP/XML code exists in this codebase.
 
 ### Quick Reference Documents
 - Backend-only technology stack summary: `docs/architecture/tech-stack.md`
@@ -43,8 +44,8 @@
 ### Autotask Service Layer
 - `AutotaskService` lazily creates a single `AutotaskClient` and reuses it across calls (`src/services/autotask.service.ts:112-168`). Multiple concurrent initializations wait on the same promise (`src/services/autotask.service.ts:182-208`).
 - Read/search helpers exist for most major Autotask entities. Several methods fall back to pagination loops that retrieve *all* matching rows by default, e.g. `searchTickets` paginates 500 records at a time until exhaustion with a hard safety cap of 100 pages (`src/services/autotask.service.ts:353-478`). Similar patterns exist for companies, contacts, resources, etc.
-- Ticket data is aggressively truncated to keep responses small. Searches strip descriptions after 200 characters and annotate instructions to call `get_ticket_details` for full text (`src/services/autotask.service.ts:490-533`).
-- Projects require a direct Axios call because `autotask-node`’s helper is broken. The service crafts its own POST to `/Projects/query`, limits fields, and tolerates 405 responses by returning an empty array (`src/services/autotask.service.ts:633-739`).
+- Ticket data is aggressively truncated to keep responses small. Searches strip descriptions after 200 characters and annotate instructions to call `autotask_get_ticket_details` for full text (`src/services/autotask.service.ts:490-533`).
+- Projects require a direct axios REST API call because `autotask-node`'s projects.list() method is broken (uses GET instead of POST with body). The service crafts its own POST to `/Projects/query`, limits fields, and tolerates 405 responses by returning an empty array (`src/services/autotask.service.ts:875-1004`). This is a REST-to-REST workaround, not SOAP fallback.
 - Connection checks simply call `accounts.get(0)`; failures are swallowed and reported as `false` (`src/services/autotask.service.ts:1179-1190`).
 - Many “Phase 1” entity helpers are stubs that throw descriptive errors because Autotask does not expose the necessary REST endpoints (e.g. billing codes, departments, expense items).
 
@@ -71,7 +72,7 @@
 - Additional HTTP settings exist even though the HTTP transport is not production-ready. Enabling auth without credentials is rejected by the config schema (`src/index.ts:28-38`).
 
 ## External Integration Behaviour
-- The service layer relies entirely on `autotask-node` REST wrappers. Several endpoints (projects, notes) require manual workarounds or are partially implemented, and unimplemented child entities throw descriptive errors.
+- The service layer relies on `autotask-node` as the primary REST API client wrapper. The `autotask-node` library provides high-level methods for most Autotask entities but has known bugs (e.g., Projects endpoint incorrectly uses GET with query params instead of POST with body). When library methods are broken, direct axios REST API calls are used as documented workarounds.
 - Pagination defaults to exhaustive retrieval, which can produce extremely large datasets and long-running queries for tenants with thousands of records. Hard-coded safety caps mitigate infinite loops but still risk heavy load (e.g. 100 pages × 500 tickets = 50 000 items).
 - Mapping warms the cache by calling the same exhaustive searches, so the first enhanced tool call frequently loads the entire company list.
 

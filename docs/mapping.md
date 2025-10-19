@@ -13,7 +13,7 @@ The Autotask MCP server includes intelligent ID-to-name mapping functionality th
 ## Features
 
 ### Automatic Enhancement
-When you use search tools like `search_tickets`, `search_projects`, or `get_ticket_details`, the response automatically includes an `_enhanced` field with resolved names:
+When you use search tools like `autotask_search_tickets`, `autotask_search_projects`, or `autotask_get_ticket_details`, the response automatically includes an `_enhanced` field with resolved names:
 
 ```json
 {
@@ -194,7 +194,7 @@ import { EnhancedAutotaskToolHandler } from './src/handlers/enhanced.tool.handle
 const handler = new EnhancedAutotaskToolHandler(autotaskService, logger);
 
 // Search tickets with automatic enhancement
-const result = await handler.callTool('search_tickets', { pageSize: 10 });
+const result = await handler.callTool('autotask_search_tickets', { pageSize: 10 });
 const tickets = JSON.parse(result.content[0].text).data;
 
 tickets.forEach(ticket => {

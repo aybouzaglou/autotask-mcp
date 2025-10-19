@@ -11,8 +11,11 @@ This repository implements a backend-only Model Context Protocol (MCP) server th
 
 ## Core Production Dependencies
 - `@modelcontextprotocol/sdk@^1.18.0` – MCP server primitives and transports
-- `autotask-node@^1.0.0` – Official Autotask REST API client used by the service layer
-- `axios@^1.12.2` – HTTP client (primarily for project queries not covered by `autotask-node`)
+- `autotask-node@^1.0.0` – Official Autotask REST API client wrapper (primary integration method)
+  - **Known Limitations**: Some entity methods are broken (e.g., Projects uses GET instead of POST)
+  - **Workaround Pattern**: Use direct axios REST API calls when library methods fail
+  - **Important**: This is a REST-only client; no SOAP/XML support in this codebase
+- `axios@^1.12.2` – HTTP client for direct REST API calls when autotask-node methods are broken
 - `winston@^3.11.0` – Structured logging across transports and handlers
 - `zod@^3.22.4` – Runtime schema validation for configuration and transport wiring
 

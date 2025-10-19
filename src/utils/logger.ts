@@ -22,7 +22,7 @@ function safeStringify(obj: any): string {
       return {
         name: value.name,
         message: value.message,
-        stack: value.stack
+        stack: value.stack,
       };
     }
     return value;
@@ -35,29 +35,28 @@ export class Logger {
   constructor(level: LogLevel = 'info', format: LogFormat = 'json') {
     this.winston = winston.createLogger({
       level,
-      format: format === 'json' 
-        ? winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.printf(({ timestamp, level, message, ...meta }) => {
-              const logObject = {
-                level,
-                message,
-                timestamp,
-                ...meta
-              };
-              return safeStringify(logObject);
-            })
-          )
-        : winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.printf(({ timestamp, level, message, ...meta }) => {
-              const metaStr = Object.keys(meta).length > 0 ? ` ${safeStringify(meta)}` : '';
-              return `${timestamp} [${level.toUpperCase()}]: ${message}${metaStr}`;
-            })
-          ),
-      transports: [
-        new winston.transports.Console()
-      ]
+      format:
+        format === 'json'
+          ? winston.format.combine(
+              winston.format.timestamp(),
+              winston.format.printf(({ timestamp, level, message, ...meta }) => {
+                const logObject = {
+                  level,
+                  message,
+                  timestamp,
+                  ...meta,
+                };
+                return safeStringify(logObject);
+              }),
+            )
+          : winston.format.combine(
+              winston.format.timestamp(),
+              winston.format.printf(({ timestamp, level, message, ...meta }) => {
+                const metaStr = Object.keys(meta).length > 0 ? ` ${safeStringify(meta)}` : '';
+                return `${timestamp} [${level.toUpperCase()}]: ${message}${metaStr}`;
+              }),
+            ),
+      transports: [new winston.transports.Console()],
     });
   }
 
@@ -80,4 +79,4 @@ export class Logger {
   setLevel(level: LogLevel): void {
     this.winston.level = level;
   }
-} 
+}

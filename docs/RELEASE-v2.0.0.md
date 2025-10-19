@@ -246,7 +246,7 @@ npx @smithery/cli run @aybouzaglou/autotask-mcp --version 2.0.0
 ```javascript
 // Add pageSize: -1 to get all records like v1.x
 {
-  "name": "search_tickets",
+  "name": "autotask_search_tickets",
   "arguments": {
     "companyID": 12345,
     "pageSize": -1  // ✅ Explicit unlimited pagination
@@ -258,7 +258,7 @@ npx @smithery/cli run @aybouzaglou/autotask-mcp --version 2.0.0
 Use filters to narrow results instead of fetching everything:
 ```javascript
 {
-  "name": "search_tickets",
+  "name": "autotask_search_tickets",
   "arguments": {
     "companyID": 12345,
     "status": 1,              // Filter first
@@ -303,7 +303,7 @@ npm run test:mapping
 # 5. Test with Claude Desktop
 # Update claude_desktop_config.json to use v2.0.0
 # Restart Claude Desktop
-# Test search_tickets tool with and without pageSize
+# Test autotask_search_tickets tool with and without pageSize
 ```
 
 ### Step 8: Monitor Production

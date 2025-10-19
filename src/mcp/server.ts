@@ -48,20 +48,20 @@ export class AutotaskMcpServer {
             subscribe: false,
             listChanged: true,
             resourceTemplates: {
-              listChanged: true
-            }
+              listChanged: true,
+            },
           },
           tools: {
-            listChanged: true
-          }
+            listChanged: true,
+          },
         },
-        instructions: this.getServerInstructions()
-      }
+        instructions: this.getServerInstructions(),
+      },
     );
 
     // Initialize Autotask service
     this.autotaskService = new AutotaskService(config, logger);
-    
+
     // Initialize handlers
     this.resourceHandler = new AutotaskResourceHandler(this.autotaskService, logger);
     this.toolHandler = new EnhancedAutotaskToolHandler(this.autotaskService, logger);
@@ -85,7 +85,7 @@ export class AutotaskMcpServer {
         this.logger.error('Failed to list resources:', error);
         throw new McpError(
           ErrorCode.InternalError,
-          `Failed to list resources: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to list resources: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
       }
     });
@@ -100,7 +100,7 @@ export class AutotaskMcpServer {
         this.logger.error('Failed to list resource templates:', error);
         throw new McpError(
           ErrorCode.InternalError,
-          `Failed to list resource templates: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to list resource templates: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
       }
     });
@@ -115,7 +115,7 @@ export class AutotaskMcpServer {
         this.logger.error(`Failed to read resource ${request.params.uri}:`, error);
         throw new McpError(
           ErrorCode.InternalError,
-          `Failed to read resource: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to read resource: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
       }
     });
@@ -130,7 +130,7 @@ export class AutotaskMcpServer {
         this.logger.error('Failed to list tools:', error);
         throw new McpError(
           ErrorCode.InternalError,
-          `Failed to list tools: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to list tools: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
       }
     });
@@ -139,19 +139,16 @@ export class AutotaskMcpServer {
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       try {
         this.logger.debug(`Handling tool call: ${request.params.name}`);
-        const result = await this.toolHandler.callTool(
-          request.params.name,
-          request.params.arguments || {}
-        );
+        const result = await this.toolHandler.callTool(request.params.name, request.params.arguments || {});
         return {
           content: result.content,
-          isError: result.isError
+          isError: result.isError,
         };
       } catch (error) {
         this.logger.error(`Failed to call tool ${request.params.name}:`, error);
         throw new McpError(
           ErrorCode.InternalError,
-          `Failed to call tool: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `Failed to call tool: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
       }
     });
