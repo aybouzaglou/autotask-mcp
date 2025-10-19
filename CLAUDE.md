@@ -25,5 +25,24 @@ TypeScript 5.3 targeting Node.js 20+: Follow standard conventions
 ## Recent Changes
 - 004-mcp-best-practices-review: Added TypeScript 5.3 targeting Node.js 20+ + @modelcontextprotocol/sdk ^1.18.2, autotask-node ^1.0.0, zod ^3.22.4, winston ^3.11.0
 
+## Release Process
+
+**Custom semantic-release configuration** - Standard commit types (`feat:`, `fix:`) DO NOT trigger releases.
+
+**Trigger releases with:**
+- `release(major):` → Breaking changes (bumps X.0.0)
+- `release(minor):` → New features (bumps 0.X.0)
+- `release(patch):` → Bug fixes (bumps 0.0.X)
+
+**Example:**
+```bash
+git commit --allow-empty -m "release(major): MCP best practices compliance
+
+BREAKING CHANGE: All tools now require 'autotask_' prefix."
+git push origin main
+```
+
+Automated workflow: Test → Release → Docker build → Security scan
+
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
