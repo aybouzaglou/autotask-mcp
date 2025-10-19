@@ -1,0 +1,23 @@
+# Build outputs
+/dist/
+/build/
+
+# Dependencies
+/node_modules/
+
+# Test coverage
+/coverage/
+/.nyc_output/
+
+# Package manager locks
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.*
+
+# Tooling metadata
+/.turbo/
+.smithery/

@@ -3,7 +3,7 @@
  * Extends the base tool handler to include automatic mapping of company and resource IDs to names
  */
 
-import { McpToolResult } from './tool.handler.js';
+import { McpToolResult } from '../types/mcp.js';
 import { AutotaskService } from '../services/autotask.service.js';
 import { Logger } from '../utils/logger.js';
 import { AutotaskToolHandler } from './tool.handler.js';
@@ -39,10 +39,10 @@ export class EnhancedAutotaskToolHandler extends AutotaskToolHandler {
     try {
       // Execute the base tool first
       const baseResult = await super.callTool(name, args);
-      
+
       // Enhance the result with name mappings
       const enhancedResult = await this.enhanceResult(baseResult);
-      
+
       return enhancedResult;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -60,9 +60,9 @@ export class EnhancedAutotaskToolHandler extends AutotaskToolHandler {
       if (!content || !content.text) {
         return baseResult;
       }
-      
+
       const parsedContent = JSON.parse(content.text);
-      
+
       // Handle the base tool handler format: { message, data, timestamp }
       let itemsToEnhance: any[] = [];
       if (parsedContent.data) {
@@ -84,19 +84,19 @@ export class EnhancedAutotaskToolHandler extends AutotaskToolHandler {
           itemsToEnhance = [parsedContent];
         }
       }
-      
+
       if (itemsToEnhance.length === 0) {
         this.logger.debug('No items found to enhance');
         return baseResult;
       }
 
       const mappingService = await this.getMappingService();
-      
+
       // Enhanced items with name mapping (resilient to partial failures)
       const enhancedItems = await Promise.allSettled(
         itemsToEnhance.map(async (item) => {
           const enhanced: EnhancedData = {};
-          
+
           // Try to map company ID to name
           if (item.companyID !== null && item.companyID !== undefined && typeof item.companyID === 'number') {
             try {
@@ -105,35 +105,39 @@ export class EnhancedAutotaskToolHandler extends AutotaskToolHandler {
               this.logger.debug(`Failed to map company ID ${item.companyID}:`, error);
             }
           }
-          
+
           // Try to map assigned resource ID to name
-          if (item.assignedResourceID !== null && item.assignedResourceID !== undefined && typeof item.assignedResourceID === 'number') {
+          if (
+            item.assignedResourceID !== null &&
+            item.assignedResourceID !== undefined &&
+            typeof item.assignedResourceID === 'number'
+          ) {
             try {
               enhanced.assignedResourceName = await mappingService.getResourceName(item.assignedResourceID);
             } catch (error) {
               this.logger.debug(`Failed to map resource ID ${item.assignedResourceID}:`, error);
             }
           }
-          
+
           // Return item with enhancement (even if some mappings failed)
           return {
             ...item,
-            _enhanced: enhanced
+            _enhanced: enhanced,
           };
-        })
+        }),
       );
-      
+
       // Extract successful enhancements (ignore failed ones)
       const successfulEnhancements = enhancedItems
         .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
-        .map(result => result.value);
-      
+        .map((result) => result.value);
+
       // Log any mapping failures for debugging
-      const failures = enhancedItems.filter(result => result.status === 'rejected');
+      const failures = enhancedItems.filter((result) => result.status === 'rejected');
       if (failures.length > 0) {
         this.logger.debug(`${failures.length} items had mapping failures but processing continued`);
       }
-      
+
       // Reconstruct response maintaining the base tool handler format
       let enhancedData;
       if (Array.isArray(parsedContent.data)) {
@@ -141,7 +145,7 @@ export class EnhancedAutotaskToolHandler extends AutotaskToolHandler {
       } else if (parsedContent.data && parsedContent.data.items) {
         enhancedData = {
           ...parsedContent.data,
-          items: successfulEnhancements
+          items: successfulEnhancements,
         };
       } else if (parsedContent.data) {
         enhancedData = successfulEnhancements[0] || parsedContent.data;
@@ -152,33 +156,36 @@ export class EnhancedAutotaskToolHandler extends AutotaskToolHandler {
         } else if (parsedContent.items) {
           enhancedData = {
             ...parsedContent,
-            items: successfulEnhancements
+            items: successfulEnhancements,
           };
         } else {
           enhancedData = successfulEnhancements[0] || parsedContent;
         }
       }
-      
+
       // Maintain the base tool handler response structure
-      const enhancedResponse = parsedContent.data ? {
-        message: parsedContent.message,
-        data: enhancedData,
-        timestamp: parsedContent.timestamp,
-        _enhanced_note: `Added company/resource name mappings to ${successfulEnhancements.length} items`
-      } : enhancedData;
-      
+      const enhancedResponse = parsedContent.data
+        ? {
+            message: parsedContent.message,
+            data: enhancedData,
+            timestamp: parsedContent.timestamp,
+            _enhanced_note: `Added company/resource name mappings to ${successfulEnhancements.length} items`,
+          }
+        : enhancedData;
+
       return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(enhancedResponse, null, 2)
-        }],
-        isError: false
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(enhancedResponse, null, 2),
+          },
+        ],
+        isError: false,
       };
-      
     } catch (error) {
       this.logger.error('Failed to enhance result:', error);
       // Return original result on enhancement failure
       return baseResult;
     }
   }
-} 
+}

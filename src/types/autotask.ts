@@ -339,6 +339,7 @@ export interface AutotaskQueryOptionsExtended extends AutotaskQueryOptions {
   status?: number;
   assignedResourceID?: number;
   unassigned?: boolean;
+  isActive?: boolean;
   // Note: Pagination is now enabled by default. Only specify pageSize to limit results.
 }
 
@@ -349,7 +350,7 @@ export enum TicketStatus {
   Complete = 5,
   WaitingCustomer = 7,
   WaitingVendor = 8,
-  Escalated = 9
+  Escalated = 9,
 }
 
 export enum TicketPriority {
@@ -357,7 +358,7 @@ export enum TicketPriority {
   Medium = 2,
   High = 3,
   Critical = 4,
-  Urgent = 5
+  Urgent = 5,
 }
 
 export enum CompanyType {
@@ -366,5 +367,5 @@ export enum CompanyType {
   Prospect = 3,
   DeadLead = 4,
   Vendor = 5,
-  Partner = 6
-} 
+  Partner = 6,
+}

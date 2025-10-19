@@ -12,13 +12,13 @@ The Autotask MCP server uses **smart pagination** to balance performance, API ef
 
 ```javascript
 // Returns ONLY FIRST 50 matching companies (not all matches!)
-search_companies({ searchTerm: "Acme" })
+autotask_search_companies({ searchTerm: "Acme" })
 
 // Returns ONLY FIRST 25 matching projects (not all matches!)
-search_projects({ companyID: 12345 })
+autotask_search_projects({ companyID: 12345 })
 
 // To get ALL matches, you MUST use pageSize: -1
-search_companies({ searchTerm: "Acme", pageSize: -1 })
+autotask_search_companies({ searchTerm: "Acme", pageSize: -1 })
 ```
 
 ### Explicit Page Sizes
@@ -27,13 +27,13 @@ Request a specific number of results:
 
 ```javascript
 // Get 10 companies
-search_companies({ searchTerm: "Tech", pageSize: 10 })
+autotask_search_companies({ searchTerm: "Tech", pageSize: 10 })
 
 // Get 200 tickets
-search_tickets({ status: 1, pageSize: 200 })
+autotask_search_tickets({ status: 1, pageSize: 200 })
 
 // Get maximum (500 for most entities)
-search_contacts({ companyID: 999, pageSize: 500 })
+autotask_search_contacts({ companyID: 999, pageSize: 500 })
 ```
 
 ### Unlimited Results
@@ -42,7 +42,7 @@ Use `-1` to fetch all matching records (batched automatically):
 
 ```javascript
 // Get ALL active companies (fetched in batches of 500)
-search_companies({ isActive: true, pageSize: -1 })
+autotask_search_companies({ isActive: true, pageSize: -1 })
 ```
 
 ⚠️ **Warning**: Unlimited mode should only be used when you genuinely need complete datasets. Always use filters to narrow results first.
@@ -52,19 +52,19 @@ search_companies({ isActive: true, pageSize: -1 })
 ### Standard Entities (Default: 50)
 
 These common entities default to 50 results:
-- **Companies** (`search_companies`)
-- **Contacts** (`search_contacts`)
-- **Tickets** (`search_tickets`)
+- **Companies** (`autotask_search_companies`)
+- **Contacts** (`autotask_search_contacts`)
+- **Tickets** (`autotask_search_tickets`)
 
 **Why 50?** These are frequently accessed entities where users typically need to see a reasonable set of results without overwhelming the response.
 
 ### Medium Entities (Default: 25)
 
 These entities default to 25 results:
-- **Resources** (`search_resources`)
-- **Configuration Items** (`search_configuration_items`)
-- **Contracts** (`search_contracts`)
-- **Invoices** (`search_invoices`)
+- **Resources** (`autotask_search_resources`)
+- **Configuration Items** (`autotask_search_configuration_items`)
+- **Contracts** (`autotask_search_contracts`)
+- **Invoices** (`autotask_search_invoices`)
 - **Time Entries** (`search_time_entries`)
 
 **Why 25?** These objects are typically larger or used for specialized queries where smaller result sets are more practical.
@@ -72,17 +72,17 @@ These entities default to 25 results:
 ### API-Limited Entities (Default: 25, Max: 100)
 
 Some Autotask API endpoints have restrictions:
-- **Projects** (`search_projects`)
-- **Tasks** (`search_tasks`)
-- **Quotes** (`search_quotes`)
-- **Expense Reports** (`search_expense_reports`)
+- **Projects** (`autotask_search_projects`)
+- **Tasks** (`autotask_search_tasks`)
+- **Quotes** (`autotask_search_quotes`)
+- **Expense Reports** (`autotask_search_expense_reports`)
 - **Notes** (all types)
 
 **Why 100 max?** Autotask API limitations prevent larger requests for these entities.
 
 ### Special Cases
 
-**Attachments** (`search_ticket_attachments`):
+**Attachments** (`autotask_search_ticket_attachments`):
 - Default: 10
 - Maximum: 50
 - **Why?** Attachments include large binary data - smaller pages prevent memory issues.
@@ -130,10 +130,10 @@ When you specify `pageSize: -1`, the server:
 
 ```javascript
 // BAD: No filters + unlimited = potentially thousands of records
-search_tickets({ pageSize: -1 })  // ⚠️ Could timeout!
+autotask_search_tickets({ pageSize: -1 })  // ⚠️ Could timeout!
 
 // GOOD: Filtered + unlimited = manageable dataset
-search_tickets({
+autotask_search_tickets({
   companyID: 12345,
   status: 1,  // Only "New" status
   pageSize: -1
@@ -148,10 +148,10 @@ Always narrow your search with filters before increasing page size:
 
 ```javascript
 // Instead of this:
-search_companies({ pageSize: 500 })
+autotask_search_companies({ pageSize: 500 })
 
 // Do this:
-search_companies({
+autotask_search_companies({
   searchTerm: "Tech",
   isActive: true,
   pageSize: 50  // or omit for default
@@ -162,13 +162,13 @@ search_companies({
 
 ```javascript
 // Step 1: Start with defaults to see what you have
-search_tickets({ companyID: 12345 })  // Gets 50
+autotask_search_tickets({ companyID: 12345 })  // Gets 50
 
 // Step 2: If you need more, increase gradually
-search_tickets({ companyID: 12345, pageSize: 100 })
+autotask_search_tickets({ companyID: 12345, pageSize: 100 })
 
 // Step 3: Only go unlimited if truly necessary
-search_tickets({ companyID: 12345, pageSize: -1 })
+autotask_search_tickets({ companyID: 12345, pageSize: -1 })
 ```
 
 ### 3. Consider Response Time
@@ -185,10 +185,10 @@ Autotask has API rate limits. Unlimited queries consume more quota:
 
 ```javascript
 // Single request, minimal API usage
-search_companies({ isActive: true, pageSize: 50 })
+autotask_search_companies({ isActive: true, pageSize: 50 })
 
 // Multiple batched requests, higher API usage
-search_companies({ isActive: true, pageSize: -1 })
+autotask_search_companies({ isActive: true, pageSize: -1 })
 ```
 
 ## Common Patterns
@@ -197,19 +197,19 @@ search_companies({ isActive: true, pageSize: -1 })
 
 ```javascript
 // Get first page
-search_companies({ searchTerm: "Corp", pageSize: 50 })
+autotask_search_companies({ searchTerm: "Corp", pageSize: 50 })
 
 // If you need more, request next batch
 // (Note: Current implementation doesn't support offset, 
 //  so increase pageSize or refine filters instead)
-search_companies({ searchTerm: "Corp", pageSize: 100 })
+autotask_search_companies({ searchTerm: "Corp", pageSize: 100 })
 ```
 
 ### Pattern 2: Targeted Searches
 
 ```javascript
 // Find specific items with precise filters
-search_tickets({
+autotask_search_tickets({
   companyID: 12345,
   status: 1,
   assignedResourceID: 42,
@@ -221,7 +221,7 @@ search_tickets({
 
 ```javascript
 // Export all contracts for a company
-search_contracts({
+autotask_search_contracts({
   companyID: 12345,
   status: 1,  // Only active
   pageSize: -1
@@ -232,10 +232,10 @@ search_contracts({
 
 ```javascript
 // Start with a preview
-const preview = search_companies({ isActive: true, pageSize: 25 })
+const preview = autotask_search_companies({ isActive: true, pageSize: 25 })
 
 // If user needs more, load additional results
-const moreResults = search_companies({ isActive: true, pageSize: 100 })
+const moreResults = autotask_search_companies({ isActive: true, pageSize: 100 })
 ```
 
 ## Troubleshooting
@@ -245,7 +245,7 @@ const moreResults = search_companies({ isActive: true, pageSize: 100 })
 You didn't specify `pageSize`, so the default was applied. To get more:
 
 ```javascript
-search_companies({ searchTerm: "Tech", pageSize: 200 })
+autotask_search_companies({ searchTerm: "Tech", pageSize: 200 })
 ```
 
 ### "Why is my unlimited query slow?"
@@ -261,7 +261,7 @@ You requested more than the maximum allowed. The server automatically capped it:
 
 ```javascript
 // Requested 10000, got 500 with a warning
-search_companies({ pageSize: 10000 })  // ⚠️ Capped to 500
+autotask_search_companies({ pageSize: 10000 })  // ⚠️ Capped to 500
 ```
 
 ### "How do I get the next page of results?"
@@ -278,16 +278,16 @@ If you're upgrading from an earlier version where all results were returned by d
 **Before:**
 ```javascript
 // Returned ALL companies (could be thousands)
-search_companies({ searchTerm: "Tech" })
+autotask_search_companies({ searchTerm: "Tech" })
 ```
 
 **After:**
 ```javascript
 // Returns 50 companies by default (safe)
-search_companies({ searchTerm: "Tech" })
+autotask_search_companies({ searchTerm: "Tech" })
 
 // To get all like before, use -1 explicitly
-search_companies({ searchTerm: "Tech", pageSize: -1 })
+autotask_search_companies({ searchTerm: "Tech", pageSize: -1 })
 ```
 
 This change prevents accidental large responses that could cause:

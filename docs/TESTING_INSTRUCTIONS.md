@@ -38,7 +38,7 @@ Run the full Jest suite to confirm regressions have not been introduced:
 npm test
 ```
 
-This command compiles the TypeScript sources and exercises the unit/integration coverage, including the new handler logic for `update_ticket`.
+This command compiles the TypeScript sources and exercises the unit/integration coverage, including the new handler logic for `autotask_update_ticket`.
 
 ### Basic Autotask Connection (Requires Credentials)
 
@@ -86,7 +86,7 @@ node scripts/test-mcp-projects.js
 ```
 
 **Expected Result**: 
-- ✅ search_projects tool found in MCP server
+- ✅ autotask_search_projects tool found in MCP server
 - ✅ Tool call succeeds with project data
 - ✅ projectType field is present in results
 
@@ -107,7 +107,7 @@ npm start
 
 ### Ticket Patch Tool Smoke Test (Story 1.6)
 
-Use the new script to verify `update_ticket` end-to-end against live Autotask data. Always target a sandbox or disposable ticket.
+Use the new script to verify `autotask_update_ticket` end-to-end against live Autotask data. Always target a sandbox or disposable ticket.
 
 #### Local stdio validation
 
@@ -130,7 +130,7 @@ When running through Smithery, reuse the same command after exporting the hosted
 ### Success Indicators:
 1. **No 500 errors** with "Unable to find type in the Project Entity"
 2. **Projects returned** with valid data including `projectType` field
-3. **Tool listed** in available MCP tools (now including `update_ticket`)
+3. **Tool listed** in available MCP tools (now including `autotask_update_ticket`)
 4. **Ticket patch succeeds** with confirmation payload when running `scripts/test-ticket-update.js`
 
 ### Possible Issues:

@@ -6,7 +6,7 @@ Lightweight latency samples collected to validate parity between local stdio usa
 
 ## Measurement Methodology
 
-- Local stdio timing gathered via `autotask-mcp` CLI (`AUTOTASK_TRANSPORT=stdio`) on a MacBook Air M2, running the `test_connection` tool 10 times and timing responses with `time`.
+- Local stdio timing gathered via `autotask-mcp` CLI (`AUTOTASK_TRANSPORT=stdio`) on a MacBook Air M2, running the `autotask_test_connection` tool 10 times and timing responses with `time`.
 - Hosted HTTP timing gathered with `npm run test:smithery`, pointing at a Streamable HTTP endpoint fronting the same server build.
 - All samples captured after a fresh `npm run build` with dummy Autotask credentials to avoid live API dependency.
 
@@ -14,7 +14,7 @@ Lightweight latency samples collected to validate parity between local stdio usa
 
 | Transport | Scenario | Median (ms) | P90 (ms) | Notes |
 |-----------|----------|-------------|----------|-------|
-| stdio (local) | CLI `test_connection`, 10 sequential calls | 18 | 25 | No network overhead; stdio transport responds immediately after tool dispatch |
+| stdio (local) | CLI `autotask_test_connection`, 10 sequential calls | 18 | 25 | No network overhead; stdio transport responds immediately after tool dispatch |
 | HTTP (local) | `SMITHERY_HTTP_URL=http://127.0.0.1:3000` with smoke script | 42 | 55 | Local HTTP listener via `AUTOTASK_TRANSPORT=http` (port 3000) |
 | HTTP (Smithery) | Streamable endpoint via `npm run test:smithery` | 94 | 112 | Includes Smithery ingress + HTTPS round-trip |
 

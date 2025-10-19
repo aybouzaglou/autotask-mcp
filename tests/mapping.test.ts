@@ -9,22 +9,30 @@ import { EnhancedAutotaskToolHandler } from '../src/handlers/enhanced.tool.handl
 import { Logger } from '../src/utils/logger';
 import { loadEnvironmentConfig, mergeWithMcpConfig } from '../src/utils/config';
 
+const parseToolResponse = (response: any) => {
+  const text = response.content?.[0]?.text;
+  if (typeof text !== 'string') {
+    throw new Error('Expected tool response to include textual content');
+  }
+  return JSON.parse(text);
+};
+
 async function testMapping() {
   console.log('=== Testing Autotask ID-to-Name Mapping ===\n');
-  
+
   try {
     // Load configuration
     const envConfig = loadEnvironmentConfig();
     const mcpConfig = mergeWithMcpConfig(envConfig);
-    
+
     // Initialize logger
     const logger = new Logger('debug', 'json');
-    
+
     // Initialize services
     const autotaskService = new AutotaskService(mcpConfig, logger);
     const mappingService = await MappingService.getInstance(autotaskService, logger);
     const enhancedHandler = new EnhancedAutotaskToolHandler(autotaskService, logger);
-    
+
     // Test connection first
     console.log('1. Testing Autotask connection...');
     const connected = await autotaskService.testConnection();
@@ -32,23 +40,23 @@ async function testMapping() {
       throw new Error('Failed to connect to Autotask API');
     }
     console.log('✓ Successfully connected to Autotask API\n');
-    
+
     // Test basic mapping functionality
     console.log('2. Testing basic mapping functionality...');
-    
+
     // Get a few companies to test with
     const companies = await autotaskService.searchCompanies({ pageSize: 5 });
     if (companies.length === 0) {
       console.log('No companies found to test with');
       return;
     }
-    
+
     console.log(`Found ${companies.length} companies for testing:`);
     for (const company of companies) {
       console.log(`  - ID: ${company.id}, Name: ${company.companyName}`);
     }
     console.log('');
-    
+
     // Test company name mapping
     console.log('3. Testing company name mapping...');
     const firstCompany = companies[0];
@@ -57,7 +65,7 @@ async function testMapping() {
       console.log(`Company mapping result:`, companyResult);
     }
     console.log('');
-    
+
     // Get a few resources to test with
     console.log('4. Testing resource mapping...');
     const resources = await autotaskService.searchResources({ pageSize: 5 });
@@ -66,7 +74,7 @@ async function testMapping() {
       for (const resource of resources) {
         console.log(`  - ID: ${resource.id}, Name: ${resource.firstName} ${resource.lastName}`);
       }
-      
+
       const firstResource = resources[0];
       if (firstResource.id) {
         const resourceResult = await mappingService.getResourceName(firstResource.id);
@@ -76,25 +84,25 @@ async function testMapping() {
       console.log('No resources found to test with');
     }
     console.log('');
-    
+
     // Test cache functionality
     console.log('5. Testing cache functionality...');
     console.log('Initial cache stats:', mappingService.getCacheStats());
-    
+
     await mappingService.preloadCaches();
     console.log('Cache stats after preload:', mappingService.getCacheStats());
     console.log('');
-    
+
     // Test enhanced tool handler
     console.log('6. Testing enhanced tool handler...');
-    
+
     // Search for tickets and see enhanced results
-    const ticketSearchResult = await enhancedHandler.callTool('search_tickets', { pageSize: 3 });
-    
+    const ticketSearchResult = await enhancedHandler.callTool('autotask_search_tickets', { pageSize: 3 });
+
     if (!ticketSearchResult.isError) {
-      const content = JSON.parse(ticketSearchResult.content[0].text);
+      const content = parseToolResponse(ticketSearchResult);
       console.log('Enhanced ticket search results:');
-      
+
       if (content.data && Array.isArray(content.data)) {
         for (let i = 0; i < Math.min(content.data.length, 2); i++) {
           const ticket = content.data[i];
@@ -102,7 +110,7 @@ async function testMapping() {
           console.log(`  - Title: ${ticket.title}`);
           console.log(`  - Company ID: ${ticket.companyID}`);
           console.log(`  - Assigned Resource ID: ${ticket.assignedResourceID}`);
-          
+
           if (ticket._enhanced) {
             console.log('  Enhanced mappings:');
             if (ticket._enhanced.companyName) {
@@ -119,9 +127,8 @@ async function testMapping() {
     } else {
       console.log('Error in enhanced search:', ticketSearchResult.content[0].text);
     }
-    
+
     console.log('\n=== Mapping tests completed successfully! ===');
-    
   } catch (error) {
     console.error('Test failed:', error);
     if (process.env.JEST_WORKER_ID) {
@@ -134,7 +141,7 @@ async function testMapping() {
 // Note: This test file is designed to run via Jest
 // For standalone execution, use: npm run test:mapping
 
-export { testMapping }; 
+export { testMapping };
 
 if (typeof describe === 'function' && typeof it === 'function') {
   const suite = process.env.RUN_MAPPING_TEST === 'true' ? describe : describe.skip;

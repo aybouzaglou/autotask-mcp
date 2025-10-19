@@ -73,27 +73,27 @@ const PAGE_SIZE_ATTACHMENTS = {
 Replaced inline `pageSize` schemas with reusable constants:
 
 **Using PAGE_SIZE_STANDARD (default 50, max 500):**
-- search_companies
-- search_contacts
-- search_tickets
+- autotask_search_companies
+- autotask_search_contacts
+- autotask_search_tickets
 
 **Using PAGE_SIZE_MEDIUM (default 25, max 500):**
-- search_resources
-- search_configuration_items
-- search_contracts
-- search_invoices
+- autotask_search_resources
+- autotask_search_configuration_items
+- autotask_search_contracts
+- autotask_search_invoices
 
 **Using PAGE_SIZE_LIMITED (default 25, max 100):**
-- search_projects
-- search_tasks
-- search_ticket_notes
-- search_project_notes
-- search_company_notes
-- search_expense_reports
-- search_quotes
+- autotask_search_projects
+- autotask_search_tasks
+- autotask_search_ticket_notes
+- autotask_search_project_notes
+- autotask_search_company_notes
+- autotask_search_expense_reports
+- autotask_search_quotes
 
 **Using PAGE_SIZE_ATTACHMENTS (default 10, max 50):**
-- search_ticket_attachments
+- autotask_search_ticket_attachments
 
 #### Enhanced Tool Descriptions
 All search tool descriptions now include:

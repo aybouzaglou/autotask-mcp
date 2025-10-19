@@ -28,6 +28,102 @@ export interface McpResourceTemplate {
 }
 
 // MCP Tool types
+
+/**
+ * Tool Annotations Interface
+ *
+ * Provides behavioral hints to MCP clients about how tools should be executed.
+ * All properties are optional and provide hints only - they do not enforce
+ * security constraints.
+ *
+ * @see specs/004-mcp-best-practices-review/contracts/tool-annotations.contract.ts
+ */
+export interface ToolAnnotations {
+  /**
+   * Human-readable title for the tool
+   *
+   * @example "Search Companies"
+   * @maxLength 50
+   */
+  title?: string;
+
+  /**
+   * Indicates whether the tool only reads data without making modifications.
+   *
+   * @default false
+   *
+   * When true:
+   * - Tool only queries/retrieves data
+   * - No side effects or modifications
+   * - Can be executed without user confirmation
+   * - Examples: search, get, list, test_connection
+   *
+   * When false:
+   * - Tool performs write operations
+   * - May have side effects
+   * - destructiveHint and idempotentHint become relevant
+   */
+  readOnlyHint?: boolean;
+
+  /**
+   * Indicates whether the tool performs irreversible operations.
+   *
+   * @default true
+   *
+   * Only meaningful when readOnlyHint is false.
+   *
+   * When true:
+   * - Tool performs permanent deletions
+   * - Operations cannot be easily reversed
+   * - May trigger additional confirmation prompts
+   * - Examples: delete operations, final approvals
+   *
+   * When false:
+   * - Tool performs reversible operations
+   * - Changes can be corrected or undone
+   * - Examples: create (can be deleted), update (can be re-updated)
+   */
+  destructiveHint?: boolean;
+
+  /**
+   * Indicates whether repeated calls with identical arguments produce
+   * no additional environmental effects beyond the first call.
+   *
+   * @default false
+   *
+   * Only meaningful when readOnlyHint is false.
+   *
+   * When true:
+   * - Calling twice with same args = calling once
+   * - Safe to retry on errors without duplicating effects
+   * - Examples: setting a value, deletion
+   *
+   * When false:
+   * - Each call produces new side effects
+   * - Retrying may create duplicate data
+   * - Examples: creating entities with auto-generated IDs, appending to logs
+   */
+  idempotentHint?: boolean;
+
+  /**
+   * Indicates whether the tool may interact with external entities beyond
+   * the LLM's knowledge.
+   *
+   * @default true
+   *
+   * When true:
+   * - Tool interacts with external systems (APIs, databases, file systems)
+   * - Tool's behavior depends on external state unknown to the LLM
+   * - Examples: API calls, web searches, file operations
+   *
+   * When false:
+   * - Tool operates within a closed, deterministic domain
+   * - Tool's behavior is fully predictable by the LLM
+   * - Examples: pure calculations, string formatting, local cache reads
+   */
+  openWorldHint?: boolean;
+}
+
 export interface McpTool {
   name: string;
   description: string;
@@ -36,6 +132,12 @@ export interface McpTool {
     properties: Record<string, any>;
     required?: string[];
   };
+  /**
+   * Behavioral annotations for MCP clients
+   *
+   * Optional but highly recommended for proper client behavior
+   */
+  annotations?: ToolAnnotations;
 }
 
 export interface McpToolCall {
@@ -95,23 +197,23 @@ export const COMMON_SCHEMAS = {
   ID_PARAMETER: {
     type: 'integer',
     description: 'The ID of the entity',
-    minimum: 1
+    minimum: 1,
   },
   COMPANY_ID_PARAMETER: {
     type: 'integer',
     description: 'The company ID',
-    minimum: 1
+    minimum: 1,
   },
   SEARCH_QUERY: {
     type: 'string',
     description: 'Search query string',
-    minLength: 1
+    minLength: 1,
   },
   LIMIT_PARAMETER: {
     type: 'integer',
     description: 'Maximum number of results to return',
     minimum: 1,
     maximum: 500,
-    default: 50
-  }
-} as const; 
+    default: 50,
+  },
+} as const;

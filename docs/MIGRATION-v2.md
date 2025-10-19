@@ -18,7 +18,7 @@ This guide helps you upgrade from autotask-mcp v1.x to v2.0.0, which introduces 
 ```javascript
 // Returned ALL matching records (could be hundreds or thousands)
 {
-  "name": "search_tickets",
+  "name": "autotask_search_tickets",
   "arguments": {
     "companyID": 12345
   }
@@ -29,7 +29,7 @@ This guide helps you upgrade from autotask-mcp v1.x to v2.0.0, which introduces 
 ```javascript
 // Returns first 50 records only
 {
-  "name": "search_tickets",
+  "name": "autotask_search_tickets",
   "arguments": {
     "companyID": 12345
   }
@@ -37,7 +37,7 @@ This guide helps you upgrade from autotask-mcp v1.x to v2.0.0, which introduces 
 
 // To get all records, explicitly request unlimited
 {
-  "name": "search_tickets",
+  "name": "autotask_search_tickets",
   "arguments": {
     "companyID": 12345,
     "pageSize": -1  // ✅ Fetches ALL matching tickets
@@ -51,21 +51,21 @@ All search operations now enforce default page sizes:
 
 | Tool | v1.x Default | v2.0.0 Default | v2.0.0 Maximum | Unlimited Supported? |
 |------|--------------|----------------|----------------|---------------------|
-| `search_companies` | Unlimited | **50** | 500 | ✅ Yes (`-1`) |
-| `search_contacts` | Unlimited | **50** | 500 | ✅ Yes (`-1`) |
-| `search_tickets` | Unlimited | **50** | 500 | ✅ Yes (`-1`) |
-| `search_resources` | Unlimited | **25** | 500 | ✅ Yes (`-1`) |
-| `search_configuration_items` | Unlimited | **25** | 500 | ✅ Yes (`-1`) |
-| `search_contracts` | Unlimited | **25** | 500 | ✅ Yes (`-1`) |
-| `search_invoices` | Unlimited | **25** | 500 | ✅ Yes (`-1`) |
-| `search_projects` | Unlimited | **25** | 100 | ⚠️ API limited |
-| `search_tasks` | Unlimited | **25** | 100 | ⚠️ API limited |
-| `search_quotes` | Unlimited | **25** | 100 | ⚠️ API limited |
-| `search_expense_reports` | Unlimited | **25** | 100 | ⚠️ API limited |
-| `search_ticket_notes` | Unlimited | **25** | 100 | ⚠️ API limited |
-| `search_project_notes` | Unlimited | **25** | 100 | ⚠️ API limited |
-| `search_company_notes` | Unlimited | **25** | 100 | ⚠️ API limited |
-| `search_ticket_attachments` | Unlimited | **10** | 50 | ❌ No |
+| `autotask_search_companies` | Unlimited | **50** | 500 | ✅ Yes (`-1`) |
+| `autotask_search_contacts` | Unlimited | **50** | 500 | ✅ Yes (`-1`) |
+| `autotask_search_tickets` | Unlimited | **50** | 500 | ✅ Yes (`-1`) |
+| `autotask_search_resources` | Unlimited | **25** | 500 | ✅ Yes (`-1`) |
+| `autotask_search_configuration_items` | Unlimited | **25** | 500 | ✅ Yes (`-1`) |
+| `autotask_search_contracts` | Unlimited | **25** | 500 | ✅ Yes (`-1`) |
+| `autotask_search_invoices` | Unlimited | **25** | 500 | ✅ Yes (`-1`) |
+| `autotask_search_projects` | Unlimited | **25** | 100 | ⚠️ API limited |
+| `autotask_search_tasks` | Unlimited | **25** | 100 | ⚠️ API limited |
+| `autotask_search_quotes` | Unlimited | **25** | 100 | ⚠️ API limited |
+| `autotask_search_expense_reports` | Unlimited | **25** | 100 | ⚠️ API limited |
+| `autotask_search_ticket_notes` | Unlimited | **25** | 100 | ⚠️ API limited |
+| `autotask_search_project_notes` | Unlimited | **25** | 100 | ⚠️ API limited |
+| `autotask_search_company_notes` | Unlimited | **25** | 100 | ⚠️ API limited |
+| `autotask_search_ticket_attachments` | Unlimited | **10** | 50 | ❌ No |
 
 ---
 
@@ -80,7 +80,7 @@ All search operations now enforce default page sizes:
 ```javascript
 // ❌ Old approach: Get all tickets, filter client-side
 {
-  "name": "search_tickets",
+  "name": "autotask_search_tickets",
   "arguments": {
     "pageSize": -1
   }
@@ -88,7 +88,7 @@ All search operations now enforce default page sizes:
 
 // ✅ New approach: Use server-side filters
 {
-  "name": "search_tickets",
+  "name": "autotask_search_tickets",
   "arguments": {
     "status": 1,                // Open tickets only
     "assignedResourceID": 42,   // Specific person
@@ -105,7 +105,7 @@ If your workflow **genuinely requires all records**, use `pageSize: -1`:
 ```javascript
 // ✅ Explicitly request all matching records
 {
-  "name": "search_companies",
+  "name": "autotask_search_companies",
   "arguments": {
     "isActive": true,
     "pageSize": -1  // Fetch ALL active companies
@@ -124,7 +124,7 @@ If you need a specific number of results (e.g., 100):
 
 ```javascript
 {
-  "name": "search_tickets",
+  "name": "autotask_search_tickets",
   "arguments": {
     "searchTerm": "urgent",
     "pageSize": 100  // Get up to 100 tickets
@@ -142,7 +142,7 @@ If you need a specific number of results (e.g., 100):
 ```javascript
 // Get all tickets to count them
 const result = await client.callTool({
-  name: "search_tickets",
+  name: "autotask_search_tickets",
   arguments: { companyID: 123 }
 });
 const count = result.length;  // Could be 500+ tickets
@@ -152,7 +152,7 @@ const count = result.length;  // Could be 500+ tickets
 ```javascript
 // Use filters and accept approximate counts
 const result = await client.callTool({
-  name: "search_tickets",
+  name: "autotask_search_tickets",
   arguments: { 
     companyID: 123,
     pageSize: 50  // Default, sufficient for trends
@@ -161,7 +161,7 @@ const result = await client.callTool({
 
 // Or explicitly get full count
 const result = await client.callTool({
-  name: "search_tickets",
+  name: "autotask_search_tickets",
   arguments: { 
     companyID: 123,
     pageSize: -1  // Get exact count
@@ -288,7 +288,7 @@ npm test -- tests/your-workflow.test.ts
 After deployment, watch for warnings about unlimited pagination:
 
 ```
-WARN: Unlimited pagination requested for search_tickets (pageSize: -1)
+WARN: Unlimited pagination requested for autotask_search_tickets (pageSize: -1)
 ```
 
 If you see these frequently, consider whether filters could narrow the results instead.
@@ -383,7 +383,7 @@ if (results.length === 50) {
 
 ```javascript
 {
-  "name": "search_tickets",
+  "name": "autotask_search_tickets",
   "arguments": {
     "status": 1,              // Filter first
     "companyID": 12345,       // Narrow results

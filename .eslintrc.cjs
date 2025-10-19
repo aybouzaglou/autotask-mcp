@@ -3,31 +3,21 @@ module.exports = {
   env: {
     node: true,
     es2022: true,
-    jest: true
+    jest: true,
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    tsconfigRootDir: __dirname
+    tsconfigRootDir: __dirname,
     // Note: no `project` here to avoid requiring type-aware linting in CI
   },
   plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended'
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   rules: {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     '@typescript-eslint/no-explicit-any': 'off',
-    'no-console': 'off'
+    'no-console': 'off',
   },
-  ignorePatterns: [
-    'dist/',
-    'node_modules/',
-    'coverage/',
-    'smithery/',
-    'scripts/',
-    '*.cjs'
-  ]
+  ignorePatterns: ['dist/', 'node_modules/', 'coverage/', 'smithery/', 'scripts/', '*.cjs'],
 };

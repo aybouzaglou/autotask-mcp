@@ -33,7 +33,11 @@ async function main() {
       serverName: mcpConfig.name,
       serverVersion: mcpConfig.version,
       transportType: envConfig.transport.type,
-      hasCredentials: !!(mcpConfig.autotask.username && mcpConfig.autotask.secret && mcpConfig.autotask.integrationCode)
+      hasCredentials: !!(
+        mcpConfig.autotask.username &&
+        mcpConfig.autotask.secret &&
+        mcpConfig.autotask.integrationCode
+      ),
     });
 
     // Validate required configuration
@@ -70,7 +74,6 @@ async function main() {
 
     // Start the server using configured transports
     await serverInstance.start();
-
   } catch (error) {
     if (logger) {
       logger.error('Failed to start Autotask MCP Server:', error);

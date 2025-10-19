@@ -1,3 +1,50 @@
+# [2.2.0](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.5...v2.2.0) (2025-10-18)
+
+### Features
+
+* **mcp-compliance**: Implement MCP best practices compliance (spec-004) ([004-mcp-best-practices-review](specs/004-mcp-best-practices-review))
+  - **BREAKING**: All tool names now include `autotask_` prefix (e.g., `search_companies` → `autotask_search_companies`)
+  - Add comprehensive tool annotations (readOnlyHint, destructiveHint, idempotentHint, openWorldHint) to guide LLM decision-making
+  - Implement Zod runtime validation with strict mode for all tool parameters
+  - Add clear, actionable validation error messages with guidance
+  - Preserve two-layer validation architecture (Zod + business validators) for ticket operations
+  - See [MIGRATION.md](MIGRATION.md) for upgrade guide
+
+### Bug Fixes
+
+* **search-companies**: Fix searchTerm and isActive filters being ignored by Autotask API
+  - Root cause: Raw parameters were passed directly instead of building proper filter arrays
+  - Autotask API requires filters in format: `[{ op: 'contains', field: 'companyName', value: 'searchTerm' }]`
+  - Now builds proper filter arrays like searchTickets and searchProjects
+  - Filters now apply BEFORE pagination for efficient targeted searches
+  - Example: `searchTerm: "acme"` now correctly filters to companies containing "acme" instead of returning all 500+ companies
+  - Affected: searchCompanies (primary fix), searchContacts (consistency update)
+
+* **api-pagination**: Add client-side safety caps to enforce pageSize limits
+  - Autotask API sometimes ignores `pageSize` parameter (known issue with search queries)
+  - Client-side truncation ensures responses never exceed requested `pageSize`
+  - Prevents excessive token usage when LLMs call search tools without explicit limits
+  - Affected endpoints: companies, contacts, tickets, resources
+
+* **json-schema**: Fix zodToJsonSchema calls to use correct options object
+  - Previous: `zodToJsonSchema(schema, 'name')` (incorrect - string parameter)
+  - Fixed: `zodToJsonSchema(schema, { $refStrategy: 'none', target: 'jsonSchema7' })`
+  - Resolves tool registration issues in Smithery and other MCP hosts
+
+### Improvements
+
+* **llm-guidance**: Enhance tool descriptions for better LLM understanding
+  - Tool description now emphasizes filters apply BEFORE pagination
+  - searchTerm schema describes field behavior per entity type (company names, contact names, ticket numbers)
+  - isActive schema explains true/false/omitted behavior clearly
+  - Consistent with MCP best practices for actionable tool descriptions
+
+### Documentation
+
+* Add comprehensive migration guide for tool name changes
+* Update all documentation and examples to use new tool names
+* Document two-layer validation pattern for domain-specific business rules
+
 ## [2.1.5](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.4...v2.1.5) (2025-10-17)
 
 

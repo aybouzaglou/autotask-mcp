@@ -95,14 +95,12 @@ export class TicketMetadataCache {
 
     try {
       // Refresh statuses, priorities, and resources in parallel
-      await Promise.all([
-        this.refreshStatuses(),
-        this.refreshPriorities(),
-        this.refreshResources()
-      ]);
+      await Promise.all([this.refreshStatuses(), this.refreshPriorities(), this.refreshResources()]);
 
       this.lastRefresh = new Date();
-      this.logger.info(`Metadata cache refreshed: ${this.statuses.size} statuses, ${this.priorities.size} priorities, ${this.resources.size} resources`);
+      this.logger.info(
+        `Metadata cache refreshed: ${this.statuses.size} statuses, ${this.priorities.size} priorities, ${this.resources.size} resources`,
+      );
     } catch (error) {
       this.logger.error('Failed to refresh metadata cache:', error);
       throw error;
@@ -132,11 +130,11 @@ export class TicketMetadataCache {
       { id: 5, name: 'Complete', isActive: true, isSystem: true },
       { id: 7, name: 'Waiting Customer', isActive: true, isSystem: true },
       { id: 8, name: 'Waiting Vendor', isActive: true, isSystem: true },
-      { id: 9, name: 'Escalated', isActive: true, isSystem: true }
+      { id: 9, name: 'Escalated', isActive: true, isSystem: true },
     ];
 
     this.statuses.clear();
-    defaults.forEach(status => {
+    defaults.forEach((status) => {
       this.statuses.set(status.id, status);
     });
   }
@@ -163,11 +161,11 @@ export class TicketMetadataCache {
       { id: 2, name: 'Medium', isActive: true, isSystem: true },
       { id: 3, name: 'High', isActive: true, isSystem: true },
       { id: 4, name: 'Critical', isActive: true, isSystem: true },
-      { id: 5, name: 'Urgent', isActive: true, isSystem: true }
+      { id: 5, name: 'Urgent', isActive: true, isSystem: true },
     ];
 
     this.priorities.clear();
-    defaults.forEach(priority => {
+    defaults.forEach((priority) => {
       this.priorities.set(priority.id, priority);
     });
   }
@@ -183,14 +181,14 @@ export class TicketMetadataCache {
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Resource fetch timeout after 10s')), 10000);
       });
-      
+
       const fetchPromise = this.client.resources.list({ filter: { isActive: true } } as any);
-      
-      const result = await Promise.race([fetchPromise, timeoutPromise]) as any;
+
+      const result = (await Promise.race([fetchPromise, timeoutPromise])) as any;
       const resources = (result.data || []) as CachedResource[];
 
       this.resources.clear();
-      resources.forEach(resource => {
+      resources.forEach((resource) => {
         this.resources.set(resource.id, resource);
       });
 
@@ -299,16 +297,14 @@ export class TicketMetadataCache {
    * Get cache statistics
    */
   getStats(): MetadataCacheStats {
-    const nextRefresh = this.lastRefresh
-      ? new Date(this.lastRefresh.getTime() + this.refreshInterval)
-      : null;
+    const nextRefresh = this.lastRefresh ? new Date(this.lastRefresh.getTime() + this.refreshInterval) : null;
 
     return {
       statuses: this.statuses.size,
       priorities: this.priorities.size,
       resources: this.resources.size,
       lastRefresh: this.lastRefresh,
-      nextRefresh
+      nextRefresh,
     };
   }
 

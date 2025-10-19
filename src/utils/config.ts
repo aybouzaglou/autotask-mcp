@@ -55,7 +55,7 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
       transportType = normalizedTransport;
     } else {
       errors.push(
-        `AUTOTASK_TRANSPORT="${rawTransportType}" is not supported. Valid options: ${validTransportTypes.join(', ')}.`
+        `AUTOTASK_TRANSPORT="${rawTransportType}" is not supported. Valid options: ${validTransportTypes.join(', ')}.`,
       );
     }
   }
@@ -102,11 +102,15 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
   } else if (transportType !== 'stdio' && (httpAuthUsername || httpAuthPassword)) {
     warnings.push('HTTP auth credentials detected but AUTOTASK_HTTP_AUTH is not enabled. They will be ignored.');
   } else if ((transportType === 'http' || transportType === 'both') && !httpAuthEnabled) {
-    warnings.push('HTTP transport selected without AUTOTASK_HTTP_AUTH enabled. For self-hosted deployments, enable auth or ensure external protections are in place.');
+    warnings.push(
+      'HTTP transport selected without AUTOTASK_HTTP_AUTH enabled. For self-hosted deployments, enable auth or ensure external protections are in place.',
+    );
   }
 
   if (transportType === 'stdio' && (rawHttpPort || process.env.AUTOTASK_HTTP_HOST || rawHttpAuth)) {
-    warnings.push('HTTP transport settings detected but AUTOTASK_TRANSPORT is set to "stdio". HTTP configuration will be ignored.');
+    warnings.push(
+      'HTTP transport settings detected but AUTOTASK_TRANSPORT is set to "stdio". HTTP configuration will be ignored.',
+    );
   }
 
   const httpConfig = {
@@ -117,28 +121,28 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
       ...(httpAuthEnabled
         ? {
             username: httpAuthUsername!,
-            password: httpAuthPassword!
+            password: httpAuthPassword!,
           }
-        : {})
-    }
+        : {}),
+    },
   };
 
   return {
     autotask: autotaskConfig,
     server: {
       name: process.env.MCP_SERVER_NAME || 'autotask-mcp',
-      version: process.env.MCP_SERVER_VERSION || '1.0.0'
+      version: process.env.MCP_SERVER_VERSION || '1.0.0',
     },
     logging: {
       level: (process.env.LOG_LEVEL as LogLevel) || 'info',
-      format: (process.env.LOG_FORMAT as 'json' | 'simple') || 'simple'
+      format: (process.env.LOG_FORMAT as 'json' | 'simple') || 'simple',
     },
     transport: {
       type: transportType,
-      ...(transportType === 'http' || transportType === 'both' ? { http: httpConfig } : {})
+      ...(transportType === 'http' || transportType === 'both' ? { http: httpConfig } : {}),
     },
     warnings,
-    errors
+    errors,
   };
 }
 
@@ -154,8 +158,8 @@ export function mergeWithMcpConfig(envConfig: EnvironmentConfig, mcpArgs?: Recor
       username: mcpArgs?.autotask?.username || envConfig.autotask.username,
       secret: mcpArgs?.autotask?.secret || envConfig.autotask.secret,
       integrationCode: mcpArgs?.autotask?.integrationCode || envConfig.autotask.integrationCode,
-      apiUrl: mcpArgs?.autotask?.apiUrl || envConfig.autotask.apiUrl
-    }
+      apiUrl: mcpArgs?.autotask?.apiUrl || envConfig.autotask.apiUrl,
+    },
   };
 
   return serverConfig;

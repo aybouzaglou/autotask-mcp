@@ -172,35 +172,35 @@ Resources are designed for retrieving detailed information about **known entitie
 **Tools** perform actions and searches (what the AI can **DO**):
 
 #### Search & List Operations
-- `search_companies` - Search/list companies with filters (supports pagination)
-- `search_contacts` - Search/list contacts with filters (supports pagination)
-- `search_tickets` - Search/list tickets with filters (supports pagination)
+- `autotask_search_companies` - Search/list companies with filters (supports pagination)
+- `autotask_search_contacts` - Search/list contacts with filters (supports pagination)
+- `autotask_search_tickets` - Search/list tickets with filters (supports pagination)
 
 #### Company Operations
-- `create_company` - Create new company
-- `update_company` - Update existing company
+- `autotask_create_company` - Create new company
+- `autotask_update_company` - Update existing company
 
 #### Contact Operations  
-- `create_contact` - Create new contact
+- `autotask_create_contact` - Create new contact
 
 #### Ticket Operations
-- `create_ticket` - Create new ticket
-- `update_ticket` - Patch an existing ticket (status, priority, queue, due date, summary, description, resolution)
+- `autotask_create_ticket` - Create new ticket
+- `autotask_update_ticket` - Patch an existing ticket (status, priority, queue, due date, summary, description, resolution)
 
 #### Time Entry Operations
-- `create_time_entry` - Log time entry
+- `autotask_create_time_entry` - Log time entry
 
 #### Utility Operations
-- `test_connection` - Test API connectivity
+- `autotask_test_connection` - Test API connectivity
 
-**Note:** For listing or searching entities, always use the appropriate search tool (`search_companies`, `search_tickets`, etc.) rather than resources. Resources are only for retrieving specific entity details when you already have the ID.
+**Note:** For listing or searching entities, always use the appropriate search tool (`autotask_search_companies`, `autotask_search_tickets`, etc.) rather than resources. Resources are only for retrieving specific entity details when you already have the ID.
 
 ### Example Tool Usage
 
 ```javascript
 // Search for companies (returns ONLY FIRST 50 matches by default)
 {
-  "name": "search_companies",
+  "name": "autotask_search_companies",
   "arguments": {
     "searchTerm": "Acme Corp",
     "isActive": true
@@ -210,7 +210,7 @@ Resources are designed for retrieving detailed information about **known entitie
 
 // Search with explicit page size for more results
 {
-  "name": "search_companies",
+  "name": "autotask_search_companies",
   "arguments": {
     "searchTerm": "Acme",
     "pageSize": 100  // Request 100 results instead of default 50
@@ -219,7 +219,7 @@ Resources are designed for retrieving detailed information about **known entitie
 
 // Search for ALL matching companies (use filters to narrow results first)
 {
-  "name": "search_companies",
+  "name": "autotask_search_companies",
   "arguments": {
     "searchTerm": "Tech",
     "isActive": true,
@@ -229,7 +229,7 @@ Resources are designed for retrieving detailed information about **known entitie
 
 // Create a new ticket
 {
-  "name": "create_ticket",
+  "name": "autotask_create_ticket",
   "arguments": {
     "companyID": 12345,
     "title": "Server maintenance request",
@@ -246,17 +246,17 @@ All search operations use **safe default page sizes** to prevent large responses
 
 | Tool | Default | Maximum | Unlimited Support |
 |------|---------|---------|------------------|
-| `search_companies` | 50 | 500 | ✅ Use `-1` |
-| `search_contacts` | 50 | 500 | ✅ Use `-1` |
-| `search_tickets` | 50 | 500 | ✅ Use `-1` |
-| `search_resources` | 25 | 500 | ✅ Use `-1` |
-| `search_configuration_items` | 25 | 500 | ✅ Use `-1` |
-| `search_contracts` | 25 | 500 | ✅ Use `-1` |
-| `search_invoices` | 25 | 500 | ✅ Use `-1` |
-| `search_projects` | 25 | 100 | ⚠️ API limited |
-| `search_tasks` | 25 | 100 | ⚠️ API limited |
-| `search_quotes` | 25 | 100 | ⚠️ API limited |
-| `search_expense_reports` | 25 | 100 | ⚠️ API limited |
+| `autotask_search_companies` | 50 | 500 | ✅ Use `-1` |
+| `autotask_search_contacts` | 50 | 500 | ✅ Use `-1` |
+| `autotask_search_tickets` | 50 | 500 | ✅ Use `-1` |
+| `autotask_search_resources` | 25 | 500 | ✅ Use `-1` |
+| `autotask_search_configuration_items` | 25 | 500 | ✅ Use `-1` |
+| `autotask_search_contracts` | 25 | 500 | ✅ Use `-1` |
+| `autotask_search_invoices` | 25 | 500 | ✅ Use `-1` |
+| `autotask_search_projects` | 25 | 100 | ⚠️ API limited |
+| `autotask_search_tasks` | 25 | 100 | ⚠️ API limited |
+| `autotask_search_quotes` | 25 | 100 | ⚠️ API limited |
+| `autotask_search_expense_reports` | 25 | 100 | ⚠️ API limited |
 
 **Best Practices:**
 - 🎯 **Use filters first** (searchTerm, companyID, status, etc.) to narrow results
@@ -379,7 +379,7 @@ curl -sS -X POST "<URL>" \
         "jsonrpc":"2.0",
         "id":"status",
         "method":"tools/call",
-        "params": { "name": "test_connection" }
+        "params": { "name": "autotask_test_connection" }
       }'
 ```
 
@@ -591,23 +591,23 @@ Once connected, Claude can access these **read-only** Autotask resources for spe
 Claude can perform these actions via MCP tools:
 
 #### Company Operations
-- **search_companies**: Find companies with filters
-- **create_company**: Create new companies
-- **update_company**: Modify existing companies
+- **autotask_search_companies**: Find companies with filters
+- **autotask_create_company**: Create new companies
+- **autotask_update_company**: Modify existing companies
 
 #### Contact Operations
-- **search_contacts**: Find contacts with filters
-- **create_contact**: Create new contacts
+- **autotask_search_contacts**: Find contacts with filters
+- **autotask_create_contact**: Create new contacts
 
 #### Ticket Operations
-- **search_tickets**: Find tickets with filters
-- **create_ticket**: Create new tickets
+- **autotask_search_tickets**: Find tickets with filters
+- **autotask_create_ticket**: Create new tickets
 
 #### Time Entry Operations
-- **create_time_entry**: Log time entries
+- **autotask_create_time_entry**: Log time entries
 
 #### Utility Operations
-- **test_connection**: Verify Autotask API connectivity
+- **autotask_test_connection**: Verify Autotask API connectivity
 
 ### Example Usage Scenarios
 
@@ -871,6 +871,9 @@ LOG_LEVEL=debug npm start
 - Backend technology stack snapshot: [`docs/architecture/tech-stack.md`](docs/architecture/tech-stack.md)
 - Coding standards and MCP-specific guardrails: [`docs/architecture/coding-standards.md`](docs/architecture/coding-standards.md)
 - Source tree map for quick orientation: [`docs/architecture/source-tree.md`](docs/architecture/source-tree.md)
+- Brownfield architecture & technical debt: [`docs/brownfield-architecture.md`](docs/brownfield-architecture.md)
+
+**Note**: This server uses the `autotask-node` REST API client library as the primary integration method. Some library methods have known bugs (e.g., Projects endpoint), requiring direct axios REST API calls as workarounds. All API interactions are REST/JSON - no SOAP/XML code exists in this codebase.
 
 ## Contributing
 

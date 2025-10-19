@@ -52,7 +52,7 @@ export class HttpTransport extends BaseTransport {
         if (sessionId) {
           this.logger.info(`Closed MCP HTTP session ${sessionId}`);
         }
-      }
+      },
     });
 
     this.transport.onerror = (error: Error) => {
@@ -119,7 +119,7 @@ export class HttpTransport extends BaseTransport {
         if (this.transport) {
           await this.transport.close();
         }
-      })()
+      })(),
     ]);
 
     this.httpServer = undefined;
@@ -154,9 +154,6 @@ export class HttpTransport extends BaseTransport {
   private addCorsHeaders(res: ServerResponse): void {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-    res.setHeader(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, MCP-Protocol-Version, MCP-Session-Id'
-    );
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, MCP-Protocol-Version, MCP-Session-Id');
   }
 }
