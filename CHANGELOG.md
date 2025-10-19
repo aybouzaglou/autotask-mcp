@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/aybouzaglou/autotask-mcp/compare/v3.0.0...v3.0.1) (2025-10-19)
+
+
+### Bug Fixes
+
+* add @semantic-release/github plugin and update package.json to 3.0.0… ([62a060a](https://github.com/aybouzaglou/autotask-mcp/commit/62a060a31c30c657fc97621accb6b28762f1cb7e))
+
 # [3.0.0](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.5...v3.0.0) (2025-10-19)
 
 
