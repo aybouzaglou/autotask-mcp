@@ -125,7 +125,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_create_company',
         description: 'Create a new company in Autotask',
-        inputSchema: zodToJsonSchema(CompanySchemas.CreateCompany, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(CompanySchemas.CreateCompany, 'CreateCompanyInput') as any,
         annotations: {
           title: 'Create Company',
           ...CREATE_ANNOTATIONS,
@@ -134,7 +134,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_update_company',
         description: 'Update an existing company in Autotask',
-        inputSchema: zodToJsonSchema(CompanySchemas.UpdateCompany, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(CompanySchemas.UpdateCompany, 'UpdateCompanyInput') as any,
         annotations: {
           title: 'Update Company',
           ...UPDATE_ANNOTATIONS,
@@ -146,7 +146,7 @@ export class AutotaskToolHandler {
         name: 'autotask_search_contacts',
         description:
           'Search for contacts in Autotask. **IMPORTANT: Returns ONLY first 50 matching contacts by default** - if you need ALL contacts matching your query, you MUST set pageSize: -1. Use filters (searchTerm, companyID, isActive) to narrow results.',
-        inputSchema: zodToJsonSchema(ContactSchemas.SearchContacts, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(ContactSchemas.SearchContacts, 'SearchContactsInput') as any,
         annotations: {
           title: 'Search Contacts',
           ...READ_ONLY_ANNOTATIONS,
@@ -155,7 +155,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_create_contact',
         description: 'Create a new contact in Autotask',
-        inputSchema: zodToJsonSchema(ContactSchemas.CreateContact, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(ContactSchemas.CreateContact, 'CreateContactInput') as any,
         annotations: {
           title: 'Create Contact',
           ...CREATE_ANNOTATIONS,
@@ -167,7 +167,7 @@ export class AutotaskToolHandler {
         name: 'autotask_search_tickets',
         description:
           'Search for tickets in Autotask. **IMPORTANT: Returns ONLY first 50 matching tickets by default** - if you need ALL tickets matching your query, you MUST set pageSize: -1. Use filters (searchTerm, companyID, status, assignedResourceID) to narrow results. For full ticket data, use get_ticket_details.',
-        inputSchema: zodToJsonSchema(TicketSchemas.SearchTickets, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(TicketSchemas.SearchTickets, 'SearchTicketsInput') as any,
         annotations: {
           title: 'Search Tickets',
           ...READ_ONLY_ANNOTATIONS,
@@ -176,7 +176,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_get_ticket_details',
         description: 'Get detailed information for a specific ticket by ID. Use this for full ticket data when needed.',
-        inputSchema: zodToJsonSchema(TicketSchemas.GetTicketDetails, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(TicketSchemas.GetTicketDetails, 'GetTicketDetailsInput') as any,
         annotations: {
           title: 'Get Ticket Details',
           ...READ_ONLY_ANNOTATIONS,
@@ -185,7 +185,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_create_ticket',
         description: 'Create a new ticket in Autotask',
-        inputSchema: zodToJsonSchema(TicketSchemas.CreateTicket, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(TicketSchemas.CreateTicket, 'CreateTicketInput') as any,
         annotations: {
           title: 'Create Ticket',
           ...CREATE_ANNOTATIONS,
@@ -194,7 +194,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_update_ticket',
         description: 'Update an existing ticket in Autotask using PATCH semantics for core fields',
-        inputSchema: zodToJsonSchema(TicketSchemas.UpdateTicket, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(TicketSchemas.UpdateTicket, 'UpdateTicketInput') as any,
         annotations: {
           title: 'Update Ticket',
           ...UPDATE_ANNOTATIONS,
@@ -205,7 +205,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_create_time_entry',
         description: 'Create a time entry in Autotask',
-        inputSchema: zodToJsonSchema(TimeSchemas.CreateTimeEntry, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(TimeSchemas.CreateTimeEntry, 'CreateTimeEntryInput') as any,
         annotations: {
           title: 'Create Time Entry',
           ...CREATE_ANNOTATIONS,
@@ -217,7 +217,7 @@ export class AutotaskToolHandler {
         name: 'autotask_search_projects',
         description:
           'Search for projects in Autotask. Returns 25 optimized projects by default (API limited to max 100). Use filters (searchTerm, companyID, status) to narrow results.',
-        inputSchema: zodToJsonSchema(ProjectSchemas.SearchProjects, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(ProjectSchemas.SearchProjects, 'SearchProjectsInput') as any,
         annotations: {
           title: 'Search Projects',
           ...READ_ONLY_ANNOTATIONS,
@@ -226,7 +226,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_create_project',
         description: 'Create a new project in Autotask',
-        inputSchema: zodToJsonSchema(ProjectSchemas.CreateProject, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(ProjectSchemas.CreateProject, 'CreateProjectInput') as any,
         annotations: {
           title: 'Create Project',
           ...CREATE_ANNOTATIONS,
@@ -238,7 +238,7 @@ export class AutotaskToolHandler {
         name: 'autotask_search_resources',
         description:
           'Search for resources (users) in Autotask. Returns 25 resources by default. Use filters (searchTerm, isActive, resourceType) to narrow results before requesting more data.',
-        inputSchema: zodToJsonSchema(ResourceSchemas.SearchResources, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(ResourceSchemas.SearchResources, 'SearchResourcesInput') as any,
         annotations: {
           title: 'Search Resources',
           ...READ_ONLY_ANNOTATIONS,
@@ -253,7 +253,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_get_ticket_note',
         description: 'Get a specific ticket note by ticket ID and note ID',
-        inputSchema: zodToJsonSchema(NoteSchemas.GetTicketNote, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(NoteSchemas.GetTicketNote, 'GetTicketNoteInput') as any,
         annotations: {
           title: 'Get Ticket Note',
           ...READ_ONLY_ANNOTATIONS,
@@ -262,7 +262,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_search_ticket_notes',
         description: 'Search for notes on a specific ticket. Returns 25 notes by default (max: 100).',
-        inputSchema: zodToJsonSchema(NoteSchemas.SearchTicketNotes, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(NoteSchemas.SearchTicketNotes, 'SearchTicketNotesInput') as any,
         annotations: {
           title: 'Search Ticket Notes',
           ...READ_ONLY_ANNOTATIONS,
@@ -271,7 +271,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_create_ticket_note',
         description: 'Create a new note for a ticket',
-        inputSchema: zodToJsonSchema(NoteSchemas.CreateTicketNote, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(NoteSchemas.CreateTicketNote, 'CreateTicketNoteInput') as any,
         annotations: {
           title: 'Create Ticket Note',
           ...CREATE_ANNOTATIONS,
@@ -282,7 +282,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_get_project_note',
         description: 'Get a specific project note by project ID and note ID',
-        inputSchema: zodToJsonSchema(NoteSchemas.GetProjectNote, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(NoteSchemas.GetProjectNote, 'GetProjectNoteInput') as any,
         annotations: {
           title: 'Get Project Note',
           ...READ_ONLY_ANNOTATIONS,
@@ -291,7 +291,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_search_project_notes',
         description: 'Search for notes on a specific project. Returns 25 notes by default (max: 100).',
-        inputSchema: zodToJsonSchema(NoteSchemas.SearchProjectNotes, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(NoteSchemas.SearchProjectNotes, 'SearchProjectNotesInput') as any,
         annotations: {
           title: 'Search Project Notes',
           ...READ_ONLY_ANNOTATIONS,
@@ -300,7 +300,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_create_project_note',
         description: 'Create a new note for a project',
-        inputSchema: zodToJsonSchema(NoteSchemas.CreateProjectNote, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(NoteSchemas.CreateProjectNote, 'CreateProjectNoteInput') as any,
         annotations: {
           title: 'Create Project Note',
           ...CREATE_ANNOTATIONS,
@@ -311,7 +311,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_get_company_note',
         description: 'Get a specific company note by company ID and note ID',
-        inputSchema: zodToJsonSchema(NoteSchemas.GetCompanyNote, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(NoteSchemas.GetCompanyNote, 'GetCompanyNoteInput') as any,
         annotations: {
           title: 'Get Company Note',
           ...READ_ONLY_ANNOTATIONS,
@@ -320,7 +320,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_search_company_notes',
         description: 'Search for notes on a specific company. Returns 25 notes by default (max: 100).',
-        inputSchema: zodToJsonSchema(NoteSchemas.SearchCompanyNotes, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(NoteSchemas.SearchCompanyNotes, 'SearchCompanyNotesInput') as any,
         annotations: {
           title: 'Search Company Notes',
           ...READ_ONLY_ANNOTATIONS,
@@ -329,7 +329,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_create_company_note',
         description: 'Create a new note for a company',
-        inputSchema: zodToJsonSchema(NoteSchemas.CreateCompanyNote, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(NoteSchemas.CreateCompanyNote, 'CreateCompanyNoteInput') as any,
         annotations: {
           title: 'Create Company Note',
           ...CREATE_ANNOTATIONS,
@@ -341,7 +341,7 @@ export class AutotaskToolHandler {
         name: 'autotask_search_ticket_attachments',
         description:
           'Search for attachments on a specific ticket. Returns 10 attachments by default (max: 50). Attachments can be large.',
-        inputSchema: zodToJsonSchema(AttachmentSchemas.SearchTicketAttachments, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(AttachmentSchemas.SearchTicketAttachments, 'SearchTicketAttachmentsInput') as any,
         annotations: {
           title: 'Search Ticket Attachments',
           ...READ_ONLY_ANNOTATIONS,
@@ -350,7 +350,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_get_ticket_attachment',
         description: 'Get a specific ticket attachment by ticket ID and attachment ID',
-        inputSchema: zodToJsonSchema(AttachmentSchemas.GetTicketAttachment, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(AttachmentSchemas.GetTicketAttachment, 'GetTicketAttachmentInput') as any,
         annotations: {
           title: 'Get Ticket Attachment',
           ...READ_ONLY_ANNOTATIONS,
@@ -435,7 +435,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_get_quote',
         description: 'Get a specific quote by ID',
-        inputSchema: zodToJsonSchema(QuoteSchemas.GetQuote, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(QuoteSchemas.GetQuote, 'GetQuoteInput') as any,
         annotations: {
           title: 'Get Quote',
           ...READ_ONLY_ANNOTATIONS,
@@ -445,7 +445,7 @@ export class AutotaskToolHandler {
         name: 'autotask_search_quotes',
         description:
           'Search for quotes. Returns 25 quotes by default (max: 100). Use filters (companyId, contactId, opportunityId, searchTerm) to narrow results.',
-        inputSchema: zodToJsonSchema(QuoteSchemas.SearchQuotes, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(QuoteSchemas.SearchQuotes, 'SearchQuotesInput') as any,
         annotations: {
           title: 'Search Quotes',
           ...READ_ONLY_ANNOTATIONS,
@@ -454,7 +454,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_create_quote',
         description: 'Create a new quote',
-        inputSchema: zodToJsonSchema(QuoteSchemas.CreateQuote, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(QuoteSchemas.CreateQuote, 'CreateQuoteInput') as any,
         annotations: {
           title: 'Create Quote',
           ...CREATE_ANNOTATIONS,
@@ -500,7 +500,7 @@ export class AutotaskToolHandler {
         name: 'autotask_search_contracts',
         description:
           'Search for contracts in Autotask. Returns 25 contracts by default. Use filters (searchTerm, companyID, status) to narrow results before requesting more data.',
-        inputSchema: zodToJsonSchema(ContractSchemas.SearchContracts, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(ContractSchemas.SearchContracts, 'SearchContractsInput') as any,
         annotations: {
           title: 'Search Contracts',
           ...READ_ONLY_ANNOTATIONS,
@@ -542,7 +542,7 @@ export class AutotaskToolHandler {
         name: 'autotask_search_tasks',
         description:
           'Search for tasks in Autotask. Returns 25 optimized tasks by default (API limited to max 100). Use filters (searchTerm, projectID, status, assignedResourceID) to narrow results.',
-        inputSchema: zodToJsonSchema(TaskSchemas.SearchTasks, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(TaskSchemas.SearchTasks, 'SearchTasksInput') as any,
         annotations: {
           title: 'Search Tasks',
           ...READ_ONLY_ANNOTATIONS,
@@ -551,7 +551,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_create_task',
         description: 'Create a new task in Autotask',
-        inputSchema: zodToJsonSchema(TaskSchemas.CreateTask, { $refStrategy: 'none', target: 'jsonSchema7' }) as any,
+        inputSchema: zodToJsonSchema(TaskSchemas.CreateTask, 'CreateTaskInput') as any,
         annotations: {
           title: 'Create Task',
           ...CREATE_ANNOTATIONS,
