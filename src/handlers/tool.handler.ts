@@ -112,7 +112,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_search_companies',
         description:
-          "Search for companies in Autotask. **IMPORTANT: Returns ONLY first 50 matching companies by default** - if you need ALL companies matching your query, you MUST set pageSize: -1. Use filters to narrow results: 'searchTerm' searches company names (e.g., searchTerm: 'mandevco' finds companies with 'mandevco' in their name), 'isActive: true' filters to active companies only. Filters apply BEFORE pagination for efficient targeted searches.",
+          "Search for companies in Autotask. **IMPORTANT: Returns ONLY first 50 matching companies by default** - if you need ALL companies matching your query, you MUST set pageSize: -1. Use filters to narrow results: 'searchTerm' searches company names (e.g., searchTerm: 'acme' finds companies with 'acme' in their name), 'isActive: true' filters to active companies only. Filters apply BEFORE pagination for efficient targeted searches.",
         inputSchema: zodToJsonSchema(CompanySchemas.SearchCompanies, {
           $refStrategy: 'none',
           target: 'jsonSchema7',

@@ -17,7 +17,7 @@
   - Autotask API requires filters in format: `[{ op: 'contains', field: 'companyName', value: 'searchTerm' }]`
   - Now builds proper filter arrays like searchTickets and searchProjects
   - Filters now apply BEFORE pagination for efficient targeted searches
-  - Example: `searchTerm: "mandevco"` now correctly filters to companies containing "mandevco" instead of returning all 500+ companies
+  - Example: `searchTerm: "acme"` now correctly filters to companies containing "acme" instead of returning all 500+ companies
   - Affected: searchCompanies (primary fix), searchContacts (consistency update)
 
 * **api-pagination**: Add client-side safety caps to enforce pageSize limits

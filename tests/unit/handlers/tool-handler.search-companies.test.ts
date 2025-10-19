@@ -7,9 +7,9 @@ import type { Logger } from '../../../src/utils/logger';
 
 // Mock companies for testing
 const MOCK_COMPANIES = [
-  { id: 1, companyName: 'Mandevco Properties Inc.', isActive: 1 },
-  { id: 2, companyName: 'Mandev Solutions', isActive: 1 },
-  { id: 3, companyName: 'ManDevCo LLC', isActive: 1 },
+  { id: 1, companyName: 'Acme Properties Inc.', isActive: 1 },
+  { id: 2, companyName: 'Acme Solutions', isActive: 1 },
+  { id: 3, companyName: 'Acme LLC', isActive: 1 },
   { id: 4, companyName: 'ABC Corporation', isActive: 1 },
   { id: 5, companyName: 'XYZ Industries', isActive: 1 },
 ];
@@ -123,56 +123,56 @@ describe('AutotaskToolHandler.autotask_search_companies - Smart Search', () => {
   describe('Exact Match Prioritization', () => {
     test('prioritizes single exact match when multiple results exist', async () => {
       const { handler } = createHandler([
-        { id: 2, companyName: 'Mandev Solutions', isActive: 1 },
-        { id: 1, companyName: 'Mandevco Properties Inc.', isActive: 1 },
-        { id: 3, companyName: 'ManDevCo LLC', isActive: 1 },
+        { id: 2, companyName: 'Acme Solutions', isActive: 1 },
+        { id: 1, companyName: 'Acme Properties Inc.', isActive: 1 },
+        { id: 3, companyName: 'Acme LLC', isActive: 1 },
       ]);
 
       const response = await handler.callTool('autotask_search_companies', {
-        searchTerm: 'mandevco llc', // Exact match for ManDevCo LLC (case-insensitive)
+        searchTerm: 'acme llc', // Exact match for Acme LLC (case-insensitive)
         pageSize: 50,
       });
 
       const result = parseResponse(response);
 
       // First result should be the exact match
-      expect(result.data[0].companyName).toBe('ManDevCo LLC');
+      expect(result.data[0].companyName).toBe('Acme LLC');
       expect(result.message).toContain('exact match');
-      expect(result.message).toContain('ManDevCo LLC');
+      expect(result.message).toContain('Acme LLC');
       expect(result.data.length).toBe(3); // All results still returned, but reordered
     });
 
     test('handles case-insensitive exact matching', async () => {
       const { handler } = createHandler([
-        { id: 1, companyName: 'Mandevco Properties Inc.', isActive: 1 },
-        { id: 2, companyName: 'Mandev Solutions', isActive: 1 },
+        { id: 1, companyName: 'Acme Properties Inc.', isActive: 1 },
+        { id: 2, companyName: 'Acme Solutions', isActive: 1 },
       ]);
 
       const response = await handler.callTool('autotask_search_companies', {
-        searchTerm: 'MANDEVCO PROPERTIES INC.',
+        searchTerm: 'ACME PROPERTIES INC.',
         pageSize: 50,
       });
 
       const result = parseResponse(response);
 
-      expect(result.data[0].companyName).toBe('Mandevco Properties Inc.');
+      expect(result.data[0].companyName).toBe('Acme Properties Inc.');
       expect(result.message).toContain('exact match');
     });
 
     test('trims whitespace when matching', async () => {
       const { handler } = createHandler([
-        { id: 1, companyName: 'Mandevco Properties Inc.', isActive: 1 },
-        { id: 2, companyName: 'Mandev Solutions', isActive: 1 },
+        { id: 1, companyName: 'Acme Properties Inc.', isActive: 1 },
+        { id: 2, companyName: 'Acme Solutions', isActive: 1 },
       ]);
 
       const response = await handler.callTool('autotask_search_companies', {
-        searchTerm: '  mandevco properties inc.  ',
+        searchTerm: '  acme properties inc.  ',
         pageSize: 50,
       });
 
       const result = parseResponse(response);
 
-      expect(result.data[0].companyName).toBe('Mandevco Properties Inc.');
+      expect(result.data[0].companyName).toBe('Acme Properties Inc.');
       expect(result.message).toContain('exact match');
     });
 
@@ -199,17 +199,17 @@ describe('AutotaskToolHandler.autotask_search_companies - Smart Search', () => {
     });
 
     test('does not prioritize when only one result', async () => {
-      const { handler } = createHandler([{ id: 1, companyName: 'Mandevco Properties Inc.', isActive: 1 }]);
+      const { handler } = createHandler([{ id: 1, companyName: 'Acme Properties Inc.', isActive: 1 }]);
 
       const response = await handler.callTool('autotask_search_companies', {
-        searchTerm: 'mandevco',
+        searchTerm: 'acme',
         pageSize: 50,
       });
 
       const result = parseResponse(response);
 
       // Should just return the single result without "exact match" messaging
-      expect(result.data[0].companyName).toBe('Mandevco Properties Inc.');
+      expect(result.data[0].companyName).toBe('Acme Properties Inc.');
       expect(result.message).toBe('Found 1 companies');
     });
 
@@ -232,13 +232,13 @@ describe('AutotaskToolHandler.autotask_search_companies - Smart Search', () => {
   describe('No Exact Match Scenarios', () => {
     test('returns all partial matches when no exact match exists', async () => {
       const { handler } = createHandler([
-        { id: 1, companyName: 'Mandevco Properties Inc.', isActive: 1 },
-        { id: 2, companyName: 'Mandev Solutions', isActive: 1 },
-        { id: 3, companyName: 'ManDevCo LLC', isActive: 1 },
+        { id: 1, companyName: 'Acme Properties Inc.', isActive: 1 },
+        { id: 2, companyName: 'Acme Solutions', isActive: 1 },
+        { id: 3, companyName: 'Acme LLC', isActive: 1 },
       ]);
 
       const response = await handler.callTool('autotask_search_companies', {
-        searchTerm: 'mandev', // Partial match only
+        searchTerm: 'acme', // Partial match only
         pageSize: 50,
       });
 
@@ -274,7 +274,7 @@ describe('AutotaskToolHandler.autotask_search_companies - Smart Search', () => {
       const { handler, mockLogger } = createHandler();
 
       await handler.callTool('autotask_search_companies', {
-        searchTerm: 'mandevco',
+        searchTerm: 'acme',
         isActive: true,
         pageSize: 50,
       });
@@ -282,7 +282,7 @@ describe('AutotaskToolHandler.autotask_search_companies - Smart Search', () => {
       expect(mockLogger.info).toHaveBeenCalledWith(
         'search_companies query',
         expect.objectContaining({
-          searchTerm: 'mandevco',
+          searchTerm: 'acme',
           isActive: true,
           requestedPageSize: 50,
           hasFilters: true,
@@ -358,11 +358,11 @@ describe('AutotaskToolHandler.autotask_search_companies - Smart Search', () => {
   });
 
   describe('Real-World Incident Scenario', () => {
-    test("incident fix: 'mandevco' search should return targeted results", async () => {
+    test("incident fix: 'acme' search should return targeted results", async () => {
       // Simulate the 315-company scenario from the incident
       const all315Companies = [
-        { id: 1, companyName: 'Mandevco Properties Inc.', isActive: 1 },
-        { id: 2, companyName: 'ManDevCo LLC', isActive: 1 },
+        { id: 1, companyName: 'Acme Properties Inc.', isActive: 1 },
+        { id: 2, companyName: 'Acme LLC', isActive: 1 },
         ...Array.from({ length: 313 }, (_, i) => ({
           id: i + 3,
           companyName: `Other Company ${i + 1}`,
@@ -374,13 +374,13 @@ describe('AutotaskToolHandler.autotask_search_companies - Smart Search', () => {
       const { handler, mockService } = createHandler(all315Companies.slice(0, 50));
 
       const response = await handler.callTool('autotask_search_companies', {
-        searchTerm: 'mandevco', // User's original query
+        searchTerm: 'acme', // User's original query
         // pageSize not specified - should default to 50
       });
 
       // Verify pageSize defaulted correctly
       expect(mockService.searchCompanies).toHaveBeenCalledWith({
-        searchTerm: 'mandevco',
+        searchTerm: 'acme',
         pageSize: 50, // Not -1!
       });
 
@@ -394,13 +394,13 @@ describe('AutotaskToolHandler.autotask_search_companies - Smart Search', () => {
 
     test('incident scenario: exact match found quickly without bulk pull', async () => {
       const { handler } = createHandler([
-        { id: 100, companyName: 'Mandev Solutions', isActive: 1 },
-        { id: 200, companyName: 'Mandevco Properties Inc.', isActive: 1 },
-        { id: 300, companyName: 'ManDevCo LLC', isActive: 1 },
+        { id: 100, companyName: 'Acme Solutions', isActive: 1 },
+        { id: 200, companyName: 'Acme Properties Inc.', isActive: 1 },
+        { id: 300, companyName: 'Acme LLC', isActive: 1 },
       ]);
 
       const response = await handler.callTool('autotask_search_companies', {
-        searchTerm: 'mandevco properties inc.',
+        searchTerm: 'acme properties inc.',
         isActive: true,
         pageSize: 50,
       });
@@ -408,7 +408,7 @@ describe('AutotaskToolHandler.autotask_search_companies - Smart Search', () => {
       const result = parseResponse(response);
 
       // Exact match should be first
-      expect(result.data[0].companyName).toBe('Mandevco Properties Inc.');
+      expect(result.data[0].companyName).toBe('Acme Properties Inc.');
       expect(result.message).toContain('exact match');
 
       // Only 3 results, not 315
