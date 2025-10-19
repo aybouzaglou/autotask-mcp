@@ -1,3 +1,21 @@
+# [2.2.0](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.5...v2.2.0) (2025-10-18)
+
+### Features
+
+* **mcp-compliance**: Implement MCP best practices compliance (spec-004) ([004-mcp-best-practices-review](specs/004-mcp-best-practices-review))
+  - **BREAKING**: All tool names now include `autotask_` prefix (e.g., `search_companies` → `autotask_search_companies`)
+  - Add comprehensive tool annotations (readOnlyHint, destructiveHint, idempotentHint, openWorldHint) to guide LLM decision-making
+  - Implement Zod runtime validation with strict mode for all tool parameters
+  - Add clear, actionable validation error messages with guidance
+  - Preserve two-layer validation architecture (Zod + business validators) for ticket operations
+  - See [MIGRATION.md](MIGRATION.md) for upgrade guide
+
+### Documentation
+
+* Add comprehensive migration guide for tool name changes
+* Update all documentation and examples to use new tool names
+* Document two-layer validation pattern for domain-specific business rules
+
 ## [2.1.5](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.4...v2.1.5) (2025-10-17)
 
 
