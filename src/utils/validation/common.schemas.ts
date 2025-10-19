@@ -89,7 +89,14 @@ export const PositiveIdSchema = z.number().int('ID must be an integer').positive
 /**
  * Search term string
  */
-export const SearchTermSchema = z.string().min(1, 'Search term cannot be empty').trim().optional();
+export const SearchTermSchema = z
+  .string()
+  .min(1, 'Search term cannot be empty')
+  .trim()
+  .optional()
+  .describe(
+    'Text to search for. For companies: searches company names (e.g., "acme" finds "Acme Corp"). For contacts: searches first/last names. For tickets: searches ticket numbers.',
+  );
 
 /**
  * Response format enum (FR-003)
@@ -103,7 +110,10 @@ export const ResponseFormatSchema = z
 /**
  * Boolean filter (optional)
  */
-export const BooleanFilterSchema = z.boolean().optional();
+export const BooleanFilterSchema = z
+  .boolean()
+  .optional()
+  .describe('Filter by active status. Set to true for active records only, false for inactive only. Omit to include both.');
 
 /**
  * String field with max length

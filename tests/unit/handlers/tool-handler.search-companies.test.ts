@@ -72,8 +72,8 @@ describe('AutotaskToolHandler.autotask_search_companies - Smart Search', () => {
       const searchTool = tools.find((t) => t.name === 'autotask_search_companies');
 
       expect(searchTool?.description).toContain('searchTerm');
-      expect(searchTool?.description).toContain('BEST PRACTICE');
-      expect(searchTool?.description).toContain('targeted lookups');
+      expect(searchTool?.description).toContain('narrow results');
+      expect(searchTool?.description).toContain('searches company names');
     });
   });
 

@@ -112,7 +112,7 @@ export class AutotaskToolHandler {
       {
         name: 'autotask_search_companies',
         description:
-          "Search for companies in Autotask. Returns 50 companies by default. **BEST PRACTICE: Always use 'searchTerm' for targeted lookups** (e.g., searchTerm: 'mandevco' to find 'Mandevco Properties Inc.'). Use 'isActive: true' to filter active companies only. Only use pageSize: -1 if you genuinely need all matching records.",
+          "Search for companies in Autotask. **IMPORTANT: Returns ONLY first 50 matching companies by default** - if you need ALL companies matching your query, you MUST set pageSize: -1. Use filters to narrow results: 'searchTerm' searches company names (e.g., searchTerm: 'mandevco' finds companies with 'mandevco' in their name), 'isActive: true' filters to active companies only. Filters apply BEFORE pagination for efficient targeted searches.",
         inputSchema: zodToJsonSchema(CompanySchemas.SearchCompanies, {
           $refStrategy: 'none',
           target: 'jsonSchema7',
@@ -606,12 +606,12 @@ export class AutotaskToolHandler {
 
           // Strategy 1: Targeted search with safe defaults
           // If searchTerm is provided and pageSize not specified, use safe default
-          const searchOptions = {
+          const searchOptions = this.removeUndefined({
             ...validatedArgs,
             pageSize: requestedPageSize !== undefined ? requestedPageSize : defaultPageSize,
-          };
+          });
 
-          result = await this.autotaskService.searchCompanies(searchOptions);
+          result = await this.autotaskService.searchCompanies(searchOptions as any);
 
           const queryTime = Date.now() - startTime;
           const effectivePageSize = requestedPageSize === -1 ? Infinity : requestedPageSize || defaultPageSize;

@@ -198,7 +198,7 @@ export class AutotaskService {
    * - pageSize: N (1-500): Returns up to N companies
    * - pageSize: -1: Returns ALL companies (use with caution)
    */
-  async searchCompanies(options: AutotaskQueryOptions = {}): Promise<AutotaskCompany[]> {
+  async searchCompanies(options: AutotaskQueryOptionsExtended = {}): Promise<AutotaskCompany[]> {
     const client = await this.ensureClient();
 
     try {
@@ -206,6 +206,34 @@ export class AutotaskService {
 
       // Resolve pagination with safe defaults
       const { pageSize, unlimited } = this.resolvePaginationOptions(options, 50);
+
+      // Build proper filter array for Autotask API
+      const filters: any[] = [];
+
+      if (options.searchTerm) {
+        filters.push({
+          op: 'contains',
+          field: 'companyName',
+          value: options.searchTerm,
+        });
+      }
+
+      if (options.isActive !== undefined) {
+        filters.push({
+          op: 'eq',
+          field: 'isActive',
+          value: options.isActive,
+        });
+      }
+
+      // Default filter if none provided (required by Autotask API)
+      if (filters.length === 0) {
+        filters.push({
+          op: 'gte',
+          field: 'id',
+          value: 0,
+        });
+      }
 
       if (unlimited) {
         // Unlimited mode: fetch ALL companies via pagination
@@ -216,7 +244,7 @@ export class AutotaskService {
 
         while (hasMorePages) {
           const queryOptions = {
-            ...options,
+            filter: filters,
             pageSize: batchSize,
             page: currentPage,
           };
@@ -251,14 +279,22 @@ export class AutotaskService {
       } else {
         // Limited mode: fetch single page with specified/default pageSize
         const queryOptions = {
-          ...options,
+          filter: filters,
           pageSize: pageSize!,
         };
 
         this.logger.debug('Single page request with limit:', queryOptions);
 
         const result = await client.accounts.list(queryOptions as any);
-        const companies = (result.data as AutotaskCompany[]) || [];
+        let companies = (result.data as AutotaskCompany[]) || [];
+
+        // Safety cap: Autotask API sometimes ignores pageSize, enforce client-side
+        if (companies.length > pageSize!) {
+          this.logger.warn(
+            `API returned ${companies.length} companies but pageSize was ${pageSize}. Truncating to requested limit.`,
+          );
+          companies = companies.slice(0, pageSize!);
+        }
 
         this.logger.info(`Retrieved ${companies.length} companies (pageSize: ${pageSize})`);
         return companies;
@@ -322,7 +358,7 @@ export class AutotaskService {
    * - pageSize: N (1-500): Returns up to N contacts
    * - pageSize: -1: Returns ALL contacts (use with caution)
    */
-  async searchContacts(options: AutotaskQueryOptions = {}): Promise<AutotaskContact[]> {
+  async searchContacts(options: AutotaskQueryOptionsExtended = {}): Promise<AutotaskContact[]> {
     const client = await this.ensureClient();
 
     try {
@@ -348,7 +384,15 @@ export class AutotaskService {
           this.logger.debug(`Fetching contacts page ${currentPage}...`);
 
           const result = await client.contacts.list(queryOptions as any);
-          const contacts = (result.data as AutotaskContact[]) || [];
+          let contacts = (result.data as AutotaskContact[]) || [];
+
+          // Safety cap: Autotask API sometimes ignores pageSize, enforce client-side
+          if (contacts.length > pageSize!) {
+            this.logger.warn(
+              `API returned ${contacts.length} contacts but pageSize was ${pageSize}. Truncating to requested limit.`,
+            );
+            contacts = contacts.slice(0, pageSize!);
+          }
 
           if (contacts.length === 0) {
             hasMorePages = false;
@@ -379,7 +423,15 @@ export class AutotaskService {
         };
 
         const result = await client.contacts.list(queryOptions as any);
-        const contacts = (result.data as AutotaskContact[]) || [];
+        let contacts = (result.data as AutotaskContact[]) || [];
+
+        // Safety cap: Autotask API sometimes ignores pageSize, enforce client-side
+        if (contacts.length > pageSize!) {
+          this.logger.warn(
+            `API returned ${contacts.length} contacts but pageSize was ${pageSize}. Truncating to requested limit.`,
+          );
+          contacts = contacts.slice(0, pageSize!);
+        }
 
         this.logger.info(`Retrieved ${contacts.length} contacts (pageSize: ${pageSize})`);
         return contacts;
@@ -571,7 +623,15 @@ export class AutotaskService {
         this.logger.debug('Single page ticket request:', queryOptions);
 
         const result = await client.tickets.list(queryOptions);
-        const tickets = (result.data as AutotaskTicket[]) || [];
+        let tickets = (result.data as AutotaskTicket[]) || [];
+
+        // Safety cap: Autotask API sometimes ignores pageSize, enforce client-side
+        if (tickets.length > pageSize!) {
+          this.logger.warn(
+            `API returned ${tickets.length} tickets but pageSize was ${pageSize}. Truncating to requested limit.`,
+          );
+          tickets = tickets.slice(0, pageSize!);
+        }
 
         const optimizedTickets = tickets.map((ticket) => this.optimizeTicketDataAggressive(ticket));
 
@@ -1045,7 +1105,15 @@ export class AutotaskService {
         };
 
         const result = await client.resources.list(queryOptions as any);
-        const resources = (result.data as AutotaskResource[]) || [];
+        let resources = (result.data as AutotaskResource[]) || [];
+
+        // Safety cap: Autotask API sometimes ignores pageSize, enforce client-side
+        if (resources.length > pageSize!) {
+          this.logger.warn(
+            `API returned ${resources.length} resources but pageSize was ${pageSize}. Truncating to requested limit.`,
+          );
+          resources = resources.slice(0, pageSize!);
+        }
 
         this.logger.info(`Retrieved ${resources.length} resources (pageSize: ${pageSize})`);
         return resources;
@@ -1783,7 +1851,7 @@ export class AutotaskService {
       const { pageSize, unlimited } = this.resolvePaginationOptions(options, 25);
 
       // Build filter based on provided options
-      const filters = [];
+      const filters: any[] = [];
       if (options.submitterId) {
         filters.push({
           field: 'resourceId',
@@ -1881,7 +1949,7 @@ export class AutotaskService {
       const { pageSize, unlimited } = this.resolvePaginationOptions(options, 25);
 
       // Build filter based on provided options
-      const filters = [];
+      const filters: any[] = [];
       if (options.companyId) {
         filters.push({
           field: 'accountId',

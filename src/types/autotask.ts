@@ -339,6 +339,7 @@ export interface AutotaskQueryOptionsExtended extends AutotaskQueryOptions {
   status?: number;
   assignedResourceID?: number;
   unassigned?: boolean;
+  isActive?: boolean;
   // Note: Pagination is now enabled by default. Only specify pageSize to limit results.
 }
 

@@ -10,6 +10,35 @@
   - Preserve two-layer validation architecture (Zod + business validators) for ticket operations
   - See [MIGRATION.md](MIGRATION.md) for upgrade guide
 
+### Bug Fixes
+
+* **search-companies**: Fix searchTerm and isActive filters being ignored by Autotask API
+  - Root cause: Raw parameters were passed directly instead of building proper filter arrays
+  - Autotask API requires filters in format: `[{ op: 'contains', field: 'companyName', value: 'searchTerm' }]`
+  - Now builds proper filter arrays like searchTickets and searchProjects
+  - Filters now apply BEFORE pagination for efficient targeted searches
+  - Example: `searchTerm: "mandevco"` now correctly filters to companies containing "mandevco" instead of returning all 500+ companies
+  - Affected: searchCompanies (primary fix), searchContacts (consistency update)
+
+* **api-pagination**: Add client-side safety caps to enforce pageSize limits
+  - Autotask API sometimes ignores `pageSize` parameter (known issue with search queries)
+  - Client-side truncation ensures responses never exceed requested `pageSize`
+  - Prevents excessive token usage when LLMs call search tools without explicit limits
+  - Affected endpoints: companies, contacts, tickets, resources
+
+* **json-schema**: Fix zodToJsonSchema calls to use correct options object
+  - Previous: `zodToJsonSchema(schema, 'name')` (incorrect - string parameter)
+  - Fixed: `zodToJsonSchema(schema, { $refStrategy: 'none', target: 'jsonSchema7' })`
+  - Resolves tool registration issues in Smithery and other MCP hosts
+
+### Improvements
+
+* **llm-guidance**: Enhance tool descriptions for better LLM understanding
+  - Tool description now emphasizes filters apply BEFORE pagination
+  - searchTerm schema describes field behavior per entity type (company names, contact names, ticket numbers)
+  - isActive schema explains true/false/omitted behavior clearly
+  - Consistent with MCP best practices for actionable tool descriptions
+
 ### Documentation
 
 * Add comprehensive migration guide for tool name changes
