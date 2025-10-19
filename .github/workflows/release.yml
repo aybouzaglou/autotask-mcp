@@ -92,6 +92,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
 
+      - name: Pull semantic-release commits
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
       - name: Detect release version
         id: release_result
         run: |
