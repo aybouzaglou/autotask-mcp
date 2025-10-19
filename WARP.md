@@ -817,13 +817,21 @@ docker-compose up
 
 ## Release Process
 
-### Automated Releases with semantic-release
+### Intentional Releases Only
 
-This project uses **semantic-release** with a **custom configuration** that requires specific commit message formats to trigger releases.
+This project uses **semantic-release** with a **custom configuration** that ensures releases are **intentional and controlled**.
+
+**Key principle:** Releases happen only when explicitly requested, not automatically on every feature or fix.
+
+#### Why Custom Configuration?
+
+- **Prevents accidental releases** - Standard `feat:` and `fix:` commits do NOT trigger releases
+- **Requires explicit intent** - You must use `release:` commit type to create a release
+- **Full control** - Choose when to release based on project needs, not commit types
 
 #### Release Configuration
 
-The `.releaserc.json` configuration **disables** standard semantic-release commit types (`feat:`, `fix:`, etc.) and instead uses a custom `release:` type:
+The `.releaserc.json` configuration **disables** standard semantic-release commit types and uses a custom `release:` type:
 
 **Triggering Releases:**
 - `release(major):` → Major version bump (breaking changes)
@@ -873,6 +881,20 @@ When you push a `release:` commit to `main`, the GitHub Actions workflow automat
    - `ghcr.io/aybouzaglou/autotask-mcp:vX.Y.Z`
 4. **Security** - Runs Trivy vulnerability scan and uploads to GitHub Security
 
+#### Where Releases Are Published
+
+When a release is created, artifacts are published to multiple locations:
+
+1. **GitHub Releases** - https://github.com/aybouzaglou/autotask-mcp/releases
+   - Release notes and CHANGELOG
+   - Git tags (e.g., `v3.0.0`)
+   
+2. **Docker Images (GHCR)** - https://github.com/aybouzaglou/autotask-mcp/pkgs/container/autotask-mcp
+   - `ghcr.io/aybouzaglou/autotask-mcp:latest`
+   - `ghcr.io/aybouzaglou/autotask-mcp:vX.Y.Z`
+   
+3. **Git Tags** - Automatically created and pushed to repository
+
 #### Checking Release Status
 
 ```bash
@@ -887,6 +909,9 @@ gh release list --limit 5
 
 # View specific release
 gh release view vX.Y.Z
+
+# Check Docker images
+gh api /users/aybouzaglou/packages/container/autotask-mcp/versions --jq '.[].metadata.container.tags[]' | head -5
 ```
 
 #### Manual Release (Emergency)

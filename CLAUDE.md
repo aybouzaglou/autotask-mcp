@@ -27,7 +27,11 @@ TypeScript 5.3 targeting Node.js 20+: Follow standard conventions
 
 ## Release Process
 
-**Custom semantic-release configuration** - Standard commit types (`feat:`, `fix:`) DO NOT trigger releases.
+**IMPORTANT:** Releases are intentional and controlled - they happen ONLY when explicitly requested.
+
+**Custom semantic-release configuration:**
+- Standard commit types (`feat:`, `fix:`) **DO NOT** trigger releases
+- Use `release:` commit type to create releases when needed
 
 **Trigger releases with:**
 - `release(major):` → Breaking changes (bumps X.0.0)
@@ -42,7 +46,12 @@ BREAKING CHANGE: All tools now require 'autotask_' prefix."
 git push origin main
 ```
 
-Automated workflow: Test → Release → Docker build → Security scan
+**Automated workflow:** Test → Release → Docker build → Security scan
+
+**Release locations:**
+- GitHub: https://github.com/aybouzaglou/autotask-mcp/releases
+- Docker: `ghcr.io/aybouzaglou/autotask-mcp:latest` or `:vX.Y.Z`
+- Check: `gh release list` or `gh release view vX.Y.Z`
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
