@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/aybouzaglou/autotask-mcp/compare/v3.0.1...v3.0.2) (2025-10-19)
+
+
+### Bug Fixes
+
+* **ci:** pull semantic-release commits before detecting version change… ([d96552e](https://github.com/aybouzaglou/autotask-mcp/commit/d96552e2913af9ec1beaae117589fb6bc4f35201))
+
 ## [3.0.1](https://github.com/aybouzaglou/autotask-mcp/compare/v3.0.0...v3.0.1) (2025-10-19)
 
 
