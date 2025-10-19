@@ -1,3 +1,10 @@
+# [3.0.0](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.5...v3.0.0) (2025-10-19)
+
+
+### Bug Fixes
+
+* **search-companies:** build proper filter arrays for Autotask API ([65a1b95](https://github.com/aybouzaglou/autotask-mcp/commit/65a1b9545ca2b100d7a9707abf4d2ffcf0c0a108))
+
 # [2.2.0](https://github.com/aybouzaglou/autotask-mcp/compare/v2.1.5...v2.2.0) (2025-10-18)
 
 ### Features
